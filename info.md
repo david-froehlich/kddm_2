@@ -20,7 +20,7 @@ Questions about the topic: Roman Kern
 ```
 
 # Goals
-
+- Entity identification
 - Find similar/relevant documents
 - Entity linking
 
@@ -52,9 +52,23 @@ Common steps for all:
 - Find categories for current document 
   - Disambiguation using entities with similar categories
     - Ranking by number of occurrences?
-    - `Entity-Linking via Graph-Distance Minimization`?
+- `Entity-Linking via Graph-Distance Minimization`?
+	- no clustering required
+	- (un)-directed graph of wikipedia nodes (links are edges)
+		- each entity has a list of candidates
+		- choose set of candidates with minimal distance (hop-count)
 
 - Build vector space model with documents and entities
   - apply clustering
   - minimize distance of entities
+
+# Keep in mind
+- Wikipedia has a list of entity-types that should not be linked:
+`	https://en.wikipedia.org/wiki/Wikipedia:Manual_of_Style/Linking#Overlinking_and_underlinking`
+	might be a good idea to consider these
+- can we create an entity-database with Homonyms from the wikipedia-db?
+
+
+# sources:
+`https://digital.library.unt.edu/ark:/67531/metadc31001/m2/1/high_res_d/Mihalcea-2007-Wikify-Linking_Documents_to_Encyclopedic.pdf`
 
