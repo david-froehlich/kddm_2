@@ -20,8 +20,9 @@ Questions about the topic: Roman Kern
 ```
 
 # Goals
-- Entity identification
+
 - Find similar/relevant documents
+- Entity identification
 - Entity linking
 
 # Possible approaches
@@ -35,9 +36,7 @@ Questions about the topic: Roman Kern
   - apply on current doc
   - look for documents with similar links
 
-## Entity linking
-
-### Named entity identification
+## Entity identification
 
 - Approach from Babelfy:
   - Apply POS tagging
@@ -45,7 +44,7 @@ Questions about the topic: Roman Kern
     - at least 1 noun
     - contains substring of entity synonym
 
-### Find entity links
+## Entity linking
 
 - Create entity to category mapping from dataset
   - Find documents with entity
@@ -68,12 +67,14 @@ Questions about the topic: Roman Kern
   - minimize distance of entities
 
 # Keep in mind
+
 - Wikipedia has a list of entity-types that should not be linked:
-`	https://en.wikipedia.org/wiki/Wikipedia:Manual_of_Style/Linking#Overlinking_and_underlinking`
-	might be a good idea to consider these
-- can we create an entity-database with Homonyms from the wikipedia-db?
+[Overlinking/Underlinking](https://en.wikipedia.org/wiki/Wikipedia:Manual_of_Style/Linking#Overlinking_and_underlinking)
+  - might be a good idea to consider these
+- can we create an entity-database with Homonyms/synonyms from the wikipedia-db?
 
 
 # sources:
-`https://digital.library.unt.edu/ark:/67531/metadc31001/m2/1/high_res_d/Mihalcea-2007-Wikify-Linking_Documents_to_Encyclopedic.pdf`
+
+[wikify](https://digital.library.unt.edu/ark:/67531/metadc31001/m2/1/high_res_d/Mihalcea-2007-Wikify-Linking_Documents_to_Encyclopedic.pdf)
 
