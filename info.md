@@ -37,10 +37,15 @@ Questions about the topic: Roman Kern
 
 ## Entity linking
 
-Common steps for all:
+### Named entity identification
 
-- Extract named entities
-  - How to do that?
+- Approach from Babelfy:
+  - Apply POS tagging
+  - Sequences of 5 words that contain:
+    - at least 1 noun
+    - contains substring of entity synonym
+
+### Find entity links
 
 - Create entity to category mapping from dataset
   - Find documents with entity
