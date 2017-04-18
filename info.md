@@ -1,0 +1,60 @@
+# Task: Information Retrieval - Blog Search
+
+```
+Task: Provide a list of matching resources for a given piece of text. The goal
+is to produce a ranked list of items relevant to a context.
+
+Use-Case: Consider a user writing a text, for instance a blog post. While
+typing the user is presented a list of suggested items, which might be relevant
+or helpful.
+
+Suggested data-sets: Same as previous task.
+
+Framework: For processing of the text you might use: Sensium
+
+Advanced: Identify Wikipedia concepts within the written text. For example, if
+          the text contains the word Graz it should be linked to the corresponding
+          Wikipedia page.
+
+Questions about the topic: Roman Kern
+```
+
+# Goals
+
+- Find similar/relevant documents
+- Entity linking
+
+# Possible approaches
+
+## Similar/relevant docs
+
+- Create document-term matrix, apply fuzzy co-clustering
+  - Find documents with similar probability distributions
+  - Open question: How to get good ordering?
+- Reuse EL information
+  - apply on current doc
+  - look for documents with similar links
+
+## Entity linking
+
+Common steps for all:
+
+- Extract named entities
+  - How to do that?
+
+- Create entity to category mapping from dataset
+  - Find documents with entity
+  - Extract document categories
+    - Count occurrences for weight?
+  - How to get categories?
+    - Reuse Wikipedia categories
+    - Apply clustering to get categories
+- Find categories for current document 
+  - Disambiguation using entities with similar categories
+    - Ranking by number of occurrences?
+    - `Entity-Linking via Graph-Distance Minimization`?
+
+- Build vector space model with documents and entities
+  - apply clustering
+  - minimize distance of entities
+
