@@ -36,6 +36,9 @@ Questions about the topic: Roman Kern
   - apply on current doc
   - look for documents with similar links
 
+Canopy clustering
+
+
 ## Entity identification
 
 - Approach from Babelfy:
@@ -43,6 +46,12 @@ Questions about the topic: Roman Kern
   - Sequences of 5 words that contain:
     - at least 1 noun
     - contains substring of entity synonym
+    
+
+## Other approaches
+
+- `dbspotlight`
+- `tagme`
 
 ## Entity linking
 
@@ -58,13 +67,19 @@ Questions about the topic: Roman Kern
     - Ranking by number of occurrences?
 - `Entity-Linking via Graph-Distance Minimization`?
 	- no clustering required
-	- (un)-directed graph of wikipedia nodes (links are edges)
+	- (un)-directed graph of Wikipedia nodes (links are edges)
 		- each entity has a list of candidates
 		- choose set of candidates with minimal distance (hop-count)
 
 - Build vector space model with documents and entities
   - apply clustering
   - minimize distance of entities
+
+
+# Evaluation
+
+- Compare with real Wikipedia article (similarity measure)
+
 
 # Keep in mind
 
