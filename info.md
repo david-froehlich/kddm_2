@@ -67,7 +67,7 @@ Canopy clustering
     - Ranking by number of occurrences?
 - `Entity-Linking via Graph-Distance Minimization`?
 	- no clustering required
-	- (un)-directed graph of Wikipedia nodes (links are edges)
+	- graph of Wikipedia nodes (links are edges)
 		- each entity has a list of candidates
 		- choose set of candidates with minimal distance (hop-count)
 
