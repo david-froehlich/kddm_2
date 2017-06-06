@@ -1,38 +1,50 @@
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Set;
 
 public class WikiPage implements Serializable {
     private String title;
     private String text;
     //terms that just occur as plain-text, not linked
-    private Set<String> occuringTerms;
+    private Map<String, Integer> occuringTerms;
+    private Map<String, Integer> linkedTerms;
+    final boolean EOS;
 
-    //TODO refactor to map, we need the count too...
-    private Set<String> linkedTerms;
+
 
     public WikiPage() {
+        EOS = false;
     }
 
-    public WikiPage(String title, String text, Set<String> terms, Set<String> linkedTerms) {
+    private WikiPage(boolean EOS) {
+        this.EOS = EOS;
+    }
+
+    public static WikiPage getEOSPage() {
+        return new WikiPage(true);
+    }
+
+    public WikiPage(String title, String text, Map<String, Integer> terms, Map<String, Integer> linkedTerms) {
         this.title = title;
         this.text = text;
         this.occuringTerms = terms;
         this.linkedTerms = linkedTerms;
+        EOS = false;
     }
 
-    public Set<String> getLinkedTerms() {
+    public Map<String, Integer> getLinkedTerms() {
         return linkedTerms;
     }
 
-    public void setOccuringTerms(Set<String> occuringTerms) {
+    public void setOccuringTerms(Map<String, Integer> occuringTerms) {
         this.occuringTerms = occuringTerms;
     }
 
-    public void setLinkedTerms(Set<String> linkedTerms) {
+    public void setLinkedTerms(Map<String, Integer> linkedTerms) {
         this.linkedTerms = linkedTerms;
     }
 
-    public Set<String> getOccuringTerms() {
+    public Map<String, Integer> getOccuringTerms() {
         return occuringTerms;
     }
 

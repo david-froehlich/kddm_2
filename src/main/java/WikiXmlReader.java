@@ -9,10 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,12 +57,12 @@ public class WikiXmlReader {
                 this.handleStartElement(xmlEvent.asStartElement());
             } else if (xmlEvent.isEndElement()) {
                 EndElement endElement = xmlEvent.asEndElement();
-
-                if ("page".equals(endElement.getName().getLocalPart())) {
+                if ("page".equals(endElement.getName().getLocalPart()) && currentPage != null) {
                     if (!currentPage.isValid()) {
                         throw new IllegalArgumentException("WikiPage wasn't correctly read");
                     }
-                        return currentPage;
+                    numPages++;
+                    return currentPage;
                 }
             }
         }
@@ -80,16 +77,25 @@ public class WikiXmlReader {
         switch (tag) {
             case "page":
                 currentPage = new WikiPage();
-                numPages++;
                 break;
             case "title":
-                currentPage.setTitle(
-                        xmlEventReader.nextEvent().asCharacters().getData().toLowerCase().trim());
+                if (currentPage != null) {
+                    currentPage.setTitle(
+                            xmlEventReader.nextEvent().asCharacters().getData().toLowerCase().trim());
+                }
                 break;
             case "text":
-                String text = this.getTextForPage();
-                this.parseText(text);
+                if (currentPage != null) {
+                    String text = this.getTextForPage();
+                    this.parseText(text);
+                }
                 break;
+            case "ns":
+                String ns = xmlEventReader.nextEvent().asCharacters().getData();
+                if (!"0".equals(ns)) {
+                    //page is not an article
+                    currentPage = null;
+                }
         }
     }
 
@@ -97,7 +103,7 @@ public class WikiXmlReader {
         StringBuilder builder = new StringBuilder();
 
         XMLEvent xmlEvent = xmlEventReader.nextEvent();
-        while(xmlEvent.isCharacters()) {
+        while (xmlEvent.isCharacters()) {
             builder.append(xmlEvent.asCharacters().getData());
             xmlEvent = xmlEventReader.nextEvent();
         }
@@ -111,10 +117,15 @@ public class WikiXmlReader {
     }
 
     private void parseLinkedOccurences() {
-        Set<String> linkedTerms = new HashSet<>();
+        Map<String, Integer> linkedTerms = new HashMap<>();
         Matcher matcher = WikiUtils.linkRegex.matcher(currentPage.getText());
-        while(matcher.find()) {
-            linkedTerms.add(matcher.group(1));
+        while (matcher.find()) {
+            String term = matcher.group(1);
+            Integer count = linkedTerms.get(term);
+            if (count == null) {
+                count = 0;
+            }
+            linkedTerms.put(term, count + 1);
         }
         currentPage.setLinkedTerms(linkedTerms);
     }

@@ -1,52 +1,35 @@
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
+import java.util.concurrent.BlockingQueue;
 
 public class WikiPageProducer implements Runnable {
-    private Queue<WikiPage> unindexedPages;
-    private AtomicBoolean isDone;
+    private BlockingQueue<WikiPage> unindexedPages;
     private Set<String> vocabulary;
     private WikiXmlReader reader;
-    final Condition notFull, notEmpty;
-    final Lock lock;
 
-    public WikiPageProducer(Queue<WikiPage> unindexedPages, AtomicBoolean isDone, Set<String> vocabulary,
-                            InputStream xmlFileInputStream, Condition notFull, Condition notEmpty, Lock lock) throws IOException, XMLStreamException {
+    public WikiPageProducer(BlockingQueue<WikiPage> unindexedPages, Set<String> vocabulary,
+                            InputStream xmlFileInputStream) throws IOException, XMLStreamException {
         this.unindexedPages = unindexedPages;
-        this.isDone = isDone;
         this.vocabulary = vocabulary;
-        this.notFull = notFull;
-        this.notEmpty = notEmpty;
-        this.lock = lock;
         this.reader = new WikiXmlReader(xmlFileInputStream, vocabulary, 100);
     }
 
 
     private void produce() throws InterruptedException, IOException, XMLStreamException {
         while (true) {
-            lock.lock();
-            while (unindexedPages.size() == WikiIndexingController.QUEUE_LENGTH) {
-                notFull.await();
-            }
-            lock.unlock();
-
             WikiPage nextPage = this.reader.getNextPage();
-            lock.lock();
+
             if (nextPage == null) {
-                isDone.set(true);
-                notEmpty.signal();
-                lock.unlock();
+                int i = WikiIndexingController.CONSUMER_COUNT;
+                while (i-- > 0) {
+                    this.unindexedPages.put(WikiPage.getEOSPage());
+                }
+                System.out.println("producer done");
                 return;
             }
-
-            this.unindexedPages.add(nextPage);
-            notEmpty.signal();
-            lock.unlock();
+            this.unindexedPages.put(nextPage);
         }
     }
 

@@ -1,5 +1,8 @@
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
@@ -14,13 +17,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.BlockingQueue;
 import java.util.stream.Stream;
 
 public class WikiIndexingController {
@@ -31,20 +30,24 @@ public class WikiIndexingController {
     final static String TERM_OCCURENCE_FIELD_NAME = "term_occurence";
     //name of lucene field that stores linked terms
     final static String TERM_LINKING_FIELD_NAME = "term_linking";
-    private final static String DIRECTORY_PATH = "/tmp/lucene_dir";
-
+    final static String DIRECTORY_PATH = "/tmp/lucene_dir";
+    //final static String DIRECTORY_PATH = "/home/david/mawp";
     private final static String VOCABULARY_PATH = "vocabulary.txt";
 
-    private final static String XML_FILE_PATH = "test-pages.xml.bz2";
+    private final static String XML_FILE_PATH = "temp.xml.bz2";
+    //private final static String XML_FILE_PATH = "simplewiki-20170501-pages-meta-current.xml.bz2";
+    final static int CONSUMER_COUNT = 1;
 
-    private Queue<WikiPage> unindexedPages;
-    private AtomicBoolean producerDone;
+    static final FieldType INDEX_FIELD_TYPE = new FieldType();
+    static {
+        INDEX_FIELD_TYPE.setStored(true);
+        INDEX_FIELD_TYPE.setTokenized(false);
+        INDEX_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS_AND_FREQS);
+    }
 
-    final Lock lock = new ReentrantLock();
-    final Condition notFull  = lock.newCondition();
-    final Condition notEmpty = lock.newCondition();
+    private Thread producer;
+    private Thread[] consumers;
 
-    private Thread producer, consumer;
     private IndexWriter indexWriter;
 
     private Set<String> readVocabulary() {
@@ -60,17 +63,23 @@ public class WikiIndexingController {
     }
 
     private void startThreads() throws IOException, XMLStreamException {
-        producerDone = new AtomicBoolean(false);
-        this.unindexedPages = new ArrayBlockingQueue<>(QUEUE_LENGTH);
+        BlockingQueue<WikiPage> unindexedPages = new ArrayBlockingQueue<>(QUEUE_LENGTH);
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(XML_FILE_PATH);
 
-        producer = new Thread(new WikiPageProducer(unindexedPages, producerDone, readVocabulary(), inputStream, notFull, notEmpty, lock));
-        consumer = new Thread(new WikiPageIndexer(unindexedPages, producerDone, indexWriter, notFull, notEmpty, lock));
-
-        producer.start();        consumer.start();
+        producer = new Thread(new WikiPageProducer(unindexedPages, readVocabulary(), inputStream));
+        consumers = new Thread[CONSUMER_COUNT];
+        producer.start();
+        for (int i = 0; i < CONSUMER_COUNT; i++) {
+            consumers[i] = new Thread(new WikiPageIndexer(unindexedPages, indexWriter));
+            consumers[i].start();
+        }
     }
 
     private void createdLuceneDirectory(Path directoryPath) throws IOException {
+        File f = directoryPath.toFile();
+        if(f == null || !f.isDirectory()) {
+            Files.createDirectories(directoryPath);
+        }
         for(File file: directoryPath.toFile().listFiles())
             if (!file.isDirectory())
                 file.delete();
@@ -87,7 +96,10 @@ public class WikiIndexingController {
 
         try {
             producer.join();
-            consumer.join();
+            for (Thread t : consumers) {
+                t.join();
+            }
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -96,9 +108,6 @@ public class WikiIndexingController {
 
     public WikiIndexingController() throws IOException, XMLStreamException {
         Path directoryPath = Paths.get(DIRECTORY_PATH);
-
         this.createdLuceneDirectory(directoryPath);
-
-
     }
 }

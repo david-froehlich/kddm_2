@@ -12,9 +12,7 @@ import org.apache.lucene.util.Attribute;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 class WikipediaFilter extends FilteringTokenFilter {
     public WikipediaFilter(TokenStream in) {
@@ -49,12 +47,17 @@ public class VocabTokenizer extends FilteringTokenFilter {
         this.vocabulary = vocabulary;
     }
 
-    public Set<String> getTokensInStream() throws IOException {
-        Set<String> tokensInStream = new HashSet<>();
+    public Map<String, Integer> getTokensInStream() throws IOException {
+        Map<String, Integer> tokensInStream = new HashMap<>();
 
         while(this.incrementToken()) {
             CharTermAttribute attribute = this.getAttribute(CharTermAttribute.class);
-            tokensInStream.add(attribute.toString());
+            String term = attribute.toString();
+            Integer count = tokensInStream.get(term);
+            if (count == null) {
+                count = 0;
+            }
+            tokensInStream.put(term, count + 1);
         }
         return tokensInStream;
     }
