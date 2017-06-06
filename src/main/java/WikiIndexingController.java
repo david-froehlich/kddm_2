@@ -6,8 +6,10 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 import javax.xml.stream.XMLStreamException;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,7 +33,7 @@ public class WikiIndexingController {
     final static String TERM_LINKING_FIELD_NAME = "term_linking";
     private final static String DIRECTORY_PATH = "/tmp/lucene_dir";
 
-    private final static String VOCABULARY_PATH = "/tmp/vocabulary.txt";
+    private final static String VOCABULARY_PATH = "vocabulary.txt";
 
     private final static String XML_FILE_PATH = "test-pages.xml.bz2";
 
@@ -45,13 +47,13 @@ public class WikiIndexingController {
     private Thread producer, consumer;
     private IndexWriter indexWriter;
 
-
-
     private Set<String> readVocabulary() {
         Set<String> vocabulary = new HashSet<>();
-        try (Stream<String> stream = Files.lines(Paths.get(VOCABULARY_PATH))) {
-            stream.forEach(vocabulary::add);
-        } catch (IOException e) {
+
+        try (Stream<String> stream = Files.lines(
+                Paths.get(getClass().getClassLoader().getResource(VOCABULARY_PATH).toURI()))) {
+            stream.forEach(s -> vocabulary.add(s.toLowerCase()));
+        } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
         }
         return vocabulary;
@@ -65,11 +67,14 @@ public class WikiIndexingController {
         producer = new Thread(new WikiPageProducer(unindexedPages, producerDone, readVocabulary(), inputStream, notFull, notEmpty, lock));
         consumer = new Thread(new WikiPageIndexer(unindexedPages, producerDone, indexWriter, notFull, notEmpty, lock));
 
-        producer.start();
-        consumer.start();
+        producer.start();        consumer.start();
     }
 
     private void createdLuceneDirectory(Path directoryPath) throws IOException {
+        for(File file: directoryPath.toFile().listFiles())
+            if (!file.isDirectory())
+                file.delete();
+
         Analyzer analyzer = new StandardAnalyzer();
 
         Directory directory = FSDirectory.open(directoryPath);
@@ -84,7 +89,6 @@ public class WikiIndexingController {
             producer.join();
             consumer.join();
         } catch (InterruptedException e) {
-            //TODO think about this
             e.printStackTrace();
         }
     }

@@ -54,7 +54,7 @@ public class WikiXmlReader {
 
 
     public WikiPage getNextPage() throws XMLStreamException, IOException {
-        while (xmlEventReader.hasNext() && numPages++ != maxPages) {
+        while (xmlEventReader.hasNext()) {
             XMLEvent xmlEvent = xmlEventReader.nextEvent();
             if (xmlEvent.isStartElement()) {
                 this.handleStartElement(xmlEvent.asStartElement());
@@ -83,7 +83,8 @@ public class WikiXmlReader {
                 numPages++;
                 break;
             case "title":
-                currentPage.setTitle(xmlEventReader.nextEvent().asCharacters().getData());
+                currentPage.setTitle(
+                        xmlEventReader.nextEvent().asCharacters().getData().toLowerCase().trim());
                 break;
             case "text":
                 String text = this.getTextForPage();
@@ -100,7 +101,7 @@ public class WikiXmlReader {
             builder.append(xmlEvent.asCharacters().getData());
             xmlEvent = xmlEventReader.nextEvent();
         }
-        return builder.toString();
+        return builder.toString().toLowerCase();
     }
 
     private void parseText(String text) throws IOException {

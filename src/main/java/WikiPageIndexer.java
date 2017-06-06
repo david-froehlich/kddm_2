@@ -1,7 +1,6 @@
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexableField;
 
 import java.io.IOException;
 import java.util.Queue;
@@ -37,11 +36,11 @@ public class WikiPageIndexer implements Runnable{
         Document doc = new Document();
         for(String currentTerm : page.getOccuringTerms()) {
             //TODO check if reusing the same fieldtype increases performance
-            doc.add(new Field(WikiIndexingController.TERM_OCCURENCE_FIELD_NAME, currentTerm, new FieldType()));
+            doc.add(new StringField(WikiIndexingController.TERM_OCCURENCE_FIELD_NAME, currentTerm, Field.Store.YES));
         }
 
         for(String currentTerm : page.getLinkedTerms()) {
-            doc.add(new Field(WikiIndexingController.TERM_LINKING_FIELD_NAME, currentTerm, new FieldType()));
+            doc.add(new StringField(WikiIndexingController.TERM_LINKING_FIELD_NAME, currentTerm, Field.Store.YES));
         }
 
         indexWriter.addDocument(doc);
@@ -52,7 +51,7 @@ public class WikiPageIndexer implements Runnable{
      */
     private void consume() throws InterruptedException, IOException {
 
-        while(indexedPages++ < MAX_INDEXED_PAGES && MAX_INDEXED_PAGES != -1) {
+        while(indexedPages++ < MAX_INDEXED_PAGES || MAX_INDEXED_PAGES == -1) {
             lock.lock();
             WikiPage nextPage = unindexedPages.poll();
             while (nextPage == null) {
@@ -76,6 +75,7 @@ public class WikiPageIndexer implements Runnable{
     public void run() {
         try {
             this.consume();
+            indexWriter.close();
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
             //TODO think about this
