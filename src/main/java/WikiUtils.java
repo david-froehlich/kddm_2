@@ -1,5 +1,5 @@
-import java.util.Set;
 import java.util.regex.Pattern;
+
 public class WikiUtils {
     protected static Pattern linkRegex;
 

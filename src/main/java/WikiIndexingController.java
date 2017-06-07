@@ -1,7 +1,6 @@
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -39,6 +38,7 @@ public class WikiIndexingController {
     final static int CONSUMER_COUNT = 1;
 
     static final FieldType INDEX_FIELD_TYPE = new FieldType();
+
     static {
         INDEX_FIELD_TYPE.setStored(true);
         INDEX_FIELD_TYPE.setTokenized(false);
@@ -77,10 +77,10 @@ public class WikiIndexingController {
 
     private void createdLuceneDirectory(Path directoryPath) throws IOException {
         File f = directoryPath.toFile();
-        if(f == null || !f.isDirectory()) {
+        if (f == null || !f.isDirectory()) {
             Files.createDirectories(directoryPath);
         }
-        for(File file: directoryPath.toFile().listFiles())
+        for (File file : directoryPath.toFile().listFiles())
             if (!file.isDirectory())
                 file.delete();
 

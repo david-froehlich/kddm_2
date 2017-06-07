@@ -1,6 +1,5 @@
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Set;
 
 public class WikiPage implements Serializable {
     private String title;
@@ -9,7 +8,6 @@ public class WikiPage implements Serializable {
     private Map<String, Integer> occuringTerms;
     private Map<String, Integer> linkedTerms;
     final boolean EOS;
-
 
 
     public WikiPage() {

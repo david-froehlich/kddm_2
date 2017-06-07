@@ -1,7 +1,3 @@
-import org.apache.lucene.codecs.FilterCodec;
-import org.apache.lucene.codecs.TermVectorsFormat;
-import org.apache.lucene.codecs.lucene62.Lucene62Codec;
-
 /**
  * Created by david on 6/7/17.
  */

@@ -1,18 +1,16 @@
 import org.apache.lucene.analysis.FilteringTokenFilter;
-import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.shingle.ShingleFilter;
-import org.apache.lucene.analysis.standard.StandardFilter;
-import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
-import org.apache.lucene.util.Attribute;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 class WikipediaFilter extends FilteringTokenFilter {
     public WikipediaFilter(TokenStream in) {
@@ -50,7 +48,7 @@ public class VocabTokenizer extends FilteringTokenFilter {
     public Map<String, Integer> getTokensInStream() throws IOException {
         Map<String, Integer> tokensInStream = new HashMap<>();
 
-        while(this.incrementToken()) {
+        while (this.incrementToken()) {
             CharTermAttribute attribute = this.getAttribute(CharTermAttribute.class);
             String term = attribute.toString();
             Integer count = tokensInStream.get(term);

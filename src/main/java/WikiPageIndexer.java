@@ -1,15 +1,13 @@
-import org.apache.lucene.document.*;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexWriter;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
 
-public class WikiPageIndexer implements Runnable{
+public class WikiPageIndexer implements Runnable {
     // set to -1 for infinite
     // also won't work for multiple indexer-threads cause i'm lazy
     private static final int MAX_INDEXED_PAGES = -1;
@@ -27,7 +25,7 @@ public class WikiPageIndexer implements Runnable{
 
     private void indexPage(WikiPage page) throws IOException {
         Document doc = new Document();
-        for(Map.Entry<String, Integer> entry : page.getOccuringTerms().entrySet()) {
+        for (Map.Entry<String, Integer> entry : page.getOccuringTerms().entrySet()) {
             String currentTerm = entry.getKey();
             Integer count = entry.getValue();
             for (int i = 0; i < count; i++) {
@@ -38,7 +36,7 @@ public class WikiPageIndexer implements Runnable{
             }
         }
 
-        for(Map.Entry<String, Integer> entry : page.getLinkedTerms().entrySet()) {
+        for (Map.Entry<String, Integer> entry : page.getLinkedTerms().entrySet()) {
             String currentTerm = entry.getKey();
             Integer count = entry.getValue();
             for (int i = 0; i < count; i++) {
@@ -56,7 +54,7 @@ public class WikiPageIndexer implements Runnable{
     private void consume() throws InterruptedException, IOException {
 
         int i = 0;
-        while((i = WikiPageIndexer.indexedPages.incrementAndGet()) < MAX_INDEXED_PAGES || MAX_INDEXED_PAGES == -1) {
+        while ((i = WikiPageIndexer.indexedPages.incrementAndGet()) < MAX_INDEXED_PAGES || MAX_INDEXED_PAGES == -1) {
             WikiPage nextPage = unindexedPages.take();
             if (nextPage.EOS) {
                 System.out.println("Consumer has eaten all souls!");
