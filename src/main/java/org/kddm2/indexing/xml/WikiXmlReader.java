@@ -1,9 +1,9 @@
 package org.kddm2.indexing.xml;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
-import org.kddm2.indexing.lucene.VocabTokenizer;
 import org.kddm2.indexing.WikiPage;
 import org.kddm2.indexing.WikiUtils;
+import org.kddm2.indexing.lucene.VocabTokenizer;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;

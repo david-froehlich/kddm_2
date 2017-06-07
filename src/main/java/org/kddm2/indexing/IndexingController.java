@@ -17,7 +17,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -47,7 +49,7 @@ class IndexingController {
     }
 
     private Thread producer;
-    private Thread[] consumers;
+    private List<Thread> consumers;
 
     private IndexWriter indexWriter;
 
@@ -65,14 +67,14 @@ class IndexingController {
 
     private void startThreads() throws IOException, XMLStreamException {
         BlockingQueue<IndexingTask> indexingTasks = new ArrayBlockingQueue<>(QUEUE_LENGTH);
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(XML_FILE_PATH);
+        InputStream wikiInputStream = getClass().getClassLoader().getResourceAsStream(XML_FILE_PATH);
 
-        producer = new Thread(new WikiPageProducer(indexingTasks, readVocabulary(), inputStream));
-        consumers = new Thread[CONSUMER_COUNT];
+        producer = new Thread(new WikiPageProducer(indexingTasks, readVocabulary(), wikiInputStream));
         producer.start();
+        consumers = new ArrayList<>();
         for (int i = 0; i < CONSUMER_COUNT; i++) {
-            consumers[i] = new Thread(new WikiPageIndexer(indexingTasks, indexWriter));
-            consumers[i].start();
+            consumers.add(new Thread(new WikiPageIndexer(indexingTasks, indexWriter)));
+            consumers.get(consumers.size() - 1).start();
         }
     }
 
@@ -95,10 +97,10 @@ class IndexingController {
 
         try {
             producer.join();
-            for (Thread t : consumers) {
-                t.join();
-            }
 
+            for (Thread thread : consumers) {
+                thread.join();
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -3,10 +3,6 @@ package org.kddm2.indexing;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class IndexingTest {

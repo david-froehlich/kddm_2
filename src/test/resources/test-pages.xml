@@ -1,53 +1,55 @@
-<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.10/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mediawiki.org/xml/export-0.10/ http://www.mediawiki.org/xml/export-0.10.xsd" version="0.10" xml:lang="en">
-  <siteinfo>
-    <sitename>Wikipedia</sitename>
-    <dbname>simplewiki</dbname>
-    <base>https://simple.wikipedia.org/wiki/Main_Page</base>
-    <generator>MediaWiki 1.29.0-wmf.21</generator>
-    <case>first-letter</case>
-    <namespaces>
-      <namespace key="-2" case="first-letter">Media</namespace>
-      <namespace key="-1" case="first-letter">Special</namespace>
-      <namespace key="0" case="first-letter" />
-      <namespace key="1" case="first-letter">Talk</namespace>
-      <namespace key="2" case="first-letter">User</namespace>
-      <namespace key="3" case="first-letter">User talk</namespace>
-      <namespace key="4" case="first-letter">Wikipedia</namespace>
-      <namespace key="5" case="first-letter">Wikipedia talk</namespace>
-      <namespace key="6" case="first-letter">File</namespace>
-      <namespace key="7" case="first-letter">File talk</namespace>
-      <namespace key="8" case="first-letter">MediaWiki</namespace>
-      <namespace key="9" case="first-letter">MediaWiki talk</namespace>
-      <namespace key="10" case="first-letter">Template</namespace>
-      <namespace key="11" case="first-letter">Template talk</namespace>
-      <namespace key="12" case="first-letter">Help</namespace>
-      <namespace key="13" case="first-letter">Help talk</namespace>
-      <namespace key="14" case="first-letter">Category</namespace>
-      <namespace key="15" case="first-letter">Category talk</namespace>
-      <namespace key="828" case="first-letter">Module</namespace>
-      <namespace key="829" case="first-letter">Module talk</namespace>
-      <namespace key="2300" case="first-letter">Gadget</namespace>
-      <namespace key="2301" case="first-letter">Gadget talk</namespace>
-      <namespace key="2302" case="case-sensitive">Gadget definition</namespace>
-      <namespace key="2303" case="case-sensitive">Gadget definition talk</namespace>
-      <namespace key="2600" case="first-letter">Topic</namespace>
-    </namespaces>
-  </siteinfo>
-  <page>
-    <title>April</title>
-    <ns>0</ns>
-    <id>1</id>
-    <revision>
-      <id>5657078</id>
-      <parentid>5620787</parentid>
-      <timestamp>2017-04-09T22:40:49Z</timestamp>
-      <contributor>
-        <ip>2602:306:3433:C7F0:BDDA:7F0B:C977:5480</ip>
-      </contributor>
-      <comment>/* The Month */</comment>
-      <model>wikitext</model>
-      <format>text/x-wiki</format>
-      <text xml:space="preserve">{{monththisyear|4}}
+<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.10/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.mediawiki.org/xml/export-0.10/ http://www.mediawiki.org/xml/export-0.10.xsd"
+           version="0.10" xml:lang="en">
+    <siteinfo>
+        <sitename>Wikipedia</sitename>
+        <dbname>simplewiki</dbname>
+        <base>https://simple.wikipedia.org/wiki/Main_Page</base>
+        <generator>MediaWiki 1.29.0-wmf.21</generator>
+        <case>first-letter</case>
+        <namespaces>
+            <namespace key="-2" case="first-letter">Media</namespace>
+            <namespace key="-1" case="first-letter">Special</namespace>
+            <namespace key="0" case="first-letter"/>
+            <namespace key="1" case="first-letter">Talk</namespace>
+            <namespace key="2" case="first-letter">User</namespace>
+            <namespace key="3" case="first-letter">User talk</namespace>
+            <namespace key="4" case="first-letter">Wikipedia</namespace>
+            <namespace key="5" case="first-letter">Wikipedia talk</namespace>
+            <namespace key="6" case="first-letter">File</namespace>
+            <namespace key="7" case="first-letter">File talk</namespace>
+            <namespace key="8" case="first-letter">MediaWiki</namespace>
+            <namespace key="9" case="first-letter">MediaWiki talk</namespace>
+            <namespace key="10" case="first-letter">Template</namespace>
+            <namespace key="11" case="first-letter">Template talk</namespace>
+            <namespace key="12" case="first-letter">Help</namespace>
+            <namespace key="13" case="first-letter">Help talk</namespace>
+            <namespace key="14" case="first-letter">Category</namespace>
+            <namespace key="15" case="first-letter">Category talk</namespace>
+            <namespace key="828" case="first-letter">Module</namespace>
+            <namespace key="829" case="first-letter">Module talk</namespace>
+            <namespace key="2300" case="first-letter">Gadget</namespace>
+            <namespace key="2301" case="first-letter">Gadget talk</namespace>
+            <namespace key="2302" case="case-sensitive">Gadget definition</namespace>
+            <namespace key="2303" case="case-sensitive">Gadget definition talk</namespace>
+            <namespace key="2600" case="first-letter">Topic</namespace>
+        </namespaces>
+    </siteinfo>
+    <page>
+        <title>April</title>
+        <ns>0</ns>
+        <id>1</id>
+        <revision>
+            <id>5657078</id>
+            <parentid>5620787</parentid>
+            <timestamp>2017-04-09T22:40:49Z</timestamp>
+            <contributor>
+                <ip>2602:306:3433:C7F0:BDDA:7F0B:C977:5480</ip>
+            </contributor>
+            <comment>/* The Month */</comment>
+            <model>wikitext</model>
+            <format>text/x-wiki</format>
+            <text xml:space="preserve">{{monththisyear|4}}
 '''April''' is the fourth [[month]] of the [[year]], and comes between [[March]] and [[May]]. It is one of four months to have 30 [[day]]s.
 
 April always starts on the same day of week as [[July]], and ends on the same day of the week as [[December]]. Additionally, it starts on the same day of the week as [[January]] in leap years.
@@ -298,24 +300,24 @@ Quite a few festivals are held in this month. In many [[Southeast Asia]]n cultur
 {{reflist}}
 
 {{Months}}</text>
-      <sha1>94o4mc8r2hayfseuny68zpaotm9ejwf</sha1>
-    </revision>
-  </page>
-  <page>
-    <title>August</title>
-    <ns>0</ns>
-    <id>2</id>
-    <revision>
-      <id>5657090</id>
-      <parentid>5636554</parentid>
-      <timestamp>2017-04-09T22:56:15Z</timestamp>
-      <contributor>
-        <ip>2602:306:3433:C7F0:BDDA:7F0B:C977:5480</ip>
-      </contributor>
-      <comment>/* The Month */</comment>
-      <model>wikitext</model>
-      <format>text/x-wiki</format>
-      <text xml:space="preserve">{{monththisyear|8}}
+            <sha1>94o4mc8r2hayfseuny68zpaotm9ejwf</sha1>
+        </revision>
+    </page>
+    <page>
+        <title>August</title>
+        <ns>0</ns>
+        <id>2</id>
+        <revision>
+            <id>5657090</id>
+            <parentid>5636554</parentid>
+            <timestamp>2017-04-09T22:56:15Z</timestamp>
+            <contributor>
+                <ip>2602:306:3433:C7F0:BDDA:7F0B:C977:5480</ip>
+            </contributor>
+            <comment>/* The Month */</comment>
+            <model>wikitext</model>
+            <format>text/x-wiki</format>
+            <text xml:space="preserve">{{monththisyear|8}}
 '''August''' is the eighth [[month]] of the [[year]] in the [[Gregorian calendar]], coming between [[July]] and [[September]]. It has 31 [[day]]s, the same number of days as the previous month, [[July]], and is named after Roman Emperor [[Augustus Caesar]].
 
 August doesn't start on the same day of the week as any other month in [[Common year|common years]], but starts on the same day of the week as [[February]] in [[Leap year|leap years]]. It always ends on the same day of the week as [[November]].
@@ -470,27 +472,29 @@ August both starts and ends on the same day of the week as [[May]] of the next y
 {{reflist}}
 
 {{Months}}</text>
-      <sha1>6cquwtyam1v337bzow7ie6bxj9n2thf</sha1>
-    </revision>
-  </page>
-  <page>
-    <title>User:Angela</title>
-    <ns>2</ns>
-    <id>3</id>
-    <restrictions>edit=autoconfirmed:move=autoconfirmed</restrictions>
-    <revision>
-      <id>1207184</id>
-      <parentid>1034137</parentid>
-      <timestamp>2008-12-07T18:26:55Z</timestamp>
-      <contributor>
-        <username>JAnDbot</username>
-        <id>4575</id>
-      </contributor>
-      <minor />
-      <comment>robot  Adding: bg, ca, cs, cy, da, de, eo, es, fi, fr, he, ia, id, it, ja, jbo, km, ko, nl, nn, no, pl, pt, ro, ru, sl, sr, sv, th, uk, vi, zh</comment>
-      <model>wikitext</model>
-      <format>text/x-wiki</format>
-      <text xml:space="preserve">&lt;div style=&quot;background-color: #F8F2F2; margin: 20px; padding: 20px;&quot;&gt;
+            <sha1>6cquwtyam1v337bzow7ie6bxj9n2thf</sha1>
+        </revision>
+    </page>
+    <page>
+        <title>User:Angela</title>
+        <ns>2</ns>
+        <id>3</id>
+        <restrictions>edit=autoconfirmed:move=autoconfirmed</restrictions>
+        <revision>
+            <id>1207184</id>
+            <parentid>1034137</parentid>
+            <timestamp>2008-12-07T18:26:55Z</timestamp>
+            <contributor>
+                <username>JAnDbot</username>
+                <id>4575</id>
+            </contributor>
+            <minor/>
+            <comment>robot Adding: bg, ca, cs, cy, da, de, eo, es, fi, fr, he, ia, id, it, ja, jbo, km, ko, nl, nn, no,
+                pl, pt, ro, ru, sl, sr, sv, th, uk, vi, zh
+            </comment>
+            <model>wikitext</model>
+            <format>text/x-wiki</format>
+            <text xml:space="preserve">&lt;div style=&quot;background-color: #F8F2F2; margin: 20px; padding: 20px;&quot;&gt;
 &lt;center&gt;''[[:en:User:Angela|Angela]]''&lt;/center&gt;
 ----
 
@@ -529,72 +533,72 @@ August both starts and ends on the same day of the week as [[May]] of the next y
 [[vi:Thành viên:Angela]]
 [[uk:Користувач:Angela]]
 [[zh:User:Angela]]</text>
-      <sha1>8q0t3e4zwkxikjebev4a83f8kjdq25c</sha1>
-    </revision>
-  </page>
-  <page>
-    <title>User talk:Angela</title>
-    <ns>3</ns>
-    <id>4</id>
-    <restrictions>move=sysop</restrictions>
-    <revision>
-      <id>5393629</id>
-      <parentid>4572545</parentid>
-      <timestamp>2016-05-10T08:35:10Z</timestamp>
-      <contributor>
-        <username>Bivek bhattarai</username>
-        <id>478898</id>
-      </contributor>
-      <comment>Notification: quick deletion nomination of [[LOL]]. ([[WP:TW|TW]])</comment>
-      <model>wikitext</model>
-      <format>text/x-wiki</format>
-      <text xml:space="preserve">Older talk has been [[User talk:Angela/Archive1|archived]]
+            <sha1>8q0t3e4zwkxikjebev4a83f8kjdq25c</sha1>
+        </revision>
+    </page>
+    <page>
+        <title>User talk:Angela</title>
+        <ns>3</ns>
+        <id>4</id>
+        <restrictions>move=sysop</restrictions>
+        <revision>
+            <id>5393629</id>
+            <parentid>4572545</parentid>
+            <timestamp>2016-05-10T08:35:10Z</timestamp>
+            <contributor>
+                <username>Bivek bhattarai</username>
+                <id>478898</id>
+            </contributor>
+            <comment>Notification: quick deletion nomination of [[LOL]]. ([[WP:TW|TW]])</comment>
+            <model>wikitext</model>
+            <format>text/x-wiki</format>
+            <text xml:space="preserve">Older talk has been [[User talk:Angela/Archive1|archived]]
 ==Quick deletion of LOL==
 [[Image:Ambox deletion.png|left|25px]] The page you wrote, [[:LOL]], has been selected for [[Wikipedia:Deletion policy#Quick deletion|quick deletion]]. If you think this page should be kept, please add {{tl|wait}} below the line {{tl|QD}} and say why on the [[{{TALKPAGENAME:LOL}}|talk page]]. If the page is already gone, but you think this was an error, you can ask for it to be [[WP:Requests for undeletion|undeleted]]. You can find more information about the reason [[Wikipedia:Deletion policy#g3|here]].&lt;!--Template:QD-notice end--&gt; [[User:Bivek bhattarai|Bivek bhattarai]] ([[User talk:Bivek bhattarai|talk]]) 08:35, 10 May 2016 (UTC)</text>
-      <sha1>1zwj15qw8pk8gk3g7876rnpndzpxqh3</sha1>
-    </revision>
-  </page>
-  <page>
-    <title>User:Anthere</title>
-    <ns>2</ns>
-    <id>5</id>
-    <revision>
-      <id>36363</id>
-      <parentid>9644</parentid>
-      <timestamp>2004-06-14T21:04:13Z</timestamp>
-      <contributor>
-        <username>Anthere</username>
-        <id>41</id>
-      </contributor>
-      <model>wikitext</model>
-      <format>text/x-wiki</format>
-      <text xml:space="preserve">Hello :-)
+            <sha1>1zwj15qw8pk8gk3g7876rnpndzpxqh3</sha1>
+        </revision>
+    </page>
+    <page>
+        <title>User:Anthere</title>
+        <ns>2</ns>
+        <id>5</id>
+        <revision>
+            <id>36363</id>
+            <parentid>9644</parentid>
+            <timestamp>2004-06-14T21:04:13Z</timestamp>
+            <contributor>
+                <username>Anthere</username>
+                <id>41</id>
+            </contributor>
+            <model>wikitext</model>
+            <format>text/x-wiki</format>
+            <text xml:space="preserve">Hello :-)
 
 If you want to contact me, please rather do so on my meta page [[m:User:Anthere]] or send me a wikipedia email.
 
 (I would be glad if some one could translate this. Thanks).
 
 [[User:Anthere|Anthere]] 21:04, 14 Jun 2004 (UTC)</text>
-      <sha1>4n9a5bxty3sg9v1lqzshdhcqypoule1</sha1>
-    </revision>
-  </page>
-  <page>
-    <title>Art</title>
-    <ns>0</ns>
-    <id>6</id>
-    <revision>
-      <id>5628381</id>
-      <parentid>5613743</parentid>
-      <timestamp>2017-03-10T19:27:53Z</timestamp>
-      <contributor>
-        <username>Intellectualdude</username>
-        <id>588720</id>
-      </contributor>
-      <minor />
-      <comment>Corrected grammatical errors - Added a space after a period and a comma.</comment>
-      <model>wikitext</model>
-      <format>text/x-wiki</format>
-      <text xml:space="preserve">[[File:Chemin montant dans les hautes herbes - Pierre Auguste Renoir.jpg|thumb|300px|A painting by [[Renoir]] which is a work of art.]]
+            <sha1>4n9a5bxty3sg9v1lqzshdhcqypoule1</sha1>
+        </revision>
+    </page>
+    <page>
+        <title>Art</title>
+        <ns>0</ns>
+        <id>6</id>
+        <revision>
+            <id>5628381</id>
+            <parentid>5613743</parentid>
+            <timestamp>2017-03-10T19:27:53Z</timestamp>
+            <contributor>
+                <username>Intellectualdude</username>
+                <id>588720</id>
+            </contributor>
+            <minor/>
+            <comment>Corrected grammatical errors - Added a space after a period and a comma.</comment>
+            <model>wikitext</model>
+            <format>text/x-wiki</format>
+            <text xml:space="preserve">[[File:Chemin montant dans les hautes herbes - Pierre Auguste Renoir.jpg|thumb|300px|A painting by [[Renoir]] which is a work of art.]]
 
 '''Art''' is a creative activity by people. The artist hopes that it affects the emotions of people who experience it. Artists express themselves by their art. Some people find art relaxing.  
 
@@ -684,26 +688,28 @@ The [[wikt:simple:function|functions]] of art include:&lt;ref&gt;{{cite book |la
 [[Category:Art| ]]
 [[Category:Non-verbal communication]]
 [[Category:Basic English 850 words]]</text>
-      <sha1>n9e47wdny41itkvurb3eo22oygtdjb2</sha1>
-    </revision>
-  </page>
-  <page>
-    <title>A</title>
-    <ns>0</ns>
-    <id>8</id>
-    <revision>
-      <id>5641488</id>
-      <parentid>5641169</parentid>
-      <timestamp>2017-03-23T14:53:43Z</timestamp>
-      <contributor>
-        <username>Sarrus</username>
-        <id>59140</id>
-      </contributor>
-      <minor />
-      <comment>[[Help:Revert a page|Reverted]] edits by [[Special:Contributions/46.18.183.34|46.18.183.34]] ([[User talk:46.18.183.34|talk]]) to last version by 220.239.116.208</comment>
-      <model>wikitext</model>
-      <format>text/x-wiki</format>
-      <text xml:space="preserve">{{more sources|date=February 2012}}
+            <sha1>n9e47wdny41itkvurb3eo22oygtdjb2</sha1>
+        </revision>
+    </page>
+    <page>
+        <title>A</title>
+        <ns>0</ns>
+        <id>8</id>
+        <revision>
+            <id>5641488</id>
+            <parentid>5641169</parentid>
+            <timestamp>2017-03-23T14:53:43Z</timestamp>
+            <contributor>
+                <username>Sarrus</username>
+                <id>59140</id>
+            </contributor>
+            <minor/>
+            <comment>[[Help:Revert a page|Reverted]] edits by [[Special:Contributions/46.18.183.34|46.18.183.34]]
+                ([[User talk:46.18.183.34|talk]]) to last version by 220.239.116.208
+            </comment>
+            <model>wikitext</model>
+            <format>text/x-wiki</format>
+            <text xml:space="preserve">{{more sources|date=February 2012}}
 
 : ''This page is about the first [[letter]] in the [[alphabet]].
 : ''For the indefinite article, see [[Article (grammar)]].''
@@ -755,26 +761,28 @@ In geometry, capital A, B, C etc. are used to label [[line segment]]s, [[Line (g
 [[Category:Vowel letters]]
 
 [[new:प्रिथिबी]]</text>
-      <sha1>sb55z7kpwvzig881zrlu57z8avn9hyu</sha1>
-    </revision>
-  </page>
-  <page>
-    <title>Air</title>
-    <ns>0</ns>
-    <id>9</id>
-    <revision>
-      <id>5671720</id>
-      <parentid>5671707</parentid>
-      <timestamp>2017-04-26T16:05:30Z</timestamp>
-      <contributor>
-        <username>Jim.henderson</username>
-        <id>70336</id>
-      </contributor>
-      <minor />
-      <comment>[[Help:Revert a page|Reverted]] edits by [[Special:Contributions/81.97.232.125|81.97.232.125]] ([[User talk:81.97.232.125|talk]]) to last version by Cyberbot I</comment>
-      <model>wikitext</model>
-      <format>text/x-wiki</format>
-      <text xml:space="preserve">{{dablink|Air is one of the four [[classical element]]s – '''air''', [[water]], [[earth]], and [[fire]]}}
+            <sha1>sb55z7kpwvzig881zrlu57z8avn9hyu</sha1>
+        </revision>
+    </page>
+    <page>
+        <title>Air</title>
+        <ns>0</ns>
+        <id>9</id>
+        <revision>
+            <id>5671720</id>
+            <parentid>5671707</parentid>
+            <timestamp>2017-04-26T16:05:30Z</timestamp>
+            <contributor>
+                <username>Jim.henderson</username>
+                <id>70336</id>
+            </contributor>
+            <minor/>
+            <comment>[[Help:Revert a page|Reverted]] edits by [[Special:Contributions/81.97.232.125|81.97.232.125]]
+                ([[User talk:81.97.232.125|talk]]) to last version by Cyberbot I
+            </comment>
+            <model>wikitext</model>
+            <format>text/x-wiki</format>
+            <text xml:space="preserve">{{dablink|Air is one of the four [[classical element]]s – '''air''', [[water]], [[earth]], and [[fire]]}}
 [[Image:Air composition pie chart.JPG|thumb|240px|This is what the air is made of]]
 [[Image:Kawasaki-Electric Fan.jpg|thumb|A [[wikt:fan|fan]] is used to move air]]
 
@@ -804,24 +812,24 @@ Aircraft use [[propeller]]s to move air over a [[wing]], which allows them to [[
 [[Category:Basic English 850 words]]
 [[Category:Physics]]
 [[Category:Atmosphere]]</text>
-      <sha1>3lnkc8zjxo4mrtfan54hy3nv636luf7</sha1>
-    </revision>
-  </page>
-  <page>
-    <title>Wikipedia:Administrators</title>
-    <ns>4</ns>
-    <id>11</id>
-    <revision>
-      <id>5668883</id>
-      <parentid>5668882</parentid>
-      <timestamp>2017-04-22T07:09:44Z</timestamp>
-      <contributor>
-        <username>PCMPAKurat</username>
-        <id>597841</id>
-      </contributor>
-      <model>wikitext</model>
-      <format>text/x-wiki</format>
-      <text xml:space="preserve">:''&quot;WP:A&quot; redirects here. You may be looking for [[Wikipedia:Announcements]]''
+            <sha1>3lnkc8zjxo4mrtfan54hy3nv636luf7</sha1>
+        </revision>
+    </page>
+    <page>
+        <title>Wikipedia:Administrators</title>
+        <ns>4</ns>
+        <id>11</id>
+        <revision>
+            <id>5668883</id>
+            <parentid>5668882</parentid>
+            <timestamp>2017-04-22T07:09:44Z</timestamp>
+            <contributor>
+                <username>PCMPAKurat</username>
+                <id>597841</id>
+            </contributor>
+            <model>wikitext</model>
+            <format>text/x-wiki</format>
+            <text xml:space="preserve">:''&quot;WP:A&quot; redirects here. You may be looking for [[Wikipedia:Announcements]]''
 {{shortcut|[[WP:ADMIN]]&lt;br /&gt;[[WP:SYSOP]]&lt;br /&gt;[[WP:A]]&lt;br /&gt;[[WP:MOP]]}}
 [[File:Wikipedia Administrator.svg|thumbnail|This is the symbol of a Wikipedia administrator. It shows the site's logo with a [[mop]], as administrators are often linked to [[janitor]]s.]]
 '''Administrators''', also called '''admins''' or '''sysops''' ('''sys'''tem '''op'''erators), are users who can use special [[Special:ListGroupRights/Admin|tools]] that help keep Wikipedia running smoothly.  They can use these tools because they are trusted by the community, but this does not make them better or more important than anybody else.  The opinion of an administrator, for example, should not be counted as more important than the opinion of a person who chooses to change Wikipedia with an IP address just because they have administrator rights.
@@ -1007,7 +1015,7 @@ Users who want to request administrator, bureaucrat, checkuser or oversighter ri
 ** [[Special:Log/suppress|Suppression log]] '''&lt;tt&gt;[restricted]&lt;/tt&gt;'''
 
 [[Category:Wikipedia administration|Administrators]]</text>
-      <sha1>h2z9tgl6s7uvtjmugtvmqei0ghi2e8q</sha1>
-    </revision>
-  </page>
+            <sha1>h2z9tgl6s7uvtjmugtvmqei0ghi2e8q</sha1>
+        </revision>
+    </page>
 </mediawiki>

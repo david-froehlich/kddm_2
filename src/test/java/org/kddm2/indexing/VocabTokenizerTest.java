@@ -33,7 +33,7 @@ public class VocabTokenizerTest {
 
         Set<String> tokensInStream = new HashSet<>();
 
-        while(tokenizer.incrementToken()) {
+        while (tokenizer.incrementToken()) {
             CharTermAttribute attribute = tokenizer.getAttribute(CharTermAttribute.class);
             tokensInStream.add(attribute.toString());
         }
