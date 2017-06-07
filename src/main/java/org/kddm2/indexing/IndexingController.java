@@ -23,16 +23,15 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.Stream;
 
-public class IndexingController {
-    final static int QUEUE_LENGTH = 100;
+class IndexingController {
+    private final static int QUEUE_LENGTH = 100;
 
     //---LUCENE CONSTANTS---
     //name of lucene field that stores the term-occurence (the term was used in the article, but not necessarily linked)
     final static String TERM_OCCURENCE_FIELD_NAME = "term_occurence";
     //name of lucene field that stores linked terms
     final static String TERM_LINKING_FIELD_NAME = "term_linking";
-    final static String DIRECTORY_PATH = "/tmp/lucene_dir";
-    //final static String DIRECTORY_PATH = "/home/david/mawp";
+
     private final static String VOCABULARY_PATH = "vocabulary.txt";
 
     private final static String XML_FILE_PATH = "temp.xml.bz2";
@@ -77,17 +76,15 @@ public class IndexingController {
         }
     }
 
-    private void createdLuceneDirectory(Path directoryPath) throws IOException {
+    private void createIndexDirectory(Path directoryPath) throws IOException {
         File f = directoryPath.toFile();
         if (f == null || !f.isDirectory()) {
             Files.createDirectories(directoryPath);
         }
-        for (File file : directoryPath.toFile().listFiles())
-            if (!file.isDirectory())
-                file.delete();
+        //noinspection ResultOfMethodCallIgnored
+        Files.walk(directoryPath).map(Path::toFile).filter(File::isFile).forEach(File::delete);
 
         Analyzer analyzer = new StandardAnalyzer();
-
         Directory directory = FSDirectory.open(directoryPath);
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
         indexWriter = new IndexWriter(directory, config);
@@ -108,8 +105,7 @@ public class IndexingController {
     }
 
 
-    public IndexingController() throws IOException, XMLStreamException {
-        Path directoryPath = Paths.get(DIRECTORY_PATH);
-        this.createdLuceneDirectory(directoryPath);
+    public IndexingController(Path indexDirectory) throws IOException, XMLStreamException {
+        createIndexDirectory(indexDirectory);
     }
 }

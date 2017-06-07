@@ -18,10 +18,10 @@ public class WikiPageIndexer implements Runnable {
     private static AtomicInteger indexedPages = new AtomicInteger(0);
 
     private IndexWriter indexWriter;
-    private BlockingQueue<WikiPage> unindexedPages;
+    private BlockingQueue<IndexingTask> indexingTasks;
 
-    public WikiPageIndexer(BlockingQueue<WikiPage> unindexedPages, IndexWriter indexWriter) {
-        this.unindexedPages = unindexedPages;
+    public WikiPageIndexer(BlockingQueue<IndexingTask> indexingTasks, IndexWriter indexWriter) {
+        this.indexingTasks = indexingTasks;
         this.indexWriter = indexWriter;
     }
 
@@ -57,12 +57,12 @@ public class WikiPageIndexer implements Runnable {
 
         int i = 0;
         while ((i = WikiPageIndexer.indexedPages.incrementAndGet()) < MAX_INDEXED_PAGES || MAX_INDEXED_PAGES == -1) {
-            WikiPage nextPage = unindexedPages.take();
-            if (nextPage.EOS) {
+            IndexingTask task = indexingTasks.take();
+            if (task.isEndOfStream()) {
                 System.out.println("Consumer has eaten all souls!");
                 return;
             }
-            this.indexPage(nextPage);
+            this.indexPage(task.getWikiPage());
             if (i % PRINT_INTERVAL == 0) {
                 System.out.println("indexed " + i + " pages");
             }

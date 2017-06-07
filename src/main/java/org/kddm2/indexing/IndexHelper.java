@@ -7,7 +7,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 
 class IndexTermStats {
@@ -74,8 +74,8 @@ public class IndexHelper {
     private final int documentCount;
 
 
-    public IndexHelper(String indexDirectory) throws IOException {
-        Directory dir = FSDirectory.open(Paths.get(indexDirectory));
+    public IndexHelper(Path indexDirectory) throws IOException {
+        Directory dir = FSDirectory.open(indexDirectory);
         directoryReader = StandardDirectoryReader.open(dir);
         documentCount = directoryReader.numDocs();
     }
