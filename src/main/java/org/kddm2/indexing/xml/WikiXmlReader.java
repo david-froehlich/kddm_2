@@ -1,4 +1,9 @@
+package org.kddm2.indexing.xml;
+
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.kddm2.indexing.lucene.VocabTokenizer;
+import org.kddm2.indexing.WikiPage;
+import org.kddm2.indexing.WikiUtils;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -16,7 +21,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 
 public class WikiXmlReader {
-    private InputStream inputStream;
     private BZip2CompressorInputStream compressorInputStream;
     private XMLEventReader xmlEventReader;
     private WikiPage currentPage;
@@ -24,15 +28,11 @@ public class WikiXmlReader {
     private Set<String> vocabulary;
 
 
-    private int maxPages = -1;
-
-    public WikiXmlReader(InputStream inputStream, Set<String> vocabulary, int maxPages) throws IOException, XMLStreamException {
-        this.inputStream = inputStream;
+    public WikiXmlReader(InputStream inputStream, Set<String> vocabulary) throws IOException, XMLStreamException {
         compressorInputStream = new BZip2CompressorInputStream(inputStream);
         XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
         xmlEventReader = xmlInputFactory.createXMLEventReader(compressorInputStream);
         this.vocabulary = vocabulary;
-        this.maxPages = maxPages;
     }
 
     public void iteratePages() throws XMLStreamException {
@@ -61,7 +61,7 @@ public class WikiXmlReader {
                 EndElement endElement = xmlEvent.asEndElement();
                 if ("page".equals(endElement.getName().getLocalPart()) && currentPage != null) {
                     if (!currentPage.isValid()) {
-                        throw new IllegalArgumentException("WikiPage wasn't correctly read");
+                        throw new IllegalArgumentException("org.kddm2.indexing.WikiPage wasn't correctly read");
                     }
                     numPages++;
                     return currentPage;

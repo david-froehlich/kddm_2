@@ -1,3 +1,7 @@
+package org.kddm2.indexing;
+
+import org.kddm2.indexing.xml.WikiXmlReader;
+
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -5,15 +9,15 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 public class WikiPageProducer implements Runnable {
-    private BlockingQueue<WikiPage> unindexedPages;
+    private BlockingQueue<IndexingTask> indexingTasks;
     private Set<String> vocabulary;
     private WikiXmlReader reader;
 
-    public WikiPageProducer(BlockingQueue<WikiPage> unindexedPages, Set<String> vocabulary,
+    public WikiPageProducer(BlockingQueue<IndexingTask> unindexedPages, Set<String> vocabulary,
                             InputStream xmlFileInputStream) throws IOException, XMLStreamException {
-        this.unindexedPages = unindexedPages;
+        this.indexingTasks = unindexedPages;
         this.vocabulary = vocabulary;
-        this.reader = new WikiXmlReader(xmlFileInputStream, vocabulary, 100);
+        this.reader = new WikiXmlReader(xmlFileInputStream, vocabulary);
     }
 
 
@@ -22,14 +26,14 @@ public class WikiPageProducer implements Runnable {
             WikiPage nextPage = this.reader.getNextPage();
 
             if (nextPage == null) {
-                int i = WikiIndexingController.CONSUMER_COUNT;
+                int i = IndexingController.CONSUMER_COUNT;
                 while (i-- > 0) {
-                    this.unindexedPages.put(WikiPage.getEOSPage());
+                    this.indexingTasks.put(new IndexingTask(null, true));
                 }
                 System.out.println("producer done");
                 return;
             }
-            this.unindexedPages.put(nextPage);
+            this.indexingTasks.put(new IndexingTask(nextPage, false));
         }
     }
 

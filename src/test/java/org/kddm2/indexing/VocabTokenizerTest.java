@@ -1,6 +1,8 @@
+package org.kddm2.indexing;
+
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.junit.Assert;
 import org.junit.Test;
+import org.kddm2.indexing.lucene.VocabTokenizer;
 
 import java.io.IOException;
 import java.io.Reader;

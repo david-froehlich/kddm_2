@@ -1,4 +1,7 @@
+package org.kddm2.indexing;
+
 import org.junit.Test;
+import org.kddm2.indexing.xml.WikiXmlReader;
 
 import java.io.FileInputStream;
 import java.io.InputStream;

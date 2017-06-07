@@ -1,9 +1,10 @@
+package org.kddm2.indexing.lucene;
+
 import org.apache.lucene.analysis.FilteringTokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.shingle.ShingleFilter;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
 
 import java.io.IOException;
@@ -12,19 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-class WikipediaFilter extends FilteringTokenFilter {
-    public WikipediaFilter(TokenStream in) {
-        super(in);
-    }
-
-    @Override
-    protected boolean accept() throws IOException {
-        TypeAttribute tAttr = this.getAttribute(TypeAttribute.class);
-        String type = tAttr.type();
-        return type.equals("<ALPHANUM>");
-    }
-}
-
 public class VocabTokenizer extends FilteringTokenFilter {
     private Set<String> vocabulary;
 
@@ -32,7 +20,7 @@ public class VocabTokenizer extends FilteringTokenFilter {
         Tokenizer tokenizer = new WikipediaTokenizer();
         tokenizer.setReader(reader);
 
-        WikipediaFilter filter = new WikipediaFilter(tokenizer);
+        WikiTokenFilter filter = new WikiTokenFilter(tokenizer);
 
         ShingleFilter shingleFilter = new ShingleFilter(filter, 2, max_n);
         shingleFilter.addAttribute(CharTermAttribute.class);

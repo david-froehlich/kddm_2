@@ -1,3 +1,5 @@
+package org.kddm2.indexing;
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexWriter;
@@ -29,9 +31,9 @@ public class WikiPageIndexer implements Runnable {
             String currentTerm = entry.getKey();
             Integer count = entry.getValue();
             for (int i = 0; i < count; i++) {
-                doc.add(new StoredField(WikiIndexingController.TERM_OCCURENCE_FIELD_NAME, currentTerm,
-                        WikiIndexingController.INDEX_FIELD_TYPE));
-//                doc.add(new StringField(WikiIndexingController.TERM_OCCURENCE_FIELD_NAME, currentTerm,
+                doc.add(new StoredField(IndexingController.TERM_OCCURENCE_FIELD_NAME, currentTerm,
+                        IndexingController.INDEX_FIELD_TYPE));
+//                doc.add(new StringField(org.kddm2.indexing.IndexingController.TERM_OCCURENCE_FIELD_NAME, currentTerm,
 //                        Field.Store.YES));
             }
         }
@@ -40,8 +42,8 @@ public class WikiPageIndexer implements Runnable {
             String currentTerm = entry.getKey();
             Integer count = entry.getValue();
             for (int i = 0; i < count; i++) {
-                doc.add(new StoredField(WikiIndexingController.TERM_LINKING_FIELD_NAME, currentTerm,
-                        WikiIndexingController.INDEX_FIELD_TYPE));
+                doc.add(new StoredField(IndexingController.TERM_LINKING_FIELD_NAME, currentTerm,
+                        IndexingController.INDEX_FIELD_TYPE));
             }
         }
 

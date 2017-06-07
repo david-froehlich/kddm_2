@@ -1,3 +1,5 @@
+package org.kddm2.indexing;
+
 import java.util.regex.Pattern;
 
 public class WikiUtils {

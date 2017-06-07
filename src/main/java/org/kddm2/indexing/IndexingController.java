@@ -1,3 +1,5 @@
+package org.kddm2.indexing;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.FieldType;
@@ -21,7 +23,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.Stream;
 
-public class WikiIndexingController {
+public class IndexingController {
     final static int QUEUE_LENGTH = 100;
 
     //---LUCENE CONSTANTS---
@@ -63,14 +65,14 @@ public class WikiIndexingController {
     }
 
     private void startThreads() throws IOException, XMLStreamException {
-        BlockingQueue<WikiPage> unindexedPages = new ArrayBlockingQueue<>(QUEUE_LENGTH);
+        BlockingQueue<IndexingTask> indexingTasks = new ArrayBlockingQueue<>(QUEUE_LENGTH);
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(XML_FILE_PATH);
 
-        producer = new Thread(new WikiPageProducer(unindexedPages, readVocabulary(), inputStream));
+        producer = new Thread(new WikiPageProducer(indexingTasks, readVocabulary(), inputStream));
         consumers = new Thread[CONSUMER_COUNT];
         producer.start();
         for (int i = 0; i < CONSUMER_COUNT; i++) {
-            consumers[i] = new Thread(new WikiPageIndexer(unindexedPages, indexWriter));
+            consumers[i] = new Thread(new WikiPageIndexer(indexingTasks, indexWriter));
             consumers[i].start();
         }
     }
@@ -106,7 +108,7 @@ public class WikiIndexingController {
     }
 
 
-    public WikiIndexingController() throws IOException, XMLStreamException {
+    public IndexingController() throws IOException, XMLStreamException {
         Path directoryPath = Paths.get(DIRECTORY_PATH);
         this.createdLuceneDirectory(directoryPath);
     }

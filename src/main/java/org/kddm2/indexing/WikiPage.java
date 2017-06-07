@@ -1,3 +1,5 @@
+package org.kddm2.indexing;
+
 import java.io.Serializable;
 import java.util.Map;
 
