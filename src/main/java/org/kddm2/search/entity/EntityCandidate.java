@@ -27,4 +27,13 @@ public class EntityCandidate {
     public int getEndPos() {
         return endPos;
     }
+
+    @Override
+    public String toString() {
+        return "EntityCandidate{" +
+                "startPos=" + startPos +
+                ", endPos=" + endPos +
+                ", text='" + getCandidateText() + '\'' +
+                '}';
+    }
 }

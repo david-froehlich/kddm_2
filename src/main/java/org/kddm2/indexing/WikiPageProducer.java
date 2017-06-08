@@ -1,5 +1,6 @@
 package org.kddm2.indexing;
 
+import org.kddm2.Settings;
 import org.kddm2.indexing.xml.WikiXmlReader;
 
 import javax.xml.stream.XMLStreamException;
@@ -26,7 +27,7 @@ public class WikiPageProducer implements Runnable {
             WikiPage nextPage = this.reader.getNextPage();
 
             if (nextPage == null) {
-                int i = IndexingController.CONSUMER_COUNT;
+                int i = Settings.CONSUMER_COUNT;
                 while (i-- > 0) {
                     this.indexingTasks.put(new IndexingTask(null, true));
                 }

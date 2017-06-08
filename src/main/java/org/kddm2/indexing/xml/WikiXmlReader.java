@@ -7,6 +7,7 @@ import org.apache.lucene.analysis.shingle.ShingleFilter;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
+import org.kddm2.Settings;
 import org.kddm2.indexing.WikiPage;
 import org.kddm2.indexing.WikiUtils;
 import org.kddm2.lucene.IndexingUtils;
@@ -141,10 +142,9 @@ public class WikiXmlReader {
     }
 
     private void parseUnlinkedOccurences() throws IOException {
-        int maxShingleSize = 3; //TODO
         Reader reader = new StringReader(currentPage.getText());
 
-        TokenStream tokenStream = IndexingUtils.createWikiTokenizer(reader, vocabulary, maxShingleSize);
+        TokenStream tokenStream = IndexingUtils.createWikiTokenizer(reader, vocabulary, Settings.MAX_SHINGLE_SIZE);
         currentPage.setOccuringTerms(IndexingUtils.getTokenOccurrencesInStream(tokenStream));
         tokenStream.close();
     }

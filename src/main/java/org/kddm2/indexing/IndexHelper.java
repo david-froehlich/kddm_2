@@ -5,6 +5,7 @@ import org.apache.lucene.index.StandardDirectoryReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.kddm2.Settings;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -81,8 +82,8 @@ public class IndexHelper {
     }
 
     public IndexTermStats getStatsForDictTerm(String dictTerm) {
-        Term occurenceTerm = new Term(IndexingController.TERM_OCCURENCE_FIELD_NAME, dictTerm);
-        Term linkingTerm = new Term(IndexingController.TERM_LINKING_FIELD_NAME, dictTerm);
+        Term occurenceTerm = new Term(Settings.TERM_OCCURENCE_FIELD_NAME, dictTerm);
+        Term linkingTerm = new Term(Settings.TERM_LINKING_FIELD_NAME, dictTerm);
 
         try {
             long countOccurences = directoryReader.totalTermFreq(occurenceTerm);

@@ -16,16 +16,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.*;
 
-class TokenOccurrence {
-    public final int startOffset;
-    public final int endOffset;
-
-    public TokenOccurrence(int startOffset, int endOffset) {
-        this.startOffset = startOffset;
-        this.endOffset = endOffset;
-    }
-}
-
 public class IndexingUtils {
 
     public static Map<String, Integer> getTokenOccurrencesInStream(TokenStream stream) throws IOException {

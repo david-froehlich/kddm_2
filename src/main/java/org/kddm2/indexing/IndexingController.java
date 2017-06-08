@@ -8,6 +8,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.kddm2.Settings;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
@@ -25,21 +26,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.Stream;
 
-class IndexingController {
-    private final static int QUEUE_LENGTH = 100;
-
-    //---LUCENE CONSTANTS---
-    //name of lucene field that stores the term-occurence (the term was used in the article, but not necessarily linked)
-    final static String TERM_OCCURENCE_FIELD_NAME = "term_occurence";
-    //name of lucene field that stores linked terms
-    final static String TERM_LINKING_FIELD_NAME = "term_linking";
-
-    private final static String VOCABULARY_PATH = "vocabulary.txt";
-
-    private final static String XML_FILE_PATH = "temp.xml.bz2";
-    //private final static String XML_FILE_PATH = "simplewiki-20170501-pages-meta-current.xml.bz2";
-    final static int CONSUMER_COUNT = 1;
-
+public class IndexingController {
     static final FieldType INDEX_FIELD_TYPE = new FieldType();
 
     static {
@@ -57,7 +44,7 @@ class IndexingController {
         Set<String> vocabulary = new HashSet<>();
 
         try (Stream<String> stream = Files.lines(
-                Paths.get(getClass().getClassLoader().getResource(VOCABULARY_PATH).toURI()))) {
+                Paths.get(getClass().getClassLoader().getResource(Settings.VOCABULARY_PATH).toURI()))) {
             stream.forEach(s -> vocabulary.add(s.toLowerCase()));
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
@@ -66,13 +53,13 @@ class IndexingController {
     }
 
     private void startThreads() throws IOException, XMLStreamException {
-        BlockingQueue<IndexingTask> indexingTasks = new ArrayBlockingQueue<>(QUEUE_LENGTH);
-        InputStream wikiInputStream = getClass().getClassLoader().getResourceAsStream(XML_FILE_PATH);
+        BlockingQueue<IndexingTask> indexingTasks = new ArrayBlockingQueue<>(Settings.QUEUE_LENGTH);
+        InputStream wikiInputStream = getClass().getClassLoader().getResourceAsStream(Settings.XML_FILE_PATH);
 
         producer = new Thread(new WikiPageProducer(indexingTasks, readVocabulary(), wikiInputStream));
         producer.start();
         consumers = new ArrayList<>();
-        for (int i = 0; i < CONSUMER_COUNT; i++) {
+        for (int i = 0; i < Settings.CONSUMER_COUNT; i++) {
             consumers.add(new Thread(new WikiPageIndexer(indexingTasks, indexWriter)));
             consumers.get(consumers.size() - 1).start();
         }
