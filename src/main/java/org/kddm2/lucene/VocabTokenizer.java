@@ -1,4 +1,4 @@
-package org.kddm2.indexing.lucene;
+package org.kddm2.lucene;
 
 import org.apache.lucene.analysis.FilteringTokenFilter;
 import org.apache.lucene.analysis.TokenStream;
