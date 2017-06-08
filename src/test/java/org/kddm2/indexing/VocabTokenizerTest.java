@@ -1,13 +1,14 @@
 package org.kddm2.indexing;
 
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.TokenStream;
 import org.junit.Test;
-import org.kddm2.lucene.VocabTokenizer;
+import org.kddm2.lucene.IndexingUtils;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
@@ -17,27 +18,22 @@ public class VocabTokenizerTest {
     @Test
     public void testBaseCase() throws IOException {
         Set<String> vocabulary = new HashSet<>();
-        vocabulary.add("Lorem");
-        vocabulary.add("Lorem Ipsum");
-        vocabulary.add("Ipsum");
+        vocabulary.add("lorem");
+        vocabulary.add("lorem ipsum");
+        vocabulary.add("ipsum");
         vocabulary.add("dolor");
 
         //these are the terms that we expect to find in our unit-test
         Set<String> expectedResult = new HashSet<>(vocabulary);
 
         //this one we dont wanna find
-        vocabulary.add("Lorem Ipsum mawp");
+        vocabulary.add("lorem ipsum mawp");
 
         Reader reader = new StringReader("Lorem Ipsum dolor. sit amet");
-        VocabTokenizer tokenizer = new VocabTokenizer(reader, 2, vocabulary);
 
-        Set<String> tokensInStream = new HashSet<>();
+        TokenStream tokenStream = IndexingUtils.createPlainTokenizer(reader, vocabulary, 3);
+        Map<String, Integer> tokenOccurrencesInStream = IndexingUtils.getTokenOccurrencesInStream(tokenStream);
 
-        while (tokenizer.incrementToken()) {
-            CharTermAttribute attribute = tokenizer.getAttribute(CharTermAttribute.class);
-            tokensInStream.add(attribute.toString());
-        }
-
-        assertEquals(expectedResult, tokensInStream);
+        assertEquals(expectedResult, tokenOccurrencesInStream.keySet());
     }
 }

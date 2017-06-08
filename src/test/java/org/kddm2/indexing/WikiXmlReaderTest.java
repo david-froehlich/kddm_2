@@ -1,5 +1,6 @@
 package org.kddm2.indexing;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kddm2.indexing.xml.WikiXmlReader;
 
@@ -46,6 +47,7 @@ public class WikiXmlReaderTest {
     }
 
     @Test
+    @Ignore
     public void testLargeIterate() throws Exception {
         InputStream inputStream = new FileInputStream("/home/sko/workspace/uni/kddm2/data/simplewiki-20170501-pages-meta-current.xml.bz2");
         assertNotNull(inputStream);

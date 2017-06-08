@@ -1,9 +1,17 @@
 package org.kddm2.indexing.xml;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.shingle.ShingleFilter;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
 import org.kddm2.indexing.WikiPage;
 import org.kddm2.indexing.WikiUtils;
-import org.kddm2.lucene.VocabTokenizer;
+import org.kddm2.lucene.IndexingUtils;
+import org.kddm2.lucene.VocabTokenFilter;
+import org.kddm2.lucene.WikiTokenFilter;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -133,10 +141,12 @@ public class WikiXmlReader {
     }
 
     private void parseUnlinkedOccurences() throws IOException {
-        int max_n = 3; //TODO
+        int maxShingleSize = 3; //TODO
         Reader reader = new StringReader(currentPage.getText());
-        VocabTokenizer tokenizer = new VocabTokenizer(reader, max_n, this.vocabulary);
-        currentPage.setOccuringTerms(tokenizer.getTokensInStream());
+
+        TokenStream tokenStream = IndexingUtils.createWikiTokenizer(reader, vocabulary, maxShingleSize);
+        currentPage.setOccuringTerms(IndexingUtils.getTokenOccurrencesInStream(tokenStream));
+        tokenStream.close();
     }
 
     public void close() throws IOException {
