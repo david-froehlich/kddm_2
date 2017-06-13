@@ -26,6 +26,7 @@ public class IndexHelper {
     }
 
     public IndexTermStats getStatsForDictTerm(String dictTerm) {
+        dictTerm = dictTerm.toLowerCase();
         Term occurenceTerm = new Term(Settings.TERM_OCCURENCE_FIELD_NAME, dictTerm);
         Term linkingTerm = new Term(Settings.TERM_LINKING_FIELD_NAME, dictTerm);
 
