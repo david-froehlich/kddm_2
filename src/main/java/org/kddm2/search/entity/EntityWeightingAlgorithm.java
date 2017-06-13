@@ -28,13 +28,7 @@ class TfIDFEntityExtraction extends EntityWeightingAlgorithm {
 
     private double getTfIDFForCandidate(EntityCandidate candidate, int occurenceCount) {
         IndexTermStats statsForDictTerm = indexHelper.getStatsForDictTerm(candidate.getCandidateText());
-        //TODO probably some sort of smoothing (neg log, or something)
-
-        long divisor = statsForDictTerm.getCountOccurenceDocuments();
-        if (divisor == 0) {
-            //TODO think
-            divisor = 1;
-        }
+        double divisor = Math.log(statsForDictTerm.getCountOccurenceDocuments());
         return occurenceCount / divisor;
     }
 
