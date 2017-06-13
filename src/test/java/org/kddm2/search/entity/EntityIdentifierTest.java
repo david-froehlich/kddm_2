@@ -1,10 +1,6 @@
 package org.kddm2.search.entity;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.store.IOContext;
-import org.apache.lucene.store.IndexInput;
 import org.junit.Before;
 import org.junit.Test;
 import org.kddm2.Settings;
@@ -19,16 +15,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
 
 /**
  * Created by david on 6/13/17.
  */
-public class EntityIdentitficationTest {
+public class EntityIdentifierTest {
     private static final String INDEX_PATH = "/tmp/test_index/";
+    private static final float CUTOFF_RATE = 0.06f;
 
     @Before
     public void setUpDirectory() throws IOException, XMLStreamException {
@@ -55,14 +49,11 @@ public class EntityIdentitficationTest {
         TokenStream wikiPlaintextTokenizer = IndexingUtils.createWikiTokenizer(
                 new StringReader(nextPage.getText()), vocabulary, maxShingleSize);
 
-        //TODO check other algorithms
-        EntityWeightingAlgorithm algorithm = new TfIDFEntityExtraction(indexHelper, entityTools);
         String plainText = IndexingUtils.tokenStreamToString(wikiPlaintextTokenizer);
-        System.out.println(plainText);
-        List<EntityCandidate> entityCandidates = entityTools.identifyEntities(plainText);
-        List<WeightedEntityCandidate> o = algorithm.determineWeight(entityCandidates);
-        Collections.sort(o, (left, right) -> (int)Math.signum(right.weight - left.weight));
-        System.out.println(o);
 
+        EntityWeightingAlgorithm algorithm = new TfIDFEntityExtraction(indexHelper, entityTools);
+        EntityIdentifier identifier = new EntityIdentifier(algorithm, entityTools, CUTOFF_RATE);
+
+        System.out.println(identifier.identifyEntities(plainText));
     }
 }
