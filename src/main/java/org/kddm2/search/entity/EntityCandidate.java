@@ -1,23 +1,5 @@
 package org.kddm2.search.entity;
 
-class WeightedEntityCandidate extends EntityCandidate {
-    double weight;
-
-    public WeightedEntityCandidate(EntityCandidate source, double weight) {
-        super(source);
-        this.weight = weight;
-    }
-
-    @Override
-    public String toString() {
-        return "WeightedEntityCandidate{" +
-                "startPos=" + startPos +
-                ", endPos=" + endPos +
-                ", text='" + getCandidateText() + '\'' +
-                ", weight=" + weight + "}\n";
-    }
-}
-
 public class EntityCandidate {
     final int startPos;
     final int endPos;

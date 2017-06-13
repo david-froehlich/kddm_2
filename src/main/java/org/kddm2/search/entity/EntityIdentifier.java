@@ -1,9 +1,7 @@
 package org.kddm2.search.entity;
 
-import org.kddm2.indexing.IndexHelper;
-import org.kddm2.lucene.IndexingUtils;
+import org.kddm2.indexing.IndexStatsHelper;
 
-import java.util.Collections;
 import java.util.List;
 
 public class EntityIdentifier {
@@ -20,9 +18,9 @@ public class EntityIdentifier {
         }
     }
 
-    public List<WeightedEntityCandidate> identifyEntities(String text) {
+    public List<EntityCandidateWeighted> identifyEntities(String text) {
         List<EntityCandidate> entityCandidates = entityTools.identifyEntities(text);
-        List<WeightedEntityCandidate> entities = algorithm.determineWeight(entityCandidates);
+        List<EntityCandidateWeighted> entities = algorithm.determineWeight(entityCandidates);
         entities.sort((left, right) -> (int) Math.signum(right.weight - left.weight));
         int returnedEntitityCount = (int)Math.ceil(entities.size() * cutoffRate);
         return entities.subList(0, returnedEntitityCount);

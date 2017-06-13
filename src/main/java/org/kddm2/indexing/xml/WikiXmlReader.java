@@ -2,17 +2,11 @@ package org.kddm2.indexing.xml;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.shingle.ShingleFilter;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
-import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
 import org.kddm2.Settings;
+import org.kddm2.indexing.WikiLink;
 import org.kddm2.indexing.WikiPage;
 import org.kddm2.indexing.WikiUtils;
 import org.kddm2.lucene.IndexingUtils;
-import org.kddm2.lucene.VocabTokenFilter;
-import org.kddm2.lucene.WikiTokenFilter;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -124,28 +118,36 @@ public class WikiXmlReader {
     private void parseText(String text) throws IOException {
         currentPage.setText(text);
         parseUnlinkedOccurences();
-        parseLinkedOccurences();
+        parseLinkedOccurrences();
     }
 
-    private void parseLinkedOccurences() {
-        Map<String, Integer> linkedTerms = new HashMap<>();
+    private void parseLinkedOccurrences() {
+        Map<WikiLink, Integer> wikiLinks = new HashMap<>();
         Matcher matcher = WikiUtils.linkRegex.matcher(currentPage.getText());
         while (matcher.find()) {
-            String term = matcher.group(1);
-            Integer count = linkedTerms.get(term);
+            String pageId = matcher.group(1);
+            String linkText = pageId;
+            if (matcher.groupCount() > 2) {
+                linkText = matcher.group(2);
+                if (linkText == null) {
+                    linkText = pageId;
+                }
+            }
+            WikiLink wikiLink = new WikiLink(pageId, linkText);
+            Integer count = wikiLinks.get(wikiLink);
             if (count == null) {
                 count = 0;
             }
-            linkedTerms.put(term, count + 1);
+            wikiLinks.put(wikiLink, count + 1);
         }
-        currentPage.setLinkedTerms(linkedTerms);
+        currentPage.setWikiLinks(wikiLinks);
     }
 
     private void parseUnlinkedOccurences() throws IOException {
         Reader reader = new StringReader(currentPage.getText());
 
         TokenStream tokenStream = IndexingUtils.createWikiTokenizer(reader, vocabulary, Settings.MAX_SHINGLE_SIZE);
-        currentPage.setOccuringTerms(IndexingUtils.getTokenOccurrencesInStream(tokenStream));
+        currentPage.setOccurringTerms(IndexingUtils.getTokenOccurrencesInStream(tokenStream));
         tokenStream.close();
     }
 

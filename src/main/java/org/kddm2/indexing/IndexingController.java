@@ -3,9 +3,7 @@ package org.kddm2.indexing;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.kddm2.Settings;
@@ -28,13 +26,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.stream.Stream;
 
 public class IndexingController {
-    static final FieldType INDEX_FIELD_TYPE = new FieldType();
 
-    static {
-        INDEX_FIELD_TYPE.setStored(true);
-        INDEX_FIELD_TYPE.setTokenized(false);
-        INDEX_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS_AND_FREQS);
-    }
 
     private Thread producer;
     private List<Thread> consumers;

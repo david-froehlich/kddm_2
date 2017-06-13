@@ -2,7 +2,7 @@ package org.kddm2.search.entity;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.kddm2.indexing.IndexHelper;
+import org.kddm2.indexing.IndexStatsHelper;
 import org.kddm2.indexing.IndexingController;
 
 import java.nio.file.Paths;
@@ -47,10 +47,10 @@ public class EntityToolsTest {
 
     @Test
     public void testEntityWeighting() throws Exception {
-        IndexHelper helper = new IndexHelper(Paths.get(INDEX_PATH));
+        IndexStatsHelper helper = new IndexStatsHelper(Paths.get(INDEX_PATH));
         EntityTools entityTools = new EntityTools(helper, vocabulary);
-        EntityWeightingAlgorithm alg = new TfIDFEntityExtraction(helper, entityTools);
-        List<WeightedEntityCandidate> weightedEntityCandidates = alg.determineWeight(entityTools.identifyEntities(CONTENT));
+        EntityWeightingAlgorithm alg = new EntityWeightingTFIDF(helper, entityTools);
+        List<EntityCandidateWeighted> weightedEntityCandidates = alg.determineWeight(entityTools.identifyEntities(CONTENT));
         System.out.println(weightedEntityCandidates);
         //TODO assert
         return;
@@ -58,7 +58,7 @@ public class EntityToolsTest {
 
     @Test
     public void testEntityIdentification() throws Exception {
-        IndexHelper helper = new IndexHelper(Paths.get(INDEX_PATH));
+        IndexStatsHelper helper = new IndexStatsHelper(Paths.get(INDEX_PATH));
         EntityTools entityTools = new EntityTools(helper, vocabulary);
         List<EntityCandidate> candidates = entityTools.identifyEntities(CONTENT);
         System.out.println(candidates);

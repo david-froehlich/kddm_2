@@ -14,12 +14,12 @@ import java.nio.file.Path;
 /**
  * Provides methods to get stats about terms from the index
  */
-public class IndexHelper {
+public class IndexStatsHelper {
     private final DirectoryReader directoryReader;
     private final int documentCount;
 
 
-    public IndexHelper(Path indexDirectory) throws IOException {
+    public IndexStatsHelper(Path indexDirectory) throws IOException {
         Directory dir = FSDirectory.open(indexDirectory);
         directoryReader = StandardDirectoryReader.open(dir);
         documentCount = directoryReader.numDocs();

@@ -8,6 +8,8 @@ public class Settings {
     public final static String TERM_OCCURENCE_FIELD_NAME = "term_occurence";
     //name of lucene field that stores linked terms
     public final static String TERM_LINKING_FIELD_NAME = "term_linking";
+    public final static String SYNONYMS_FIELD_NAME = "synonyms";
+    public final static String DOCUMENT_ID_FIELD_NAME = "document_id";
 
     public final static String VOCABULARY_PATH = "vocabulary.txt";
 
@@ -17,3 +19,4 @@ public class Settings {
 
     public final static int MAX_SHINGLE_SIZE = 3;
 }
+

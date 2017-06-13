@@ -3,37 +3,38 @@ package org.kddm2.indexing;
 import java.io.Serializable;
 import java.util.Map;
 
+
 public class WikiPage implements Serializable {
     private String title;
     private String text;
     //terms that just occur as plain-text, not linked
-    private Map<String, Integer> occuringTerms;
-    private Map<String, Integer> linkedTerms;
+    private Map<String, Integer> occurringTerms;
+    private Map<WikiLink, Integer> wikiLinks;
 
     public WikiPage() {
     }
 
-    public WikiPage(String title, String text, Map<String, Integer> terms, Map<String, Integer> linkedTerms) {
+    public WikiPage(String title, String text, Map<String, Integer> terms, Map<WikiLink, Integer> wikiLinks) {
         this.title = title;
         this.text = text;
-        this.occuringTerms = terms;
-        this.linkedTerms = linkedTerms;
+        this.occurringTerms = terms;
+        this.wikiLinks = wikiLinks;
     }
 
-    public Map<String, Integer> getLinkedTerms() {
-        return linkedTerms;
+    public Map<WikiLink, Integer> getWikiLinks() {
+        return wikiLinks;
     }
 
-    public void setOccuringTerms(Map<String, Integer> occuringTerms) {
-        this.occuringTerms = occuringTerms;
+    public void setOccurringTerms(Map<String, Integer> occurringTerms) {
+        this.occurringTerms = occurringTerms;
     }
 
-    public void setLinkedTerms(Map<String, Integer> linkedTerms) {
-        this.linkedTerms = linkedTerms;
+    public void setWikiLinks(Map<WikiLink, Integer> wikiLinks) {
+        this.wikiLinks = wikiLinks;
     }
 
-    public Map<String, Integer> getOccuringTerms() {
-        return occuringTerms;
+    public Map<String, Integer> getOccurringTerms() {
+        return occurringTerms;
     }
 
     public String getTitle() {
@@ -54,8 +55,8 @@ public class WikiPage implements Serializable {
 
     public boolean isValid() {
         return !("".equalsIgnoreCase(this.getTitle())
-                || this.getLinkedTerms() == null
-                || this.getOccuringTerms() == null);
+                || this.getWikiLinks() == null
+                || this.getOccurringTerms() == null);
     }
 }
 

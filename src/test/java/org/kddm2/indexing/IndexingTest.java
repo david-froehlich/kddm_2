@@ -17,13 +17,13 @@ public class IndexingTest {
 
     @Test
     public void indexStatsTest() throws Exception {
-        IndexHelper helper = new IndexHelper(Paths.get(INDEX_PATH));
+        IndexStatsHelper helper = new IndexStatsHelper(Paths.get(INDEX_PATH));
         String term_name = "is";
         IndexTermStats statsForDictTerm = helper.getStatsForDictTerm(term_name);
         System.out.println(statsForDictTerm);
-        Assert.assertEquals(2, statsForDictTerm.getCountOccurences());
+        Assert.assertEquals(97, statsForDictTerm.getCountOccurences());
         Assert.assertEquals(0, statsForDictTerm.getCountLinkings());
-        Assert.assertEquals(1, statsForDictTerm.getCountOccurenceDocuments());
+        Assert.assertEquals(5, statsForDictTerm.getCountOccurenceDocuments());
         Assert.assertEquals(0, statsForDictTerm.getCountLinkingDocuments());
     }
 }
