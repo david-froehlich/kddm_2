@@ -31,7 +31,7 @@ class TfIDFEntityExtraction extends EntityWeightingAlgorithm {
         if(statsForDictTerm.getCountOccurenceDocuments() > 1) {
             return occurenceCount / Math.log(statsForDictTerm.getCountOccurenceDocuments());
         } else {
-            return 0;
+            return occurenceCount * Math.E;
         }
     }
 

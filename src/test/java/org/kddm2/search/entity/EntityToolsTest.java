@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 public class EntityToolsTest {
     private static final String INDEX_PATH = "/tmp/kddmTestIndex";
 
-    private static final String CONTENT = "This is a text. August, August. April. Chinese.";
+    private static final String CONTENT = "This is a text. August, August. April. April. Chinese.";
 
     private Set<String> vocabulary;
 
