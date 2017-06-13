@@ -9,19 +9,8 @@ public class WikiPage implements Serializable {
     //terms that just occur as plain-text, not linked
     private Map<String, Integer> occuringTerms;
     private Map<String, Integer> linkedTerms;
-    final boolean EOS;
-
 
     public WikiPage() {
-        EOS = false;
-    }
-
-    private WikiPage(boolean EOS) {
-        this.EOS = EOS;
-    }
-
-    public static WikiPage getEOSPage() {
-        return new WikiPage(true);
     }
 
     public WikiPage(String title, String text, Map<String, Integer> terms, Map<String, Integer> linkedTerms) {
@@ -29,7 +18,6 @@ public class WikiPage implements Serializable {
         this.text = text;
         this.occuringTerms = terms;
         this.linkedTerms = linkedTerms;
-        EOS = false;
     }
 
     public Map<String, Integer> getLinkedTerms() {
