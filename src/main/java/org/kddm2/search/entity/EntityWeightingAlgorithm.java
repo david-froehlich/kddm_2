@@ -17,8 +17,32 @@ public abstract class EntityWeightingAlgorithm {
         this.entityTools = entityTools;
     }
 
-    public abstract List<WeightedEntityCandidate> determineWeight(
-            List<EntityCandidate> candidates);
+    protected abstract double getWeightForCandidate(EntityCandidate candidate, int occurenceCount);
+
+    public List<WeightedEntityCandidate> determineWeight(List<EntityCandidate> candidates) {
+        List<WeightedEntityCandidate> weightedCandidates = new LinkedList<>();
+        Map<String, List<EntityCandidate>> groupedCandidates = entityTools.groupEntitiesByText(candidates);
+        for (List<EntityCandidate> group : groupedCandidates.values()) {
+            int occurence_count = group.size();
+            EntityCandidate refCandidate = group.get(0);
+            weightedCandidates.add(
+                    new WeightedEntityCandidate(refCandidate,
+                            getWeightForCandidate(refCandidate, occurence_count)));
+        }
+        return weightedCandidates;
+    }
+}
+
+class KeyphrasenessEntityExtraction extends EntityWeightingAlgorithm {
+    public KeyphrasenessEntityExtraction(IndexHelper indexHelper, EntityTools entityTools) {
+        super(indexHelper, entityTools);
+    }
+
+    @Override
+    protected double getWeightForCandidate(EntityCandidate candidate, int occurenceCount) {
+        IndexTermStats statsForDictTerm = indexHelper.getStatsForDictTerm(candidate.getCandidateText());
+        return ((double)statsForDictTerm.getCountLinkings() / statsForDictTerm.getCountOccurenceDocuments());
+    }
 }
 
 class TfIDFEntityExtraction extends EntityWeightingAlgorithm {
@@ -26,7 +50,8 @@ class TfIDFEntityExtraction extends EntityWeightingAlgorithm {
         super(indexHelper, entityTools);
     }
 
-    private double getTfIDFForCandidate(EntityCandidate candidate, int occurenceCount) {
+    @Override
+    protected double getWeightForCandidate(EntityCandidate candidate, int occurenceCount) {
         IndexTermStats statsForDictTerm = indexHelper.getStatsForDictTerm(candidate.getCandidateText());
         if(statsForDictTerm.getCountOccurenceDocuments() > 1) {
             return occurenceCount / Math.log(statsForDictTerm.getCountOccurenceDocuments());
@@ -35,19 +60,4 @@ class TfIDFEntityExtraction extends EntityWeightingAlgorithm {
         }
     }
 
-    @Override
-    public List<WeightedEntityCandidate> determineWeight(List<EntityCandidate> candidates) {
-        List<WeightedEntityCandidate> weightedCandidates = new LinkedList<>();
-
-        Map<String, List<EntityCandidate>> groupedCandidates = entityTools.groupEntitiesByText(candidates);
-
-        for (List<EntityCandidate> group : groupedCandidates.values()) {
-            int occurence_count = group.size();
-            EntityCandidate refCandidate = group.get(0);
-            weightedCandidates.add(
-                    new WeightedEntityCandidate(refCandidate,
-                            getTfIDFForCandidate(refCandidate, occurence_count)));
-        }
-        return weightedCandidates;
-    }
 }
