@@ -1,14 +1,38 @@
 package org.kddm2.search.entity;
 
+class WeightedEntityCandidate extends EntityCandidate {
+    double weight;
+
+    public WeightedEntityCandidate(EntityCandidate source, double weight) {
+        super(source);
+        this.weight = weight;
+    }
+
+    @Override
+    public String toString() {
+        return "WeightedEntityCandidate{" +
+                "startPos=" + startPos +
+                ", endPos=" + endPos +
+                ", text='" + getCandidateText() + '\'' +
+                ", weight=" + weight + "}";
+    }
+}
+
 public class EntityCandidate {
-    private final int startPos;
-    private final int endPos;
-    private final String wholeContent;
+    final int startPos;
+    final int endPos;
+    final String wholeContent;
 
     public EntityCandidate(int startPos, int endPos, String wholeContent) {
         this.startPos = startPos;
         this.endPos = endPos;
         this.wholeContent = wholeContent;
+    }
+
+    public EntityCandidate(EntityCandidate source) {
+        this.startPos = source.startPos;
+        this.endPos = source.endPos;
+        this.wholeContent = source.wholeContent;
     }
 
     public boolean overlaps(EntityCandidate other)

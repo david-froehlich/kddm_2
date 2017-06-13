@@ -2,18 +2,13 @@ package org.kddm2.search.entity;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.kddm2.Settings;
 import org.kddm2.indexing.IndexHelper;
 import org.kddm2.indexing.IndexingController;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -21,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 public class EntityToolsTest {
     private static final String INDEX_PATH = "/tmp/kddmTestIndex";
 
-    private static final String TEST_FILE = "dolor sit amet. lolol rofl xd!";
+    private static final String CONTENT = "This is a text. August, August. April. Chinese.";
 
     private Set<String> vocabulary;
 
@@ -35,9 +30,9 @@ public class EntityToolsTest {
     public void readVocabulary() {
         vocabulary = new HashSet<>();
 
-        vocabulary.add("dolor");
-        vocabulary.add("dolor sit");
-        vocabulary.add("amet");
+        vocabulary.add("april");
+        vocabulary.add("august");
+        vocabulary.add("chinese");
     }
 
     @Test
@@ -51,9 +46,23 @@ public class EntityToolsTest {
     }
 
     @Test
+    public void testEntityWeighting() throws Exception {
+        IndexHelper helper = new IndexHelper(Paths.get(INDEX_PATH));
+        EntityTools entityTools = new EntityTools(helper, vocabulary);
+        EntityWeightingAlgorithm alg = new TfIDFEntityExtraction(helper, entityTools);
+        List<WeightedEntityCandidate> weightedEntityCandidates = alg.determineWeight(entityTools.identifyEntities(CONTENT));
+        System.out.println(weightedEntityCandidates);
+        //TODO assert
+        return;
+    }
+
+    @Test
     public void testEntityIdentification() throws Exception {
         IndexHelper helper = new IndexHelper(Paths.get(INDEX_PATH));
         EntityTools entityTools = new EntityTools(helper, vocabulary);
-        List<List<EntityCandidate>> candidates = entityTools.identifyExclusiveEntities(TEST_FILE);
+        List<EntityCandidate> candidates = entityTools.identifyEntities(CONTENT);
+        System.out.println(candidates);
+        //TODO assert
+        return;
     }
 }

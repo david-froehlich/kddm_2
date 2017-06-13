@@ -5,13 +5,12 @@ import org.kddm2.Settings;
 import org.kddm2.indexing.IndexHelper;
 import org.kddm2.lucene.IndexingUtils;
 import org.kddm2.lucene.TokenOccurrence;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class EntityTools {
 
@@ -23,15 +22,31 @@ public class EntityTools {
         this.vocabulary = vocabulary;
     }
 
-    private List<EntityCandidate> identifyEntities(String fileContent) {
+    public Map<String, List<EntityCandidate>> groupEntitiesByText(List<EntityCandidate> candidates) {
+        Map<String, List<EntityCandidate>> groupedEntities = new HashMap<>();
+
+        for (EntityCandidate candidate :
+                candidates) {
+            String text = candidate.getCandidateText();
+            if(!groupedEntities.containsKey(text)) {
+                groupedEntities.put(text, new LinkedList<>());
+            }
+            groupedEntities.get(text).add(candidate);
+        }
+        
+        return groupedEntities;
+    }
+
+
+    public List<EntityCandidate> identifyEntities(String content) {
         List<EntityCandidate> candidates = new ArrayList<>();
         try {
-            Reader fileContentReader = new StringReader(fileContent);
+            Reader fileContentReader = new StringReader(content);
             TokenStream plainTokenizer = IndexingUtils.createPlainTokenizer(fileContentReader, vocabulary, Settings.MAX_SHINGLE_SIZE);
             List<TokenOccurrence> tokensInStream = IndexingUtils.getTokensInStream(plainTokenizer);
 
             for (TokenOccurrence occ : tokensInStream) {
-                candidates.add(new EntityCandidate(occ.startOffset, occ.endOffset, fileContent));
+                candidates.add(new EntityCandidate(occ.startOffset, occ.endOffset, content));
             }
 
         } catch (IOException e) {
@@ -40,6 +55,7 @@ public class EntityTools {
         return candidates;
     }
 
+    @Deprecated
     private List<List<EntityCandidate>> findExclusiveCandidates(List<EntityCandidate> candidates) {
         List<List<EntityCandidate>> exclusiveCandidates = new ArrayList<>();
 
@@ -60,6 +76,7 @@ public class EntityTools {
         return exclusiveCandidates;
     }
 
+    @Deprecated
     public List<List<EntityCandidate>> identifyExclusiveEntities(String fileContent) {
         return findExclusiveCandidates(identifyEntities(fileContent));
     }
