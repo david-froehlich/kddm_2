@@ -14,7 +14,7 @@ class WeightedEntityCandidate extends EntityCandidate {
                 "startPos=" + startPos +
                 ", endPos=" + endPos +
                 ", text='" + getCandidateText() + '\'' +
-                ", weight=" + weight + "}";
+                ", weight=" + weight + "}\n";
     }
 }
 
@@ -58,6 +58,6 @@ public class EntityCandidate {
                 "startPos=" + startPos +
                 ", endPos=" + endPos +
                 ", text='" + getCandidateText() + '\'' +
-                '}';
+                "}\n";
     }
 }

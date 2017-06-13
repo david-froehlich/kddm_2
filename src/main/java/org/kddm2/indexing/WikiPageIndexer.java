@@ -55,7 +55,6 @@ public class WikiPageIndexer implements Runnable {
      * eats baby souls
      */
     private void consume() throws InterruptedException, IOException {
-
         int i = 0;
         while ((i = WikiPageIndexer.indexedPages.incrementAndGet()) < MAX_INDEXED_PAGES || MAX_INDEXED_PAGES == -1) {
             IndexingTask task = indexingTasks.take();
@@ -68,7 +67,6 @@ public class WikiPageIndexer implements Runnable {
                 System.out.println("indexed " + i + " pages");
             }
         }
-
     }
 
     @Override

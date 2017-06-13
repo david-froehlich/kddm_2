@@ -11,7 +11,7 @@ public class Settings {
 
     public final static String VOCABULARY_PATH = "vocabulary.txt";
 
-    public final static String XML_FILE_PATH = "temp.xml.bz2";
+    public final static String XML_FILE_PATH = "test-pages.xml.bz2";
     //private final static String XML_FILE_PATH = "simplewiki-20170501-pages-meta-current.xml.bz2";
     public final static int CONSUMER_COUNT = 1;
 

@@ -9,6 +9,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.kddm2.Settings;
+import org.kddm2.lucene.IndexingUtils;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
@@ -40,16 +41,13 @@ public class IndexingController {
 
     private IndexWriter indexWriter;
 
-    private Set<String> readVocabulary() {
-        Set<String> vocabulary = new HashSet<>();
-
-        try (Stream<String> stream = Files.lines(
-                Paths.get(getClass().getClassLoader().getResource(Settings.VOCABULARY_PATH).toURI()))) {
-            stream.forEach(s -> vocabulary.add(s.toLowerCase()));
-        } catch (URISyntaxException | IOException e) {
+    public Set<String> readVocabulary() {
+        try {
+            return IndexingUtils.readDictionary(getClass().getClassLoader().getResource(Settings.VOCABULARY_PATH).toURI());
+        } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-        return vocabulary;
+        return null;
     }
 
     private void startThreads() throws IOException, XMLStreamException {

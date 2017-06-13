@@ -1,20 +1,25 @@
 package org.kddm2.lucene;
 
-import org.apache.lucene.analysis.LowerCaseFilter;
-import org.apache.lucene.analysis.StopFilter;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.*;
 import org.apache.lucene.analysis.shingle.ShingleFilter;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.standard.StandardFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
+import org.apache.lucene.util.Attribute;
+import org.kddm2.Settings;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Stream;
 
 public class IndexingUtils {
 
@@ -32,6 +37,30 @@ public class IndexingUtils {
             tokensInStream.put(term, count + 1);
         }
         return tokensInStream;
+    }
+
+    public static String tokenStreamToString(TokenStream stream) throws IOException {
+        StringBuilder builder = new StringBuilder();
+        CharTermAttribute charTermAttribute = stream.addAttribute(CharTermAttribute.class);
+        stream.reset();
+
+        while(stream.incrementToken()) {
+            builder.append(charTermAttribute.toString());
+            builder.append(" ");
+        }
+        return builder.toString();
+    }
+
+    public static Set<String> readDictionary(URI fileURI) {
+        Set<String> vocabulary = new HashSet<>();
+
+        try (Stream<String> stream = Files.lines(
+                Paths.get(fileURI))) {
+            stream.forEach(s -> vocabulary.add(s.toLowerCase()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return vocabulary;
     }
 
     public static List<TokenOccurrence> getTokensInStream(TokenStream stream) throws IOException {
@@ -65,6 +94,13 @@ public class IndexingUtils {
         return createIndexFilters(tokenStream, vocabulary, maxShingleSize);
     }
 
+    public static TokenStream createWikiPlaintextTokenizer(Reader reader) {
+        Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
+        wikipediaTokenizer.setReader(reader);
+        TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer);
+        return new LowerCaseFilter(tokenStream);
+    }
+
     /**
      * Creates a Wiki syntax tokenizer that only keeps plain text in the wiki file. Also applies the
      * indexing filters returned by {@link IndexingUtils#createWikiTokenizer(Reader, Set, int)}.
@@ -75,11 +111,7 @@ public class IndexingUtils {
      * @return
      */
     public static TokenStream createWikiTokenizer(Reader reader, Set<String> vocabulary, int maxShingleSize) {
-        Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
-        wikipediaTokenizer.setReader(reader);
-        TokenStream tokenStream = new WikiTokenFilter(wikipediaTokenizer);
-        tokenStream = new LowerCaseFilter(tokenStream);
-
+        TokenStream tokenStream = createWikiPlaintextTokenizer(reader);
         return createIndexFilters(tokenStream, vocabulary, maxShingleSize);
     }
 
