@@ -89,7 +89,6 @@ public class IndexingUtils {
         src.setMaxTokenLength(255);
         TokenStream tokenStream = new StandardFilter(src);
         tokenStream = new LowerCaseFilter(tokenStream);
-        tokenStream = new StopFilter(tokenStream, StandardAnalyzer.ENGLISH_STOP_WORDS_SET);
 
         return createIndexFilters(tokenStream, vocabulary, maxShingleSize);
     }
