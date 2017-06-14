@@ -1,11 +1,10 @@
-package org.kddm2.lucene;
+package org.kddm2.search.entity;
 
 import org.apache.lucene.analysis.FilteringTokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
-import org.kddm2.search.entity.EntityCandidate;
 
 import java.io.IOException;
 import java.util.LinkedList;

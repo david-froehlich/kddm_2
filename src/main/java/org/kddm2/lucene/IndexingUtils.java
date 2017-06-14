@@ -9,6 +9,7 @@ import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
+import org.kddm2.search.entity.EntityExtractor;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -19,6 +20,21 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class IndexingUtils {
+
+    public static int getWordCount(Reader reader) {
+        TokenStream tokenStream = IndexingUtils.createWikiPlaintextTokenizer(reader);
+
+        int wordCount = 0;
+        try {
+            tokenStream.reset();
+            while(tokenStream.incrementToken()) {
+                wordCount++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return wordCount;
+    }
 
     public static Map<String, Integer> getTokenOccurrencesInStream(TokenStream stream) throws IOException {
         Map<String, Integer> tokensInStream = new HashMap<>();

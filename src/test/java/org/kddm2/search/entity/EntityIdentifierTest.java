@@ -8,7 +8,6 @@ import org.kddm2.indexing.IndexStatsHelper;
 import org.kddm2.indexing.IndexingController;
 import org.kddm2.indexing.WikiPage;
 import org.kddm2.indexing.xml.WikiXmlReader;
-import org.kddm2.lucene.EntityExtractor;
 import org.kddm2.lucene.IndexingUtils;
 
 import javax.xml.stream.XMLStreamException;
@@ -49,7 +48,7 @@ public class EntityIdentifierTest {
                 new StringReader(nextPage.getText()), nextPage.getText());
 
         List<EntityCandidate> entityCandidates = entityExtractionTokenStream.readEntities();
-        System.out.println(entityCandidates);
+        //TODO assert
     }
 
     @Test
@@ -69,10 +68,46 @@ public class EntityIdentifierTest {
                 new StringReader(nextPage.getText()), vocabulary, maxShingleSize);
 
         String plainText = IndexingUtils.tokenStreamToString(wikiPlaintextTokenizer);
-
+        //TODO plain-text contains "the the"
         EntityWeightingAlgorithm algorithm = new EntityWeightingTFIDF(indexHelper, entityTools);
         EntityIdentifier identifier = new EntityIdentifier(algorithm, entityTools, CUTOFF_RATE);
 
-        System.out.println(identifier.identifyEntities(plainText));
+        List<EntityCandidateWeighted> actual = identifier.identifyEntities(plainText);
+
+        EntityExtractor entityExtractionTokenStream = IndexingUtils.createEntityExtractionTokenStream(
+                new StringReader(nextPage.getText()), nextPage.getText());
+
+        List<EntityCandidate> expected = entityExtractionTokenStream.readEntities();
+
+        System.out.println(getFScoreForEntityIdentification(expected, actual));
+    }
+
+    private float getFScoreForEntityIdentification(List<? extends EntityCandidate> expected,
+                                                   List<? extends EntityCandidate> actual) {
+        float precision = getPrecision(expected, actual);
+        float recall = getRecall(expected, actual);
+        return 2 * precision * recall / (precision + recall);
+    }
+
+    private float getPrecision(List<? extends EntityCandidate> expected, List<? extends EntityCandidate> actual) {
+        int truePositives = 0;
+        for (EntityCandidate currentActual :
+                actual) {
+            if (expected.contains(currentActual)) {
+                truePositives++;
+            }
+        }
+        return (float)truePositives / actual.size();
+    }
+
+    private float getRecall(List<? extends EntityCandidate> expected, List<? extends EntityCandidate> actual) {
+        int truePositives = 0;
+        for (EntityCandidate currentExpected:
+                expected) {
+            if (actual.contains(currentExpected)) {
+                truePositives++;
+            }
+        }
+        return (float)truePositives / expected.size();
     }
 }

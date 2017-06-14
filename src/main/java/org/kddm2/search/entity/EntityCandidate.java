@@ -35,6 +35,25 @@ public class EntityCandidate {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        try {
+            EntityCandidate candidate = (EntityCandidate) o;
+            return this.getCandidateText().equals(candidate.getCandidateText());
+        } catch (ClassCastException ex) {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int result = startPos;
+        result = 31 * result + endPos;
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "EntityCandidate{" +
                 "startPos=" + startPos +
