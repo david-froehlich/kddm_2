@@ -97,11 +97,11 @@ public class IndexingUtils {
         return new LowerCaseFilter(tokenStream);
     }
 
-    public static EntityExtractionFilter createEntityExtractionTokenStream(Reader reader, String fullString){
+    public static EntityExtractor createEntityExtractionTokenStream(Reader reader, String fullString){
         Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
         wikipediaTokenizer.setReader(reader);
         TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer);
-        return new EntityExtractionFilter(tokenStream, fullString);
+        return new EntityExtractor(tokenStream, fullString);
     }
 
     /**
