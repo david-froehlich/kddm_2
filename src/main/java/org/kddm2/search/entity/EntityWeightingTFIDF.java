@@ -11,7 +11,7 @@ public class EntityWeightingTFIDF extends EntityWeightingAlgorithm {
     @Override
     protected float getWeightForCandidate(EntityCandidate candidate, int occurenceCount) {
         IndexTermStats statsForDictTerm = indexHelper.getStatsForDictTerm(candidate.getCandidateText());
-        if(statsForDictTerm.getCountOccurenceDocuments() > 1) {
+        if (statsForDictTerm.getCountOccurenceDocuments() > 1) {
             return (float) (occurenceCount / Math.log(statsForDictTerm.getCountOccurenceDocuments()));
         } else {
             return (float) (occurenceCount * Math.E);

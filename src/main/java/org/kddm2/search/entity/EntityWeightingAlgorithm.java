@@ -44,7 +44,7 @@ class KeyphrasenessEntityExtraction extends EntityWeightingAlgorithm {
 
         long linkings = statsForDictTerm.getCountLinkings();
         long occurences = statsForDictTerm.getCountOccurenceDocuments();
-        if(linkings + occurences == 0) {
+        if (linkings + occurences == 0) {
             return 0.0f;
         }
         return ((float) linkings / occurences + linkings);

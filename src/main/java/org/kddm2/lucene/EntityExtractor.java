@@ -29,7 +29,7 @@ public class EntityExtractor extends FilteringTokenFilter {
 
     public List<EntityCandidate> readEntities() throws IOException {
         this.reset();
-        while(incrementToken()){
+        while (incrementToken()) {
             //do nothing
         }
         return extractedEntities;
@@ -37,6 +37,7 @@ public class EntityExtractor extends FilteringTokenFilter {
 
     /**
      * the stream is the last stream in the pipe, so it only gets the tokens that should be accepted anyway
+     *
      * @return
      * @throws IOException
      */

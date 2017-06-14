@@ -26,12 +26,12 @@ public class EntityTools {
 
         for (EntityCandidate candidate : candidates) {
             String text = candidate.getCandidateText();
-            if(!groupedEntities.containsKey(text)) {
+            if (!groupedEntities.containsKey(text)) {
                 groupedEntities.put(text, new LinkedList<>());
             }
             groupedEntities.get(text).add(candidate);
         }
-        
+
         return groupedEntities;
     }
 

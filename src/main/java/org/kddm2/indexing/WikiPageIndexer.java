@@ -85,7 +85,7 @@ public class WikiPageIndexer implements Runnable {
     /**
      * Writes all collected synonyms to the lucene index.
      * TODO: batch this if out of memory
-     *  or use mapdb set that caches to filesystem
+     * or use mapdb set that caches to filesystem
      */
     private void writeSynonyms() {
         try {
