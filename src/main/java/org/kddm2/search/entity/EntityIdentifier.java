@@ -1,7 +1,5 @@
 package org.kddm2.search.entity;
 
-import org.kddm2.indexing.IndexStatsHelper;
-
 import java.util.List;
 
 public class EntityIdentifier {
@@ -13,7 +11,7 @@ public class EntityIdentifier {
         this.algorithm = algorithm;
         this.entityTools = entityTools;
         this.cutoffRate = cutoffRate;
-        if(this.cutoffRate > 1.0f) {
+        if (this.cutoffRate > 1.0f) {
             throw new IllegalArgumentException("cutoff-rate > 1.0 doesn't make sense...");
         }
     }
@@ -21,8 +19,8 @@ public class EntityIdentifier {
     public List<EntityCandidateWeighted> identifyEntities(String text) {
         List<EntityCandidate> entityCandidates = entityTools.identifyEntities(text);
         List<EntityCandidateWeighted> entities = algorithm.determineWeight(entityCandidates);
-        entities.sort((left, right) -> (int) Math.signum(right.weight - left.weight));
-        int returnedEntitityCount = (int)Math.ceil(entities.size() * cutoffRate);
+        entities.sort((left, right) -> (int) Math.signum(right.getWeight() - left.getWeight()));
+        int returnedEntitityCount = (int) Math.ceil(entities.size() * cutoffRate);
         return entities.subList(0, returnedEntitityCount);
     }
 }

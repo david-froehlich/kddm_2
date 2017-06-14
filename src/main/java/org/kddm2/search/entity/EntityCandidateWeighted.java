@@ -1,10 +1,18 @@
 package org.kddm2.search.entity;
 
 public class EntityCandidateWeighted extends EntityCandidate {
-    double weight;
+    private float weight;
 
-    public EntityCandidateWeighted(EntityCandidate source, double weight) {
+    public EntityCandidateWeighted(EntityCandidate source, float weight) {
         super(source);
+        this.weight = weight;
+    }
+
+    public float getWeight() {
+        return weight;
+    }
+
+    public void setWeight(float weight) {
         this.weight = weight;
     }
 
