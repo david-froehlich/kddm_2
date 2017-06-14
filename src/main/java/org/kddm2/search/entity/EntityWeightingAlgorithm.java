@@ -41,6 +41,12 @@ class KeyphrasenessEntityExtraction extends EntityWeightingAlgorithm {
     @Override
     protected double getWeightForCandidate(EntityCandidate candidate, int occurrenceCount) {
         IndexTermStats statsForDictTerm = indexHelper.getStatsForDictTerm(candidate.getCandidateText());
-        return ((double) statsForDictTerm.getCountLinkings() / statsForDictTerm.getCountOccurenceDocuments());
+
+        long linkings = statsForDictTerm.getCountLinkings();
+        long occurences = statsForDictTerm.getCountOccurenceDocuments();
+        if(linkings + occurences == 0) {
+            return 0.0;
+        }
+        return ((double) linkings / occurences + linkings);
     }
 }

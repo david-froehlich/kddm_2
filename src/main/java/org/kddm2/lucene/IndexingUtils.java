@@ -1,20 +1,18 @@
 package org.kddm2.lucene;
 
-import org.apache.lucene.analysis.*;
+import org.apache.lucene.analysis.LowerCaseFilter;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.shingle.ShingleFilter;
 import org.apache.lucene.analysis.standard.StandardFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
-import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
-import org.apache.lucene.util.Attribute;
-import org.kddm2.Settings;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -97,6 +95,13 @@ public class IndexingUtils {
         wikipediaTokenizer.setReader(reader);
         TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer);
         return new LowerCaseFilter(tokenStream);
+    }
+
+    public static EntityExtractionFilter createEntityExtractionTokenStream(Reader reader, String fullString){
+        Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
+        wikipediaTokenizer.setReader(reader);
+        TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer);
+        return new EntityExtractionFilter(tokenStream, fullString);
     }
 
     /**
