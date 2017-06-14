@@ -34,4 +34,13 @@ public class EntityDocument {
     public void setLuceneDocId(int luceneDocId) {
         this.luceneDocId = luceneDocId;
     }
+
+    @Override
+    public String toString() {
+        return "EntityDocument{" +
+                "documentId='" + documentId + '\'' +
+                ", luceneDocId=" + luceneDocId +
+                ", relevance=" + relevance +
+                '}';
+    }
 }

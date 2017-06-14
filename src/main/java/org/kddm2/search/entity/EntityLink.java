@@ -26,4 +26,12 @@ public class EntityLink {
     public void setPossibleTargetDocuments(List<EntityDocument> possibleTargetDocuments) {
         this.possibleTargetDocuments = possibleTargetDocuments;
     }
+
+    @Override
+    public String toString() {
+        return "EntityLink{" +
+                "entity=" + entity +
+                ", possibleTargetDocuments=" + possibleTargetDocuments +
+                "}\n";
+    }
 }
