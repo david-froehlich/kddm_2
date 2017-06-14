@@ -17,8 +17,7 @@ public class EntityCandidate {
         this.wholeContent = source.wholeContent;
     }
 
-    public boolean overlaps(EntityCandidate other)
-    {
+    public boolean overlaps(EntityCandidate other) {
         return Math.max(startPos, other.startPos) < Math.min(endPos, other.endPos);
     }
 

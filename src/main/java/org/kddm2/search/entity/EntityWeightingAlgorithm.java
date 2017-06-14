@@ -17,7 +17,7 @@ public abstract class EntityWeightingAlgorithm {
         this.entityTools = entityTools;
     }
 
-    protected abstract double getWeightForCandidate(EntityCandidate candidate, int occurenceCount);
+    protected abstract float getWeightForCandidate(EntityCandidate candidate, int occurenceCount);
 
     public List<EntityCandidateWeighted> determineWeight(List<EntityCandidate> candidates) {
         List<EntityCandidateWeighted> weightedCandidates = new LinkedList<>();
@@ -39,14 +39,14 @@ class KeyphrasenessEntityExtraction extends EntityWeightingAlgorithm {
     }
 
     @Override
-    protected double getWeightForCandidate(EntityCandidate candidate, int occurrenceCount) {
+    protected float getWeightForCandidate(EntityCandidate candidate, int occurrenceCount) {
         IndexTermStats statsForDictTerm = indexHelper.getStatsForDictTerm(candidate.getCandidateText());
 
         long linkings = statsForDictTerm.getCountLinkings();
         long occurences = statsForDictTerm.getCountOccurenceDocuments();
-        if(linkings + occurences == 0) {
-            return 0.0;
+        if (linkings + occurences == 0) {
+            return 0.0f;
         }
-        return ((double) linkings / occurences + linkings);
+        return ((float) linkings / occurences + linkings);
     }
 }

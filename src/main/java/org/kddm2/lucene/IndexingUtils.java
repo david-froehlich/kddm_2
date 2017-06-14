@@ -57,7 +57,7 @@ public class IndexingUtils {
         CharTermAttribute charTermAttribute = stream.addAttribute(CharTermAttribute.class);
         stream.reset();
 
-        while(stream.incrementToken()) {
+        while (stream.incrementToken()) {
             builder.append(charTermAttribute.toString());
             builder.append(" ");
         }
@@ -113,7 +113,7 @@ public class IndexingUtils {
         return new LowerCaseFilter(tokenStream);
     }
 
-    public static EntityExtractor createEntityExtractionTokenStream(Reader reader, String fullString){
+    public static EntityExtractor createEntityExtractionTokenStream(Reader reader, String fullString) {
         Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
         wikipediaTokenizer.setReader(reader);
         TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer);
