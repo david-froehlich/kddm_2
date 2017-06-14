@@ -8,7 +8,7 @@ import org.kddm2.indexing.IndexStatsHelper;
 import org.kddm2.indexing.IndexingController;
 import org.kddm2.indexing.WikiPage;
 import org.kddm2.indexing.xml.WikiXmlReader;
-import org.kddm2.lucene.EntityExtractionFilter;
+import org.kddm2.lucene.EntityExtractor;
 import org.kddm2.lucene.IndexingUtils;
 
 import javax.xml.stream.XMLStreamException;
@@ -45,7 +45,7 @@ public class EntityIdentifierTest {
 
         WikiPage nextPage = wikiXmlReader.getNextPage();
 
-        EntityExtractionFilter entityExtractionTokenStream = IndexingUtils.createEntityExtractionTokenStream(
+        EntityExtractor entityExtractionTokenStream = IndexingUtils.createEntityExtractionTokenStream(
                 new StringReader(nextPage.getText()), nextPage.getText());
 
         List<EntityCandidate> entityCandidates = entityExtractionTokenStream.readEntities();

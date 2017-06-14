@@ -14,13 +14,13 @@ import java.util.List;
 /**
  * Takes the content of a Wikipedia article and extracts the Entities from all internal links
  */
-public class EntityExtractionFilter extends FilteringTokenFilter {
+public class EntityExtractor extends FilteringTokenFilter {
     private String wholeString;
     private List<EntityCandidate> extractedEntities = new LinkedList<>();
     private TypeAttribute tAttr;
     private OffsetAttribute offsetAttribute;
 
-    public EntityExtractionFilter(TokenStream su, String wholeString) {
+    public EntityExtractor(TokenStream su, String wholeString) {
         super(su);
         tAttr = getAttribute(TypeAttribute.class);
         offsetAttribute = addAttribute(OffsetAttribute.class);
