@@ -84,6 +84,7 @@ public class EntityLinker {
             if (relevantDocuments.isEmpty()) {
                 continue;
             }
+            relevantDocuments.sort((left, right) -> Float.compare(left.getRelevance(), right.getRelevance()));
             EntityLink link = new EntityLink(candidate, relevantDocuments);
             resultingLinks.add(link);
         }

@@ -3,7 +3,9 @@ package org.kddm2.search.entity;
 import org.apache.lucene.store.FSDirectory;
 import org.junit.Before;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
+
 import org.kddm2.Settings;
 import org.kddm2.indexing.IndexStatsHelper;
 import org.kddm2.indexing.IndexingController;
@@ -44,6 +46,9 @@ public class EntityLinkerTest {
         WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream, vocabulary);
 
         WikiPage nextPage = wikiXmlReader.getNextPage();
+        System.out.println("Testing on this wiki page:");
+        System.out.println("Title: " + nextPage.getTitle());
+        System.out.println(nextPage.getText());
 
         FSDirectory directory = FSDirectory.open(Paths.get(INDEX_PATH));
 
@@ -60,6 +65,18 @@ public class EntityLinkerTest {
         List<EntityLink> entityLinks = entityLinker.identifyLinksForCandidates(entityCandidatesWeighted);
 
         assertNotEquals(entityLinks.size(), 0);
+        assertEquals(entityLinks.size(), 3);
+
+        String title = nextPage.getTitle().trim().toLowerCase();
+        for (EntityLink link : entityLinks) {
+            String linkText = link.getEntity().getCandidateText().trim().toLowerCase();
+            if (title.equalsIgnoreCase(linkText)) {
+                EntityDocument topDoc = link.getTargets().get(0);
+                assertEquals(title, topDoc.getDocumentId());
+            }
+        }
+
+        System.out.println("\nResults:");
         System.out.println(entityLinks);
     }
 }

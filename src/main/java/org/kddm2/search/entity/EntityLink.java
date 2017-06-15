@@ -4,11 +4,11 @@ import java.util.List;
 
 public class EntityLink {
     private EntityCandidateWeighted entity;
-    private List<EntityDocument> possibleTargetDocuments;
+    private List<EntityDocument> targets;
 
-    public EntityLink(EntityCandidateWeighted entity, List<EntityDocument> possibleTargetDocuments) {
+    public EntityLink(EntityCandidateWeighted entity, List<EntityDocument> targets) {
         this.entity = entity;
-        this.possibleTargetDocuments = possibleTargetDocuments;
+        this.targets = targets;
     }
 
     public EntityCandidateWeighted getEntity() {
@@ -19,19 +19,19 @@ public class EntityLink {
         this.entity = entity;
     }
 
-    public List<EntityDocument> getPossibleTargetDocuments() {
-        return possibleTargetDocuments;
+    public List<EntityDocument> getTargets() {
+        return targets;
     }
 
-    public void setPossibleTargetDocuments(List<EntityDocument> possibleTargetDocuments) {
-        this.possibleTargetDocuments = possibleTargetDocuments;
+    public void setTargets(List<EntityDocument> targets) {
+        this.targets = targets;
     }
 
     @Override
     public String toString() {
         return "EntityLink{" +
                 "entity=" + entity +
-                ", possibleTargetDocuments=" + possibleTargetDocuments +
+                "    , targets=" + targets +
                 "}\n";
     }
 }
