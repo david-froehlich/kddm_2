@@ -7,9 +7,9 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.kddm2.Settings;
-import org.kddm2.lucene.IndexingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,6 @@ import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -26,39 +25,53 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class IndexingService {
+    public class IndexingStatus {
+        public final int numProcessedPages;
+        public final int numPagesInQueue;
+        public final boolean isRunning;
+
+        public IndexingStatus(int numProcessedPages, int numPagesInQueue, boolean isRunning) {
+            this.numProcessedPages = numProcessedPages;
+            this.numPagesInQueue = numPagesInQueue;
+            this.isRunning = isRunning;
+        }
+    }
 
     private Thread producer;
     private List<Thread> consumers;
     private IndexWriter indexWriter;
     private AtomicBoolean running = new AtomicBoolean(false);
+    private AtomicInteger numProcessedPages = new AtomicInteger();
+    private BlockingQueue<IndexingTask> indexingTasks = new ArrayBlockingQueue<>(Settings.QUEUE_LENGTH);
     private Path indexDirectory;
+    private Set<String> vocabulary;
     private static final Logger logger = LoggerFactory.getLogger(IndexingService.class);
 
 
-    public IndexingService(Path indexDirectory) {
+    @Autowired
+    public IndexingService(Path indexDirectory, Set<String> vocabulary) {
         this.indexDirectory = indexDirectory;
+        this.vocabulary = vocabulary;
     }
 
-    public Set<String> readVocabulary() {
-        try {
-            return IndexingUtils.readDictionary(getClass().getClassLoader().getResource(Settings.VOCABULARY_PATH).toURI());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     public boolean isRunning() {
         return running.get();
+    }
+
+    public IndexingStatus getStatus() {
+        return new IndexingStatus(numProcessedPages.get(), indexingTasks.size(), isRunning());
     }
 
     @Async
     public void start() {
         running.set(true);
         try {
+            numProcessedPages.set(0);
             createIndexDirectory(indexDirectory);
             long start = System.currentTimeMillis();
 
@@ -77,10 +90,10 @@ public class IndexingService {
 
 
     private void startThreads() throws IOException, XMLStreamException {
-        BlockingQueue<IndexingTask> indexingTasks = new ArrayBlockingQueue<>(Settings.QUEUE_LENGTH);
+        indexingTasks.clear();
         InputStream wikiInputStream = getClass().getClassLoader().getResourceAsStream(Settings.XML_FILE_PATH);
 
-        producer = new Thread(new WikiPageProducer(indexingTasks, readVocabulary(), wikiInputStream));
+        producer = new Thread(new WikiPageProducer(indexingTasks, vocabulary, wikiInputStream, numProcessedPages));
         producer.start();
         consumers = new ArrayList<>();
         for (int i = 0; i < Settings.CONSUMER_COUNT; i++) {

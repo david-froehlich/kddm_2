@@ -1,7 +1,6 @@
 package org.kddm2.search.entity;
 
 import org.kddm2.indexing.IndexStatsHelper;
-import org.kddm2.indexing.IndexTermStats;
 
 import java.util.LinkedList;
 import java.util.List;

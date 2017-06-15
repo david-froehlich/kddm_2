@@ -6,6 +6,9 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.kddm2.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,12 +17,14 @@ import java.util.List;
 import java.util.Set;
 
 public class EntityLinker {
+    private static final Logger LOG = LoggerFactory.getLogger(EntityLinker.class);
 
     private IndexSearcher searcher;
+    DirectoryReader directoryReader;
 
-
+    @Autowired
     public EntityLinker(Directory indexDirectory) throws IOException {
-        DirectoryReader directoryReader = DirectoryReader.open(indexDirectory);
+        directoryReader = DirectoryReader.open(indexDirectory);
         searcher = new IndexSearcher(directoryReader);
     }
 

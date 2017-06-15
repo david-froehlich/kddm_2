@@ -2,16 +2,21 @@ package org.kddm2.indexing;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.kddm2.Settings;
+import org.kddm2.lucene.IndexingUtils;
 
+import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Set;
 
 public class IndexingTest {
-
     private static final String INDEX_PATH = "/tmp/kddmTestIndex";
 
     @Test
     public void testIndexing() throws Exception {
-        IndexingService indexingService = new IndexingService(Paths.get(INDEX_PATH));
+        URL resource = getClass().getClassLoader().getResource(Settings.VOCABULARY_PATH);
+        Set<String> vocabulary = IndexingUtils.readDictionary(resource.toURI());
+        IndexingService indexingService = new IndexingService(Paths.get(INDEX_PATH), vocabulary);
         indexingService.start();
     }
 

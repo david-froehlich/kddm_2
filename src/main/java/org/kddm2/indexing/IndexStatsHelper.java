@@ -6,6 +6,8 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.kddm2.Settings;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -14,11 +16,12 @@ import java.nio.file.Path;
 /**
  * Provides methods to get stats about terms from the index
  */
+@Component
 public class IndexStatsHelper {
     private final DirectoryReader directoryReader;
     private final int documentCount;
 
-
+    @Autowired
     public IndexStatsHelper(Directory indexDirectory) throws IOException {
         directoryReader = StandardDirectoryReader.open(indexDirectory);
         documentCount = directoryReader.numDocs();

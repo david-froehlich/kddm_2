@@ -10,18 +10,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class WikiPageProducer implements Runnable {
-    private BlockingQueue<IndexingTask> indexingTasks;
-    private Set<String> vocabulary;
-    private WikiXmlReader reader;
     private static final Logger logger = LoggerFactory.getLogger(WikiPageProducer.class);
+    private BlockingQueue<IndexingTask> indexingTasks;
+    private AtomicInteger numProcessedPages;
+    private WikiXmlReader reader;
 
 
     public WikiPageProducer(BlockingQueue<IndexingTask> unindexedPages, Set<String> vocabulary,
-                            InputStream xmlFileInputStream) throws IOException, XMLStreamException {
+                            InputStream xmlFileInputStream, AtomicInteger numProcessedPages) throws IOException, XMLStreamException {
         this.indexingTasks = unindexedPages;
-        this.vocabulary = vocabulary;
+        this.numProcessedPages = numProcessedPages;
         this.reader = new WikiXmlReader(xmlFileInputStream, vocabulary);
     }
 
@@ -38,6 +39,7 @@ public class WikiPageProducer implements Runnable {
                 logger.info("producer done");
                 return;
             }
+            numProcessedPages.incrementAndGet();
             this.indexingTasks.put(new IndexingTask(nextPage, false));
         }
     }

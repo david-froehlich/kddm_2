@@ -26,14 +26,10 @@ public class EntityIdentifierTest {
     private Set<String> vocabulary;
 
     @Before
-    public void setUpVocabulary() throws URISyntaxException {
+    public void setUp() throws IOException, XMLStreamException, URISyntaxException {
         vocabulary = IndexingUtils.readDictionary(
                 getClass().getClassLoader().getResource(Settings.VOCABULARY_PATH).toURI());
-    }
-
-    @Before
-    public void setUpDirectory() throws IOException, XMLStreamException {
-        IndexingService indexingService = new IndexingService(Paths.get(INDEX_PATH));
+        IndexingService indexingService = new IndexingService(Paths.get(INDEX_PATH), vocabulary);
         indexingService.start();
     }
 
@@ -57,7 +53,7 @@ public class EntityIdentifierTest {
         WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream, vocabulary);
 
         IndexStatsHelper indexHelper = new IndexStatsHelper(Paths.get(INDEX_PATH));
-        EntityTools entityTools = new EntityTools(indexHelper, vocabulary);
+        EntityTools entityTools = new EntityTools(vocabulary);
 
         //TODO check more than one page
         WikiPage nextPage = wikiXmlReader.getNextPage();
@@ -97,17 +93,17 @@ public class EntityIdentifierTest {
                 truePositives++;
             }
         }
-        return (float)truePositives / actual.size();
+        return (float) truePositives / actual.size();
     }
 
     private float getRecall(List<? extends EntityCandidate> expected, List<? extends EntityCandidate> actual) {
         int truePositives = 0;
-        for (EntityCandidate currentExpected:
+        for (EntityCandidate currentExpected :
                 expected) {
             if (actual.contains(currentExpected)) {
                 truePositives++;
             }
         }
-        return (float)truePositives / expected.size();
+        return (float) truePositives / expected.size();
     }
 }

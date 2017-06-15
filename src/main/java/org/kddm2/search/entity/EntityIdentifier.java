@@ -1,6 +1,7 @@
 package org.kddm2.search.entity;
 
 import org.kddm2.lucene.IndexingUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.StringReader;
 import java.util.List;
@@ -12,6 +13,7 @@ public class EntityIdentifier {
     //ratio of words in text to entities
     private float entityRate;
 
+    @Autowired
     public EntityIdentifier(EntityWeightingAlgorithm algorithm, EntityTools entityTools, float entityRate) {
         this.algorithm = algorithm;
         this.entityTools = entityTools;
@@ -27,8 +29,8 @@ public class EntityIdentifier {
         entities.sort((left, right) -> (int) Math.signum(right.getWeight() - left.getWeight()));
 
         int wordCount = IndexingUtils.getWordCount(new StringReader(text));
-        int returnedEntitityCount = Math.min((int)Math.ceil(wordCount * entityRate)
+        int returnedEntityCount = Math.min((int)Math.ceil(wordCount * entityRate)
                 , entities.size());
-        return entities.subList(0, returnedEntitityCount);
+        return entities.subList(0, returnedEntityCount);
     }
 }

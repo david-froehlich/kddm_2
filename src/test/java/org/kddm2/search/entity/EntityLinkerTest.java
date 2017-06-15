@@ -1,11 +1,9 @@
 package org.kddm2.search.entity;
 
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import org.kddm2.Settings;
 import org.kddm2.indexing.IndexStatsHelper;
 import org.kddm2.indexing.IndexingService;
@@ -17,9 +15,13 @@ import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class EntityLinkerTest {
     private static final String INDEX_PATH = "/tmp/test_index/";
@@ -27,16 +29,16 @@ public class EntityLinkerTest {
     private static final float CUTOFF_RATE = 0.06f;
 
     private Set<String> vocabulary;
+    private Directory indexDirectory;
+
 
     @Before
-    public void setUpVocabulary() throws URISyntaxException {
+    public void setUp() throws IOException, XMLStreamException, URISyntaxException {
         vocabulary = IndexingUtils.readDictionary(
                 getClass().getClassLoader().getResource(Settings.VOCABULARY_PATH).toURI());
-    }
-
-    @Before
-    public void setUpDirectory() throws IOException, XMLStreamException {
-        IndexingService indexingService = new IndexingService(Paths.get(INDEX_PATH));
+        Path indexPath = Paths.get(INDEX_PATH);
+        indexDirectory = FSDirectory.open(indexPath);
+        IndexingService indexingService = new IndexingService(indexPath, vocabulary);
         indexingService.start();
     }
 
@@ -56,7 +58,7 @@ public class EntityLinkerTest {
         List<EntityCandidate> entityCandidates = entityExtractionTokenStream.readEntities();
 
         IndexStatsHelper indexHelper = new IndexStatsHelper(directory);
-        EntityTools entityTools = new EntityTools(indexHelper, vocabulary);
+        EntityTools entityTools = new EntityTools(vocabulary);
 
         EntityWeightingAlgorithm algorithm = new EntityWeightingTFIDF(indexHelper, entityTools);
         List<EntityCandidateWeighted> entityCandidatesWeighted = algorithm.determineWeight(entityCandidates);

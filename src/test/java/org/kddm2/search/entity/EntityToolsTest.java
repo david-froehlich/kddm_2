@@ -22,17 +22,13 @@ public class EntityToolsTest {
 
     @Before
     public void createIndex() throws Exception {
-        IndexingService indexingService = new IndexingService(Paths.get(INDEX_PATH));
-        indexingService.start();
-    }
-
-    @Before
-    public void readVocabulary() {
         vocabulary = new HashSet<>();
-
         vocabulary.add("april");
         vocabulary.add("august");
         vocabulary.add("chinese");
+
+        IndexingService indexingService = new IndexingService(Paths.get(INDEX_PATH), vocabulary);
+        indexingService.start();
     }
 
     @Test
@@ -48,7 +44,7 @@ public class EntityToolsTest {
     @Test
     public void testEntityWeighting() throws Exception {
         IndexStatsHelper helper = new IndexStatsHelper(Paths.get(INDEX_PATH));
-        EntityTools entityTools = new EntityTools(helper, vocabulary);
+        EntityTools entityTools = new EntityTools(vocabulary);
         EntityWeightingAlgorithm alg = new EntityWeightingTFIDF(helper, entityTools);
         List<EntityCandidateWeighted> weightedEntityCandidates = alg.determineWeight(entityTools.identifyEntities(CONTENT));
         System.out.println(weightedEntityCandidates);
@@ -59,7 +55,7 @@ public class EntityToolsTest {
     @Test
     public void testEntityIdentification() throws Exception {
         IndexStatsHelper helper = new IndexStatsHelper(Paths.get(INDEX_PATH));
-        EntityTools entityTools = new EntityTools(helper, vocabulary);
+        EntityTools entityTools = new EntityTools(vocabulary);
         List<EntityCandidate> candidates = entityTools.identifyEntities(CONTENT);
         System.out.println(candidates);
         //TODO assert

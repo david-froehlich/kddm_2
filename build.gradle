@@ -24,14 +24,15 @@ repositories {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.12'
     compile 'org.apache.lucene:lucene-core:6.5.1'
     compile 'org.apache.lucene:lucene-analyzers-common:6.5.1'
     compile 'org.apache.commons:commons-compress:1.13'
-
-    compile("org.springframework.boot:spring-boot-starter-web") {
-        exclude module: "spring-boot-starter-tomcat"
+    compile 'org.springframework.boot:spring-boot-starter-jetty'
+    compile 'org.springframework.boot:spring-boot-starter-actuator'
+    compile('org.springframework.boot:spring-boot-starter-web') {
+        exclude module: 'spring-boot-starter-tomcat'
     }
-    compile "org.springframework.boot:spring-boot-starter-jetty"
-    compile "org.springframework.boot:spring-boot-starter-actuator"
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
 }
