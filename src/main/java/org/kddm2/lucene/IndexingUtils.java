@@ -28,7 +28,7 @@ public class IndexingUtils {
         int wordCount = 0;
         try {
             tokenStream.reset();
-            while(tokenStream.incrementToken()) {
+            while (tokenStream.incrementToken()) {
                 wordCount++;
             }
         } catch (IOException e) {

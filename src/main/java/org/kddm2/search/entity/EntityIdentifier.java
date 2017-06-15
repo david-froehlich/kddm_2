@@ -29,7 +29,7 @@ public class EntityIdentifier {
         entities.sort((left, right) -> (int) Math.signum(right.getWeight() - left.getWeight()));
 
         int wordCount = IndexingUtils.getWordCount(new StringReader(text));
-        int returnedEntityCount = Math.min((int)Math.ceil(wordCount * entityRate)
+        int returnedEntityCount = Math.min((int) Math.ceil(wordCount * entityRate)
                 , entities.size());
         return entities.subList(0, returnedEntityCount);
     }

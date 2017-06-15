@@ -20,6 +20,7 @@ public class WikiReplacerTokenFilter extends FilteringTokenFilter {
         acceptedTypes.add(WikipediaTokenizer.INTERNAL_LINK);
 
     }
+
     public WikiReplacerTokenFilter(TokenStream in) {
         super(in);
     }

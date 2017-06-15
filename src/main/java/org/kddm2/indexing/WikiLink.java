@@ -19,12 +19,18 @@ public class WikiLink {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         WikiLink wikiLink = (WikiLink) o;
 
-        if (!pageId.equals(wikiLink.pageId)) return false;
+        if (!pageId.equals(wikiLink.pageId)) {
+            return false;
+        }
         return linkText.equals(wikiLink.linkText);
     }
 
