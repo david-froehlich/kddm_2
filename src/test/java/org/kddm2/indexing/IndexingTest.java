@@ -11,8 +11,8 @@ public class IndexingTest {
 
     @Test
     public void testIndexing() throws Exception {
-        IndexingController indexingController = new IndexingController(Paths.get(INDEX_PATH));
-        indexingController.start();
+        IndexingService indexingService = new IndexingService(Paths.get(INDEX_PATH));
+        indexingService.start();
     }
 
     @Test

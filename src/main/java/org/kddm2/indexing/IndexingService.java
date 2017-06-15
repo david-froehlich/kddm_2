@@ -8,6 +8,10 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.kddm2.Settings;
 import org.kddm2.lucene.IndexingUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
@@ -21,14 +25,22 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class IndexingController {
-
+@Service
+public class IndexingService {
 
     private Thread producer;
     private List<Thread> consumers;
-
     private IndexWriter indexWriter;
+    private AtomicBoolean running = new AtomicBoolean(false);
+    private Path indexDirectory;
+    private static final Logger logger = LoggerFactory.getLogger(IndexingService.class);
+
+
+    public IndexingService(Path indexDirectory) {
+        this.indexDirectory = indexDirectory;
+    }
 
     public Set<String> readVocabulary() {
         try {
@@ -38,6 +50,31 @@ public class IndexingController {
         }
         return null;
     }
+
+    public boolean isRunning() {
+        return running.get();
+    }
+
+    @Async
+    public void start() {
+        running.set(true);
+        try {
+            createIndexDirectory(indexDirectory);
+            long start = System.currentTimeMillis();
+
+            startThreads();
+            producer.join();
+            for (Thread thread : consumers) {
+                thread.join();
+            }
+
+            logger.info("Indexing took " + (System.currentTimeMillis() - start) / 1000 + " seconds");
+        } catch (InterruptedException | XMLStreamException | IOException e) {
+            logger.error("Exception while indexing:", e);
+        }
+        running.set(false);
+    }
+
 
     private void startThreads() throws IOException, XMLStreamException {
         BlockingQueue<IndexingTask> indexingTasks = new ArrayBlockingQueue<>(Settings.QUEUE_LENGTH);
@@ -66,22 +103,5 @@ public class IndexingController {
         indexWriter = new IndexWriter(directory, config);
     }
 
-    public void start() throws IOException, XMLStreamException {
-        this.startThreads();
 
-        try {
-            producer.join();
-
-            for (Thread thread : consumers) {
-                thread.join();
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public IndexingController(Path indexDirectory) throws IOException, XMLStreamException {
-        createIndexDirectory(indexDirectory);
-    }
 }

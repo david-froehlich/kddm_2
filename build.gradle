@@ -1,9 +1,23 @@
-group 'org.kddm2'
-version '1.0-SNAPSHOT'
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.4.RELEASE")
+    }
+}
 
 apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
 
+group 'org.kddm2'
+version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
+
+jar {
+    baseName = 'kddm2-wikification'
+    version = getVersion()
+}
 
 repositories {
     mavenCentral()
@@ -14,4 +28,10 @@ dependencies {
     compile 'org.apache.lucene:lucene-core:6.5.1'
     compile 'org.apache.lucene:lucene-analyzers-common:6.5.1'
     compile 'org.apache.commons:commons-compress:1.13'
+
+    compile("org.springframework.boot:spring-boot-starter-web") {
+        exclude module: "spring-boot-starter-tomcat"
+    }
+    compile "org.springframework.boot:spring-boot-starter-jetty"
+    compile "org.springframework.boot:spring-boot-starter-actuator"
 }

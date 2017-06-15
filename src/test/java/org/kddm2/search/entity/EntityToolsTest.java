@@ -3,7 +3,7 @@ package org.kddm2.search.entity;
 import org.junit.Before;
 import org.junit.Test;
 import org.kddm2.indexing.IndexStatsHelper;
-import org.kddm2.indexing.IndexingController;
+import org.kddm2.indexing.IndexingService;
 
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -22,8 +22,8 @@ public class EntityToolsTest {
 
     @Before
     public void createIndex() throws Exception {
-        IndexingController indexingController = new IndexingController(Paths.get(INDEX_PATH));
-        indexingController.start();
+        IndexingService indexingService = new IndexingService(Paths.get(INDEX_PATH));
+        indexingService.start();
     }
 
     @Before

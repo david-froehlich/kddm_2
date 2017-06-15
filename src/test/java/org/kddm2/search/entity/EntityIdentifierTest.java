@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kddm2.Settings;
 import org.kddm2.indexing.IndexStatsHelper;
-import org.kddm2.indexing.IndexingController;
+import org.kddm2.indexing.IndexingService;
 import org.kddm2.indexing.WikiPage;
 import org.kddm2.indexing.xml.WikiXmlReader;
 import org.kddm2.lucene.IndexingUtils;
@@ -33,8 +33,8 @@ public class EntityIdentifierTest {
 
     @Before
     public void setUpDirectory() throws IOException, XMLStreamException {
-        IndexingController indexingController = new IndexingController(Paths.get(INDEX_PATH));
-        indexingController.start();
+        IndexingService indexingService = new IndexingService(Paths.get(INDEX_PATH));
+        indexingService.start();
     }
 
     @Test

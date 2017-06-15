@@ -7,6 +7,8 @@ import org.kddm2.indexing.WikiLink;
 import org.kddm2.indexing.WikiPage;
 import org.kddm2.indexing.WikiUtils;
 import org.kddm2.lucene.IndexingUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -24,12 +26,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 
 public class WikiXmlReader {
+    private static final Logger logger = LoggerFactory.getLogger(WikiXmlReader.class);
+
     private BZip2CompressorInputStream compressorInputStream;
     private XMLEventReader xmlEventReader;
     private WikiPage currentPage;
     private int numPages = 0;
     private Set<String> vocabulary;
-
 
     public WikiXmlReader(InputStream inputStream, Set<String> vocabulary) throws IOException, XMLStreamException {
         compressorInputStream = new BZip2CompressorInputStream(inputStream);
@@ -51,7 +54,7 @@ public class WikiXmlReader {
 
             }
         }
-        System.out.println("Parsed " + numPages + " pages");
+        logger.info("Parsed " + numPages + " pages");
     }
 
 
@@ -71,7 +74,7 @@ public class WikiXmlReader {
                 }
             }
         }
-        System.out.println("Parsed " + numPages + " pages");
+        logger.info("Parsed " + numPages + " pages");
 
         return null;
     }

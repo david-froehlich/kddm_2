@@ -2,6 +2,8 @@ package org.kddm2.indexing;
 
 import org.kddm2.Settings;
 import org.kddm2.indexing.xml.WikiXmlReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
@@ -13,6 +15,8 @@ public class WikiPageProducer implements Runnable {
     private BlockingQueue<IndexingTask> indexingTasks;
     private Set<String> vocabulary;
     private WikiXmlReader reader;
+    private static final Logger logger = LoggerFactory.getLogger(WikiPageProducer.class);
+
 
     public WikiPageProducer(BlockingQueue<IndexingTask> unindexedPages, Set<String> vocabulary,
                             InputStream xmlFileInputStream) throws IOException, XMLStreamException {
@@ -31,7 +35,7 @@ public class WikiPageProducer implements Runnable {
                 while (i-- > 0) {
                     this.indexingTasks.put(new IndexingTask(null, true));
                 }
-                System.out.println("producer done");
+                logger.info("producer done");
                 return;
             }
             this.indexingTasks.put(new IndexingTask(nextPage, false));
