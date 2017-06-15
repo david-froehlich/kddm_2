@@ -1,6 +1,7 @@
 package org.kddm2.search.entity;
 
 import org.kddm2.indexing.IndexStatsHelper;
+import org.kddm2.indexing.InvalidIndexException;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -15,7 +16,7 @@ public abstract class EntityWeightingAlgorithm {
         this.entityTools = entityTools;
     }
 
-    public List<EntityCandidateWeighted> determineWeight(List<EntityCandidate> candidates) {
+    public List<EntityCandidateWeighted> determineWeight(List<EntityCandidate> candidates) throws InvalidIndexException {
         List<EntityCandidateWeighted> weightedCandidates = new LinkedList<>();
         Map<String, List<EntityCandidate>> groupedCandidates = entityTools.groupEntitiesByText(candidates);
         for (List<EntityCandidate> group : groupedCandidates.values()) {
@@ -28,6 +29,6 @@ public abstract class EntityWeightingAlgorithm {
         return weightedCandidates;
     }
 
-    protected abstract float getWeightForCandidate(EntityCandidate candidate, int occurenceCount);
+    protected abstract float getWeightForCandidate(EntityCandidate candidate, int occurenceCount) throws InvalidIndexException;
 }
 

@@ -1,10 +1,15 @@
 package org.kddm2.search.entity;
 
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.junit.Before;
 import org.junit.Test;
 import org.kddm2.indexing.IndexStatsHelper;
 import org.kddm2.indexing.IndexingService;
+import org.kddm2.indexing.InvalidWikiFileException;
+import org.springframework.core.io.ClassPathResource;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
@@ -15,19 +20,20 @@ import static org.junit.Assert.assertTrue;
 
 public class EntityToolsTest {
     private static final String INDEX_PATH = "/tmp/kddmTestIndex";
-
+    private static final String XML_FILE = "test-pages.xml.bz2";
     private static final String CONTENT = "This is a text. August, August. April. April. Chinese.";
 
     private Set<String> vocabulary;
 
     @Before
-    public void createIndex() throws Exception {
+    public void createIndex() throws InvalidWikiFileException, IOException {
+        Directory indexDirectory = FSDirectory.open(Paths.get(INDEX_PATH));
         vocabulary = new HashSet<>();
         vocabulary.add("april");
         vocabulary.add("august");
         vocabulary.add("chinese");
 
-        IndexingService indexingService = new IndexingService(Paths.get(INDEX_PATH), vocabulary);
+        IndexingService indexingService = new IndexingService(indexDirectory, vocabulary, new ClassPathResource(XML_FILE));
         indexingService.start();
     }
 

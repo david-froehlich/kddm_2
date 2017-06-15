@@ -2,6 +2,7 @@ package org.kddm2.search.entity;
 
 import org.kddm2.indexing.IndexStatsHelper;
 import org.kddm2.indexing.IndexTermStats;
+import org.kddm2.indexing.InvalidIndexException;
 
 public class EntityWeightingKeyphraseness extends EntityWeightingAlgorithm {
     public EntityWeightingKeyphraseness(IndexStatsHelper indexHelper, EntityTools entityTools) {
@@ -9,7 +10,7 @@ public class EntityWeightingKeyphraseness extends EntityWeightingAlgorithm {
     }
 
     @Override
-    protected float getWeightForCandidate(EntityCandidate candidate, int occurrenceCount) {
+    protected float getWeightForCandidate(EntityCandidate candidate, int occurrenceCount) throws InvalidIndexException {
         IndexTermStats statsForDictTerm = indexHelper.getStatsForDictTerm(candidate.getCandidateText());
 
         long linkings = statsForDictTerm.getCountLinkings();

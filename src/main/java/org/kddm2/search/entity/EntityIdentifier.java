@@ -1,7 +1,7 @@
 package org.kddm2.search.entity;
 
+import org.kddm2.indexing.InvalidIndexException;
 import org.kddm2.lucene.IndexingUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.StringReader;
 import java.util.List;
@@ -13,7 +13,6 @@ public class EntityIdentifier {
     //ratio of words in text to entities
     private float entityRate;
 
-    @Autowired
     public EntityIdentifier(EntityWeightingAlgorithm algorithm, EntityTools entityTools, float entityRate) {
         this.algorithm = algorithm;
         this.entityTools = entityTools;
@@ -23,7 +22,7 @@ public class EntityIdentifier {
         }
     }
 
-    public List<EntityCandidateWeighted> identifyEntities(String text) {
+    public List<EntityCandidateWeighted> identifyEntities(String text) throws InvalidIndexException {
         List<EntityCandidate> entityCandidates = entityTools.identifyEntities(text);
         List<EntityCandidateWeighted> entities = algorithm.determineWeight(entityCandidates);
         entities.sort((left, right) -> (int) Math.signum(right.getWeight() - left.getWeight()));

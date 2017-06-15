@@ -7,9 +7,11 @@ import org.junit.Test;
 import org.kddm2.Settings;
 import org.kddm2.indexing.IndexStatsHelper;
 import org.kddm2.indexing.IndexingService;
+import org.kddm2.indexing.InvalidWikiFileException;
 import org.kddm2.indexing.WikiPage;
 import org.kddm2.indexing.xml.WikiXmlReader;
 import org.kddm2.lucene.IndexingUtils;
+import org.springframework.core.io.ClassPathResource;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
@@ -25,7 +27,7 @@ import static org.junit.Assert.assertNotEquals;
 
 public class EntityLinkerTest {
     private static final String INDEX_PATH = "/tmp/test_index/";
-    private static final String TEST_XML_PATH = "test-pages.xml.bz2";
+    private static final String XML_FILE = "test-pages.xml.bz2";
     private static final float CUTOFF_RATE = 0.06f;
 
     private Set<String> vocabulary;
@@ -33,18 +35,18 @@ public class EntityLinkerTest {
 
 
     @Before
-    public void setUp() throws IOException, XMLStreamException, URISyntaxException {
+    public void setUp() throws IOException, XMLStreamException, URISyntaxException, InvalidWikiFileException {
         vocabulary = IndexingUtils.readDictionary(
                 getClass().getClassLoader().getResource(Settings.VOCABULARY_PATH).toURI());
         Path indexPath = Paths.get(INDEX_PATH);
         indexDirectory = FSDirectory.open(indexPath);
-        IndexingService indexingService = new IndexingService(indexPath, vocabulary);
+        IndexingService indexingService = new IndexingService(indexDirectory, vocabulary, new ClassPathResource(XML_FILE));
         indexingService.start();
     }
 
     @Test
     public void testSimpleLinking() throws Exception {
-        InputStream wikiInputStream = getClass().getClassLoader().getResourceAsStream(TEST_XML_PATH);
+        InputStream wikiInputStream = getClass().getClassLoader().getResourceAsStream(XML_FILE);
         WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream, vocabulary);
 
         WikiPage nextPage = wikiXmlReader.getNextPage();

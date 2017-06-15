@@ -18,38 +18,34 @@ import java.nio.file.Path;
  */
 @Component
 public class IndexStatsHelper {
-    private final DirectoryReader directoryReader;
-    private final int documentCount;
+    private final Directory indexDirectory;
+    private DirectoryReader directoryReader;
 
     @Autowired
-    public IndexStatsHelper(Directory indexDirectory) throws IOException {
-        directoryReader = StandardDirectoryReader.open(indexDirectory);
-        documentCount = directoryReader.numDocs();
+    public IndexStatsHelper(Directory indexDirectory)  {
+        this.indexDirectory = indexDirectory;
     }
 
     public IndexStatsHelper(Path indexDirectory) throws IOException {
         this(FSDirectory.open(indexDirectory));
     }
 
-
-    public IndexTermStats getStatsForDictTerm(String dictTerm) {
-        dictTerm = dictTerm.toLowerCase();
-        Term occurenceTerm = new Term(Settings.TERM_OCCURENCE_FIELD_NAME, dictTerm);
-        Term linkingTerm = new Term(Settings.TERM_LINKING_FIELD_NAME, dictTerm);
-
+    public IndexTermStats getStatsForDictTerm(String dictTerm) throws InvalidIndexException {
         try {
+            if (directoryReader == null) {
+                directoryReader = StandardDirectoryReader.open(indexDirectory);
+            }
+            dictTerm = dictTerm.toLowerCase();
+            Term occurenceTerm = new Term(Settings.TERM_OCCURENCE_FIELD_NAME, dictTerm);
+            Term linkingTerm = new Term(Settings.TERM_LINKING_FIELD_NAME, dictTerm);
+
             long countOccurences = directoryReader.totalTermFreq(occurenceTerm);
             long countLinkings = directoryReader.totalTermFreq(linkingTerm);
             long countOccurenceDocuments = directoryReader.docFreq(occurenceTerm);
             long countLinkingDocuments = directoryReader.docFreq(linkingTerm);
             return new IndexTermStats(countOccurences, countLinkings, countOccurenceDocuments, countLinkingDocuments);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new InvalidIndexException("Invalid lucene index", e);
         }
-        return null;
-    }
-
-    public int getDocumentCount() {
-        return documentCount;
     }
 }

@@ -6,6 +6,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.kddm2.Settings;
+import org.kddm2.indexing.InvalidIndexException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +19,13 @@ import java.util.Set;
 
 public class EntityLinker {
     private static final Logger LOG = LoggerFactory.getLogger(EntityLinker.class);
-
-    private IndexSearcher searcher;
+    private final Directory indexDirectory;
     DirectoryReader directoryReader;
+    private IndexSearcher searcher;
 
     @Autowired
     public EntityLinker(Directory indexDirectory) throws IOException {
-        directoryReader = DirectoryReader.open(indexDirectory);
-        searcher = new IndexSearcher(directoryReader);
+        this.indexDirectory = indexDirectory;
     }
 
     private Query createContextQuery(String luceneFieldName, List<EntityCandidateWeighted> context) {
@@ -42,7 +42,15 @@ public class EntityLinker {
         return linkedQueryBuilder.build();
     }
 
-    public List<EntityLink> identifyLinksForCandidates(List<EntityCandidateWeighted> candidates) {
+    public List<EntityLink> identifyLinksForCandidates(List<EntityCandidateWeighted> candidates) throws InvalidIndexException {
+        if (directoryReader == null || searcher == null) {
+            try {
+                directoryReader = DirectoryReader.open(indexDirectory);
+                searcher = new IndexSearcher(directoryReader);
+            } catch (IOException e) {
+                throw new InvalidIndexException("Cannot wikify text, invalid lucene index", e);
+            }
+        }
         // construct query for all candidates
         // this query represents the context of the current document
         Query contextQueryLinked = createContextQuery(Settings.TERM_LINKING_FIELD_NAME, candidates);
