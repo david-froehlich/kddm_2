@@ -13,6 +13,7 @@ import org.kddm2.search.entity.EntityExtractor;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -111,6 +112,13 @@ public class IndexingUtils {
         wikipediaTokenizer.setReader(reader);
         TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer);
         return new LowerCaseFilter(tokenStream);
+    }
+
+    public static EntityExtractor createEntityExtractionTokenStream(String fullString) {
+        Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
+        wikipediaTokenizer.setReader(new StringReader(fullString));
+        TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer);
+        return new EntityExtractor(tokenStream, fullString);
     }
 
     public static EntityExtractor createEntityExtractionTokenStream(Reader reader, String fullString) {

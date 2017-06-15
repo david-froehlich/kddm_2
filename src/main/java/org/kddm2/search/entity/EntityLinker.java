@@ -42,6 +42,7 @@ public class EntityLinker {
         // this query represents the context of the current document
         Query contextQueryLinked = createContextQuery(Settings.TERM_LINKING_FIELD_NAME, candidates);
         Query contextQueryOccurrence = createContextQuery(Settings.TERM_OCCURENCE_FIELD_NAME, candidates);
+        // TODO: make configurable
         float linkedPreference = 0.75f;
 
         contextQueryLinked = new BoostQuery(contextQueryLinked, linkedPreference);
@@ -80,6 +81,9 @@ public class EntityLinker {
                 e.printStackTrace();
             }
 
+            if (relevantDocuments.isEmpty()) {
+                continue;
+            }
             EntityLink link = new EntityLink(candidate, relevantDocuments);
             resultingLinks.add(link);
         }

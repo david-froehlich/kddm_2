@@ -24,7 +24,7 @@ public class EntityIdentifier {
     public List<EntityCandidateWeighted> identifyEntities(String text) {
         List<EntityCandidate> entityCandidates = entityTools.identifyEntities(text);
         List<EntityCandidateWeighted> entities = algorithm.determineWeight(entityCandidates);
-        entities.sort((left, right) -> (int) Math.signum(right.weight - left.weight));
+        entities.sort((left, right) -> (int) Math.signum(right.getWeight() - left.getWeight()));
 
         int wordCount = IndexingUtils.getWordCount(new StringReader(text));
         int returnedEntitityCount = Math.min((int)Math.ceil(wordCount * entityRate)

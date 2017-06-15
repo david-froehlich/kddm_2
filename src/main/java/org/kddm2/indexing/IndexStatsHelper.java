@@ -19,11 +19,15 @@ public class IndexStatsHelper {
     private final int documentCount;
 
 
-    public IndexStatsHelper(Path indexDirectory) throws IOException {
-        Directory dir = FSDirectory.open(indexDirectory);
-        directoryReader = StandardDirectoryReader.open(dir);
+    public IndexStatsHelper(Directory indexDirectory) throws IOException {
+        directoryReader = StandardDirectoryReader.open(indexDirectory);
         documentCount = directoryReader.numDocs();
     }
+
+    public IndexStatsHelper(Path indexDirectory) throws IOException {
+        this(FSDirectory.open(indexDirectory));
+    }
+
 
     public IndexTermStats getStatsForDictTerm(String dictTerm) {
         dictTerm = dictTerm.toLowerCase();
