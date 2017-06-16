@@ -1,11 +1,12 @@
-var WIKIPEDIA_BASEURL="http://simple.m.wikipedia.org/wiki/";
+var WIKIPEDIA_BASEURL = "http://simple.m.wikipedia.org/wiki/";
 
+var content;
 function wikify() {
-    var content = $('#text').val();
+    content = $('#content').text();
     $.ajax({
-        url: "/wikifyHC/",
+        url: "/wikify/",
         method: "POST",
-        data: {text: content}
+        data: {'text': content}
     }).done((response) => {
         parseLinks(response);
     }).fail((jqXHR, msg) => {
@@ -14,13 +15,24 @@ function wikify() {
 }
 
 function linkClicked(targets, id) {
-    $('#dialog').children("#dialog_links").attr('src', WIKIPEDIA_BASEURL + targets[id].documentId).parent()
-        .dialog();
+    $('#dlg_iframe').attr('src', WIKIPEDIA_BASEURL + targets[id].documentId);
+
+    let next_id = id < targets.length ? id + 1 : id;
+    let prev_id = id > 0 ? id - 1 : 0;
+    $('#dlg_prev_target').click(() => {
+        linkClicked(targets, prev_id);
+    });
+
+    $('#dlg_next_target').click(() => {
+        linkClicked(targets, next_id);
+    });
+
+    $('#dialog').show();
 }
 
 function parseLinks(links) {
     //map to array
-    var sortedLinks = $.map(links, function(value, index) {
+    var sortedLinks = $.map(links, function (value, index) {
         return [value];
     });
 
@@ -30,10 +42,10 @@ function parseLinks(links) {
     });
 
     let $content = $('#content');
-    let newContent = $content.html();
+    let newContent = content;
 
     let i = 0;
-    for(let link of sortedLinks) {
+    for (let link of sortedLinks) {
         let startPos = link.entity.startPos;
         let endPos = link.entity.endPos;
         let oldText = newContent.substr(startPos, endPos - startPos + 1);
@@ -43,10 +55,9 @@ function parseLinks(links) {
         i++;
     }
 
-    console.log(newContent);
     $content.html(newContent);
 
-    for(let i = 0; i < sortedLinks.length; i++) {
+    for (let i = 0; i < sortedLinks.length; i++) {
         let link = sortedLinks[i];
         $('#link_' + i).click(() => {
             linkClicked(link.targets, 0);
@@ -54,9 +65,12 @@ function parseLinks(links) {
     }
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     $('#btn').click(() => {
         wikify();
-    }).click();
-
+    });//.click();
+    $('#dialog').hide();
+    $('#dlg_close').click(() => {
+        $('#dialog').hide();
+    })
 });

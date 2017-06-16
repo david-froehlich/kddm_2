@@ -37,7 +37,6 @@ public class EntityLinker {
             linkedQueryBuilder.add(new BoostQuery(new TermQuery(new Term(luceneFieldName, candidateText)),
                             contextCandidate.getWeight()),
                     BooleanClause.Occur.SHOULD);
-
         }
         return linkedQueryBuilder.build();
     }

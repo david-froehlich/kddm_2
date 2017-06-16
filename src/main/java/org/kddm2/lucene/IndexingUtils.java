@@ -68,6 +68,7 @@ public class IndexingUtils {
         return builder.toString();
     }
 
+    //TODO write dictionary by reading xml file
     public static Set<String> readDictionary(InputStream stream) {
         Set<String> vocabulary = new HashSet<>();
 
