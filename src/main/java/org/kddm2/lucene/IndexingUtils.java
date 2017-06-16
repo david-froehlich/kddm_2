@@ -1,6 +1,5 @@
 package org.kddm2.lucene;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.lucene.analysis.LowerCaseFilter;
@@ -20,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class IndexingUtils {
@@ -73,7 +73,7 @@ public class IndexingUtils {
         Set<String> vocabulary = new HashSet<>();
 
         try {
-            LineIterator lineIterator = IOUtils.lineIterator(stream, Charsets.UTF_8);
+            LineIterator lineIterator = IOUtils.lineIterator(stream, StandardCharsets.UTF_8);
             while (lineIterator.hasNext()) {
                 vocabulary.add(lineIterator.next().toLowerCase());
             }
@@ -143,6 +143,19 @@ public class IndexingUtils {
     public static TokenStream createWikiTokenizer(Reader reader, Set<String> vocabulary, int maxShingleSize) {
         TokenStream tokenStream = createWikiTokenizer(reader, false);
         return createIndexFilters(tokenStream, vocabulary, maxShingleSize);
+    }
+
+    /**
+     * Creates a Wiki syntax tokenizer that converts all the wiki text to plain text
+     *
+     * @param reader         The source to read from.
+     * @return
+     */
+    public static TokenStream createWikiToPlaintextTokenizer(Reader reader) {
+        Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
+        wikipediaTokenizer.setReader(reader);
+        TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer, true);
+        return tokenStream;
     }
 
     /**
