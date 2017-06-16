@@ -3,15 +3,15 @@ package org.kddm2.search.entity;
 import java.util.List;
 
 public class EntityLink {
-    private EntityCandidateWeighted entity;
+    private EntityCandidate entity;
     private List<EntityDocument> targets;
 
-    public EntityLink(EntityCandidateWeighted entity, List<EntityDocument> targets) {
+    public EntityLink(EntityCandidate entity, List<EntityDocument> targets) {
         this.entity = entity;
         this.targets = targets;
     }
 
-    public EntityCandidateWeighted getEntity() {
+    public EntityCandidate getEntity() {
         return entity;
     }
 
