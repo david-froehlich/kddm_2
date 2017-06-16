@@ -58,5 +58,23 @@ public class WikiPage implements Serializable {
                 || this.getWikiLinks() == null
                 || this.getOccurringTerms() == null);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        WikiPage wikiPage = (WikiPage) o;
+
+        if (title != null ? !title.equals(wikiPage.title) : wikiPage.title != null) return false;
+        return text != null ? text.equals(wikiPage.text) : wikiPage.text == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = title != null ? title.hashCode() : 0;
+        result = 31 * result + (text != null ? text.hashCode() : 0);
+        return result;
+    }
 }
 

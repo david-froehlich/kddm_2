@@ -43,8 +43,6 @@ public class IndexingTestUtils {
 
         WikiPage page = reader.getNextPage();
         while(numPages > 0) {
-
-
             int uniqueLinkCount = page.getWikiLinks().size();
             int wordCount = IndexingUtils.getWordCount(new StringReader(page.getText()));
 

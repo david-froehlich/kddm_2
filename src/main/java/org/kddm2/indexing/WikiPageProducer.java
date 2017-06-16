@@ -20,12 +20,11 @@ public class WikiPageProducer implements Runnable {
 
 
     public WikiPageProducer(BlockingQueue<IndexingTask> unindexedPages, Set<String> vocabulary,
-                            InputStream xmlFileInputStream, AtomicInteger numProcessedPages) throws IOException, XMLStreamException {
+                            InputStream inputStream, AtomicInteger numProcessedPages) throws IOException, XMLStreamException {
         this.indexingTasks = unindexedPages;
         this.numProcessedPages = numProcessedPages;
-        this.reader = new WikiXmlReader(xmlFileInputStream, vocabulary);
+        this.reader = new WikiXmlReader(inputStream, vocabulary);
     }
-
 
     private void produce() throws InterruptedException, IOException, XMLStreamException {
         while (true) {

@@ -1,5 +1,6 @@
 package org.kddm2.indexing.xml;
 
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 import org.kddm2.indexing.WikiPage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -14,7 +15,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -52,6 +56,7 @@ public class WikiXmlWriter {
      * writes the pages into the xml-file at xmlOutPath
      * The xml format is not the same as the full Wikipedia XmlFile format.
      * Only fields needed by the WikiXmlReader are written
+     *
      * @param pages
      */
     public void writePages(List<WikiPage> pages) {
@@ -79,9 +84,25 @@ public class WikiXmlWriter {
         tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
         tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
-        // send DOM to file
-        tr.transform(new DOMSource(dom),
-                new StreamResult(new FileOutputStream(xmlOutPath)));
+        BZip2CompressorOutputStream zippedStream = null;
+        try {
+            OutputStream outputStream = Files.newOutputStream(Paths.get(xmlOutPath));
+            zippedStream = new BZip2CompressorOutputStream(outputStream);
+            tr.transform(new DOMSource(dom),
+                    new StreamResult(zippedStream));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (zippedStream != null) {
+                    zippedStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
     }
 
     public WikiXmlWriter(String xmlOutPath) {

@@ -81,7 +81,8 @@ public class IndexingService {
 
     private void startThreads() throws InvalidWikiFileException {
         indexingTasks.clear();
-        InputStream wikiInputStream = null;
+        InputStream wikiInputStream;
+
         try {
             wikiInputStream = wikiXmlFile.getInputStream();
         } catch (IOException e) {

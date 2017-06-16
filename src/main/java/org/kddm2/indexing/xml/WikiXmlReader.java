@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 public class WikiXmlReader {
     private static final Logger logger = LoggerFactory.getLogger(WikiXmlReader.class);
 
-    private BZip2CompressorInputStream compressorInputStream;
+    private InputStream compressorInputStream;
     private XMLEventReader xmlEventReader;
     private WikiPage currentPage;
     private int numPages = 0;
@@ -43,7 +43,7 @@ public class WikiXmlReader {
     public WikiXmlReader(InputStream inputStream, Set<String> vocabulary) throws IOException, XMLStreamException {
         compressorInputStream = new BZip2CompressorInputStream(inputStream);
         XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-        xmlEventReader = xmlInputFactory.createXMLEventReader(compressorInputStream);
+        xmlEventReader = xmlInputFactory.createXMLEventReader(this.compressorInputStream);
         this.vocabulary = vocabulary;
     }
 
