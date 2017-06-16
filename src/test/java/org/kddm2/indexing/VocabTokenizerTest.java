@@ -31,7 +31,7 @@ public class VocabTokenizerTest {
 
         Reader reader = new StringReader("Lorem Ipsum dolor. sit amet");
 
-        TokenStream tokenStream = IndexingUtils.createPlainTokenizer(reader, vocabulary, 3);
+        TokenStream tokenStream = IndexingUtils.createPlaintextTokenize(reader, vocabulary, 3);
         Map<String, Integer> tokenOccurrencesInStream = IndexingUtils.getTokenOccurrencesInStream(tokenStream);
 
         assertEquals(expectedResult, tokenOccurrencesInStream.keySet());

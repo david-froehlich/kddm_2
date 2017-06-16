@@ -9,26 +9,22 @@ import java.io.StringReader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class IndexingTestUtils {
-    WikiXmlReader reader;
+    private WikiXmlReader reader;
+    private final Set<String> vocabulary;
 
-    public IndexingTestUtils(WikiXmlReader reader) {
+    public IndexingTestUtils(WikiXmlReader reader, Set<String> vocabulary) {
         this.reader = reader;
-    }
-
-    private int countLinkSum(WikiPage page) {
-        int sum = 0;
-        for (Integer i : page.getWikiLinks(). values()) {
-            sum += i;
-        }
-        return sum;
+        this.vocabulary = vocabulary;
     }
 
     /**
      * returns a set of numPages WikiPages that have a link-ratio between optimalLInkRatio +/- maxLinkRatioDistance
      * - links with the same target are only counted once when calculating the ratio
      * - whether a WikiPage is added is random, so runtime is potentially infinite.
+     *
      * @param numPages
      * @param optimalLinkRatio
      * @param maxLinkRatioDistance
@@ -42,19 +38,19 @@ public class IndexingTestUtils {
         float minRand = 0.95f;
 
         WikiPage page = reader.getNextPage();
-        while(numPages > 0) {
-            int uniqueLinkCount = page.getWikiLinks().size();
+        while (numPages > 0) {
+            int uniqueLinkCount = WikiUtils.parseLinkedOccurrences(page.getText(), vocabulary).size();
             int wordCount = IndexingUtils.getWordCount(new StringReader(page.getText()));
 
-            float linkRatio = uniqueLinkCount / (float)wordCount;
+            float linkRatio = uniqueLinkCount / (float) wordCount;
             float dist = Math.abs(linkRatio - optimalLinkRatio);
 
-            if(dist < maxLinkRatioDistance && new Random().nextFloat() > minRand) {
+            if (dist < maxLinkRatioDistance && new Random().nextFloat() > minRand) {
                 goodWikiPages.add(page);
                 numPages--;
             }
             page = reader.getNextPage();
-            if(page == null) {
+            if (page == null) {
                 reader.reset();
                 page = reader.getNextPage();
                 minRand = Math.max(0, minRand - 0.1f);

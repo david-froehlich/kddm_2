@@ -40,13 +40,15 @@ public class WikiPageIndexer implements Runnable {
     private static AtomicInteger indexedPages = new AtomicInteger(0);
 
     private IndexWriter indexWriter;
+    private final Set<String> vocabulary;
     private BlockingQueue<IndexingTask> indexingTasks;
     private Map<String, Set<String>> documentSynonyms = new HashMap<>();
 
 
-    public WikiPageIndexer(BlockingQueue<IndexingTask> indexingTasks, IndexWriter indexWriter) {
+    public WikiPageIndexer(BlockingQueue<IndexingTask> indexingTasks, IndexWriter indexWriter, Set<String> vocabulary) {
         this.indexingTasks = indexingTasks;
         this.indexWriter = indexWriter;
+        this.vocabulary = vocabulary;
     }
 
     private void indexPage(WikiPage page) throws IOException {
@@ -54,7 +56,8 @@ public class WikiPageIndexer implements Runnable {
         doc.add(new StoredField(Settings.DOCUMENT_ID_FIELD_NAME, page.getTitle(), WikiPageIndexer.INDEX_FIELD_TYPE));
         doc.add(new StoredField(Settings.SYNONYMS_FIELD_NAME, page.getTitle(), WikiPageIndexer.INDEX_FIELD_TYPE));
 
-        for (Map.Entry<String, Integer> entry : page.getOccurringTerms().entrySet()) {
+        Map<String, Integer> occurrences = WikiUtils.parseUnlinkedOccurrences(page.getText(), vocabulary);
+        for (Map.Entry<String, Integer> entry : occurrences.entrySet()) {
             String currentTerm = entry.getKey();
             Integer count = entry.getValue();
             for (int i = 0; i < count; i++) {
@@ -63,7 +66,8 @@ public class WikiPageIndexer implements Runnable {
             }
         }
 
-        for (Map.Entry<WikiLink, Integer> entry : page.getWikiLinks().entrySet()) {
+        Map<WikiLink, Integer> links = WikiUtils.parseLinkedOccurrences(page.getText(), vocabulary);
+        for (Map.Entry<WikiLink, Integer> entry : links.entrySet()) {
             WikiLink wikiLink = entry.getKey();
             Integer count = entry.getValue();
             for (int i = 0; i < count; i++) {

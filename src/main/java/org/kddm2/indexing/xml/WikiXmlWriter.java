@@ -21,14 +21,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-/**
- * Created by david on 6/16/17.
- */
 public class WikiXmlWriter {
-    String xmlOutPath;
-    Element rootEle;
-    DocumentBuilder db;
-    Document dom;
+    private String xmlOutPath;
+    private Element rootEle;
+    private Document dom;
 
     private void addPageToDom(WikiPage page) {
         Element pageElement, titleElement, textElement, nsElement, revisionElement;
@@ -57,11 +53,11 @@ public class WikiXmlWriter {
      * The xml format is not the same as the full Wikipedia XmlFile format.
      * Only fields needed by the WikiXmlReader are written
      *
-     * @param pages
+     * @param pages The pages to write.
      */
     public void writePages(List<WikiPage> pages) {
         try {
-            db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             dom = db.newDocument();
             rootEle = dom.createElement("pages");
 
@@ -74,7 +70,6 @@ public class WikiXmlWriter {
         } catch (TransformerException | FileNotFoundException | ParserConfigurationException e1) {
             e1.printStackTrace();
         }
-
     }
 
     private void writeXml() throws TransformerException, FileNotFoundException {
@@ -84,25 +79,14 @@ public class WikiXmlWriter {
         tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
         tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
-        BZip2CompressorOutputStream zippedStream = null;
-        try {
-            OutputStream outputStream = Files.newOutputStream(Paths.get(xmlOutPath));
-            zippedStream = new BZip2CompressorOutputStream(outputStream);
+        try (OutputStream outputStream = Files.newOutputStream(Paths.get(xmlOutPath));
+             BZip2CompressorOutputStream zippedStream = new BZip2CompressorOutputStream(outputStream)
+        ) {
             tr.transform(new DOMSource(dom),
                     new StreamResult(zippedStream));
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (zippedStream != null) {
-                    zippedStream.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
-
-
     }
 
     public WikiXmlWriter(String xmlOutPath) {

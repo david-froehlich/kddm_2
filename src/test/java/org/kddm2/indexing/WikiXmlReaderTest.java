@@ -47,7 +47,7 @@ public class WikiXmlReaderTest {
         WikiPage page = w.getNextPage();
         assertEquals("april", page.getTitle());
         assertNotNull(page.getText());
-        assert(page.getText().length() > 100);
+        assert (page.getText().length() > 100);
         w.close();
     }
 

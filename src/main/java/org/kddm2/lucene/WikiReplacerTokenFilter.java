@@ -10,25 +10,30 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class WikiReplacerTokenFilter extends FilteringTokenFilter {
-    static Set<String> acceptedTypes;
+    private static Set<String> acceptedTypes;
 
     static {
         acceptedTypes = new HashSet<>();
         acceptedTypes.add("<ALPHANUM>");
         acceptedTypes.add(WikipediaTokenizer.BOLD);
         acceptedTypes.add(WikipediaTokenizer.BOLD_ITALICS);
-        acceptedTypes.add(WikipediaTokenizer.INTERNAL_LINK);
-
     }
 
-    public WikiReplacerTokenFilter(TokenStream in) {
+    private final boolean keepInternalLinks;
+
+    public WikiReplacerTokenFilter(TokenStream in, boolean keepInternalLinks) {
         super(in);
+        this.keepInternalLinks = keepInternalLinks;
     }
 
     @Override
     protected boolean accept() throws IOException {
         TypeAttribute tAttr = this.getAttribute(TypeAttribute.class);
         String type = tAttr.type();
-        return acceptedTypes.contains(type);
+        boolean accepted = acceptedTypes.contains(type);
+        if (!accepted && keepInternalLinks) {
+            accepted = type.equals(WikipediaTokenizer.INTERNAL_LINK);
+        }
+        return accepted;
     }
 }

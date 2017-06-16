@@ -1,5 +1,8 @@
 package org.kddm2.lucene;
 
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.LineIterator;
 import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
@@ -9,22 +12,21 @@ import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
-import org.kddm2.search.entity.EntityExtractor;
+import org.kddm2.search.entity.EntityWikiLinkExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.*;
-import java.util.stream.Stream;
 
 public class IndexingUtils {
     private static final Logger LOG = LoggerFactory.getLogger(IndexingUtils.class);
 
     public static int getWordCount(Reader reader) {
-        TokenStream tokenStream = IndexingUtils.createWikiPlaintextTokenizer(reader);
+        TokenStream tokenStream = IndexingUtils.createWikiTokenizer(reader, true);
 
         int wordCount = 0;
         try {
@@ -66,26 +68,13 @@ public class IndexingUtils {
         return builder.toString();
     }
 
-    public static Set<String> readDictionary(URI fileURI) {
-        Set<String> vocabulary = new HashSet<>();
-
-        try (Stream<String> stream = Files.lines(
-                Paths.get(fileURI))) {
-            stream.forEach(s -> vocabulary.add(s.toLowerCase()));
-        } catch (IOException e) {
-            LOG.error("Error reading vocabulary file", e);
-        }
-        return vocabulary;
-    }
-
     public static Set<String> readDictionary(InputStream stream) {
         Set<String> vocabulary = new HashSet<>();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 
-        String line;
         try {
-            while ((line = reader.readLine()) != null) {
-                vocabulary.add(line);
+            LineIterator lineIterator = IOUtils.lineIterator(stream, Charsets.UTF_8);
+            while (lineIterator.hasNext()) {
+                vocabulary.add(lineIterator.next().toLowerCase());
             }
         } catch (IOException e) {
             LOG.error("Error reading vocabulary file", e);
@@ -114,7 +103,7 @@ public class IndexingUtils {
      * @param maxShingleSize The maximum n-gram(shingle) size that is used to create new tokens.
      * @return
      */
-    public static TokenStream createPlainTokenizer(Reader reader, Set<String> vocabulary, int maxShingleSize) {
+    public static TokenStream createPlaintextTokenize(Reader reader, Set<String> vocabulary, int maxShingleSize) {
         final StandardTokenizer src = new StandardTokenizer();
         src.setReader(reader);
         src.setMaxTokenLength(255);
@@ -124,25 +113,21 @@ public class IndexingUtils {
         return createIndexFilters(tokenStream, vocabulary, maxShingleSize);
     }
 
-    public static TokenStream createWikiPlaintextTokenizer(Reader reader) {
+    public static TokenStream createWikiTokenizer(Reader reader, boolean keepInternalLinks) {
         Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
         wikipediaTokenizer.setReader(reader);
-        TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer);
+        TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer, keepInternalLinks);
         return new LowerCaseFilter(tokenStream);
     }
 
-    public static EntityExtractor createEntityExtractionTokenStream(String fullString) {
+    /**
+     * Extracts links from wiki markup text.
+     */
+    public static EntityWikiLinkExtractor createEntityExtractionTokenStream(String wikiPageText) {
         Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
-        wikipediaTokenizer.setReader(new StringReader(fullString));
-        TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer);
-        return new EntityExtractor(tokenStream, fullString);
-    }
-
-    public static EntityExtractor createEntityExtractionTokenStream(Reader reader, String fullString) {
-        Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
-        wikipediaTokenizer.setReader(reader);
-        TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer);
-        return new EntityExtractor(tokenStream, fullString);
+        wikipediaTokenizer.setReader(new StringReader(wikiPageText));
+        TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer, true);
+        return new EntityWikiLinkExtractor(tokenStream, wikiPageText);
     }
 
     /**
@@ -155,7 +140,7 @@ public class IndexingUtils {
      * @return
      */
     public static TokenStream createWikiTokenizer(Reader reader, Set<String> vocabulary, int maxShingleSize) {
-        TokenStream tokenStream = createWikiPlaintextTokenizer(reader);
+        TokenStream tokenStream = createWikiTokenizer(reader, false);
         return createIndexFilters(tokenStream, vocabulary, maxShingleSize);
     }
 

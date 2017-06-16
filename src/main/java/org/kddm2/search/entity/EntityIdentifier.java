@@ -9,7 +9,6 @@ import java.util.List;
 public class EntityIdentifier {
     private EntityWeightingAlgorithm algorithm;
     private EntityTools entityTools;
-
     //ratio of words in text to entities
     private float entityRate;
 

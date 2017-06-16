@@ -27,6 +27,7 @@ dependencies {
     compile 'org.apache.lucene:lucene-core:6.5.1'
     compile 'org.apache.lucene:lucene-analyzers-common:6.5.1'
     compile 'org.apache.commons:commons-compress:1.13'
+    compile 'commons-io:commons-io:2.5'
     compile 'org.springframework.boot:spring-boot-starter-jetty'
     compile 'org.springframework.boot:spring-boot-starter-actuator'
     compile('org.springframework.boot:spring-boot-starter-web') {

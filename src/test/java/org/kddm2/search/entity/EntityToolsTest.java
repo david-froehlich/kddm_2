@@ -24,10 +24,11 @@ public class EntityToolsTest {
     private static final String CONTENT = "This is a text. August, August. April. April. Chinese.";
 
     private Set<String> vocabulary;
+    Directory indexDirectory;
 
     @Before
     public void createIndex() throws InvalidWikiFileException, IOException {
-        Directory indexDirectory = FSDirectory.open(Paths.get(INDEX_PATH));
+        indexDirectory = FSDirectory.open(Paths.get(INDEX_PATH));
         vocabulary = new HashSet<>();
         vocabulary.add("april");
         vocabulary.add("august");
@@ -49,7 +50,7 @@ public class EntityToolsTest {
 
     @Test
     public void testEntityWeighting() throws Exception {
-        IndexStatsHelper helper = new IndexStatsHelper(Paths.get(INDEX_PATH));
+        IndexStatsHelper helper = new IndexStatsHelper(indexDirectory);
         EntityTools entityTools = new EntityTools(vocabulary);
         EntityWeightingAlgorithm alg = new EntityWeightingTFIDF(helper, entityTools);
         List<EntityCandidateWeighted> weightedEntityCandidates = alg.determineWeight(entityTools.identifyEntities(CONTENT));
@@ -60,7 +61,7 @@ public class EntityToolsTest {
 
     @Test
     public void testEntityIdentification() throws Exception {
-        IndexStatsHelper helper = new IndexStatsHelper(Paths.get(INDEX_PATH));
+        IndexStatsHelper helper = new IndexStatsHelper(indexDirectory);
         EntityTools entityTools = new EntityTools(vocabulary);
         List<EntityCandidate> candidates = entityTools.identifyEntities(CONTENT);
         System.out.println(candidates);

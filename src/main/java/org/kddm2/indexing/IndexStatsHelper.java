@@ -4,13 +4,11 @@ import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.StandardDirectoryReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.kddm2.Settings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
 
 /**
@@ -22,12 +20,8 @@ public class IndexStatsHelper {
     private DirectoryReader directoryReader;
 
     @Autowired
-    public IndexStatsHelper(Directory indexDirectory)  {
+    public IndexStatsHelper(Directory indexDirectory) {
         this.indexDirectory = indexDirectory;
-    }
-
-    public IndexStatsHelper(Path indexDirectory) throws IOException {
-        this(FSDirectory.open(indexDirectory));
     }
 
     public IndexTermStats getStatsForDictTerm(String dictTerm) throws InvalidIndexException {

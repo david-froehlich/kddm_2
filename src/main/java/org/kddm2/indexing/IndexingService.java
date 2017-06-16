@@ -97,7 +97,7 @@ public class IndexingService {
         producer.start();
         consumers = new ArrayList<>();
         for (int i = 0; i < Settings.CONSUMER_COUNT; i++) {
-            consumers.add(new Thread(new WikiPageIndexer(indexingTasks, indexWriter)));
+            consumers.add(new Thread(new WikiPageIndexer(indexingTasks, indexWriter, vocabulary)));
             consumers.get(consumers.size() - 1).start();
         }
     }

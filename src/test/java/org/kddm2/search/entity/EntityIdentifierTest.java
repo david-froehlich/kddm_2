@@ -1,66 +1,46 @@
 package org.kddm2.search.entity;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Test;
-import org.kddm2.Settings;
+import org.kddm2.IndexTestSuite;
+import org.kddm2.TestIndexConfig;
 import org.kddm2.indexing.IndexStatsHelper;
 import org.kddm2.indexing.WikiPage;
 import org.kddm2.indexing.xml.WikiXmlReader;
 import org.kddm2.lucene.IndexingUtils;
-import org.springframework.core.io.ClassPathResource;
 
 import java.io.InputStream;
 import java.io.StringReader;
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Set;
 
 public class EntityIdentifierTest {
-    private static final String INDEX_PATH = "/tmp/kddmTestIndex";
-    private static final String XML_FILE = "extracted_xml_files.xml.bz2";
 
     private static final float LINK_TO_WORD_COUNT_RATE = 0.05f;
 
-    private Set<String> vocabulary;
-
-    @Before
-    public void readVocabulary () throws URISyntaxException {
-        vocabulary = IndexingUtils.readDictionary(
-                getClass().getClassLoader().getResource(Settings.VOCABULARY_PATH).toURI());
-    }
-
-//    @Before
-//    public void setUp() throws IOException, XMLStreamException, URISyntaxException, InvalidWikiFileException {
-//
-//        Path indexPath = Paths.get(INDEX_PATH);
-//        FSDirectory indexDirectory = FSDirectory.open(indexPath);
-//        IndexingService indexingService = new IndexingService(indexDirectory, vocabulary,  new ClassPathResource(XML_FILE));
-//        indexingService.start();
-//    }
+    private final TestIndexConfig config = IndexTestSuite.testIndexValidation;
 
     @Test
     public void testEntityExtraction() throws Exception {
-        InputStream wikiInputStream = new ClassPathResource(XML_FILE).getInputStream();
-        WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream, vocabulary);
+        InputStream wikiInputStream = config.dataSourceResource.getInputStream();
+        WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream, config.vocabulary);
 
         WikiPage nextPage = wikiXmlReader.getNextPage();
 
-        EntityExtractor entityExtractionTokenStream = IndexingUtils.createEntityExtractionTokenStream(
-                new StringReader(nextPage.getText()), nextPage.getText());
+        EntityWikiLinkExtractor entityExtractionTokenStream = IndexingUtils.createEntityExtractionTokenStream(
+                nextPage.getText());
 
         List<EntityCandidate> entityCandidates = entityExtractionTokenStream.readEntities();
-        //TODO assert
+        Assert.assertNotEquals(0, entityCandidates.size());
+        //TODO assert more
     }
 
     @Test
     public void testEntityIdentification() throws Exception {
-        InputStream wikiInputStream = new ClassPathResource(XML_FILE).getInputStream();
-        WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream, vocabulary);
+        WikiXmlReader wikiXmlReader = new WikiXmlReader(config.dataSourceResource.getInputStream(), config.vocabulary);
 
-        IndexStatsHelper indexHelper = new IndexStatsHelper(Paths.get(INDEX_PATH));
-        EntityTools entityTools = new EntityTools(vocabulary);
+        IndexStatsHelper indexHelper = new IndexStatsHelper(config.luceneDirectory);
+        EntityTools entityTools = new EntityTools(config.vocabulary);
 
         //TODO check more than one page
         WikiPage nextPage = wikiXmlReader.getNextPage();
@@ -68,7 +48,7 @@ public class EntityIdentifierTest {
         //TODO
         int maxShingleSize = 3;
         TokenStream wikiPlaintextTokenizer = IndexingUtils.createWikiTokenizer(
-                new StringReader(nextPage.getText()), vocabulary, maxShingleSize);
+                new StringReader(nextPage.getText()), config.vocabulary, maxShingleSize);
 
         String plainText = IndexingUtils.tokenStreamToString(wikiPlaintextTokenizer);
         //TODO plain-text contains "the the"
@@ -77,8 +57,8 @@ public class EntityIdentifierTest {
 
         List<EntityCandidateWeighted> actual = identifier.identifyEntities(plainText);
 
-        EntityExtractor entityExtractionTokenStream = IndexingUtils.createEntityExtractionTokenStream(
-                new StringReader(nextPage.getText()), nextPage.getText());
+        EntityWikiLinkExtractor entityExtractionTokenStream =
+                IndexingUtils.createEntityExtractionTokenStream(nextPage.getText());
 
         List<EntityCandidate> expected = entityExtractionTokenStream.readEntities();
 

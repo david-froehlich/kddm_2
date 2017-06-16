@@ -42,7 +42,7 @@ public class EntityTools {
         List<EntityCandidate> candidates = new ArrayList<>();
         try {
             Reader fileContentReader = new StringReader(content);
-            TokenStream plainTokenizer = IndexingUtils.createPlainTokenizer(fileContentReader, vocabulary, Settings.MAX_SHINGLE_SIZE);
+            TokenStream plainTokenizer = IndexingUtils.createPlaintextTokenize(fileContentReader, vocabulary, Settings.MAX_SHINGLE_SIZE);
             List<TokenOccurrence> tokensInStream = IndexingUtils.getTokensInStream(plainTokenizer);
 
             for (TokenOccurrence occ : tokensInStream) {
