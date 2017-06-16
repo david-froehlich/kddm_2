@@ -53,7 +53,7 @@ public class EntityToolsTest {
         IndexStatsHelper helper = new IndexStatsHelper(indexDirectory);
         EntityTools entityTools = new EntityTools(vocabulary);
         EntityWeightingAlgorithm alg = new EntityWeightingTFIDF(helper, entityTools);
-        List<EntityCandidateWeighted> weightedEntityCandidates = alg.determineWeight(entityTools.identifyEntities(CONTENT));
+        List<EntityCandidateWeighted> weightedEntityCandidates = alg.determineWeightAndDeduplicate(entityTools.identifyEntities(CONTENT));
         System.out.println(weightedEntityCandidates);
         //TODO assert
         return;

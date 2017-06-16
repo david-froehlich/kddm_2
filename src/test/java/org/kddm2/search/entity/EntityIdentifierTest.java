@@ -6,19 +6,22 @@ import org.junit.Test;
 import org.kddm2.IndexTestSuite;
 import org.kddm2.TestIndexConfig;
 import org.kddm2.indexing.IndexStatsHelper;
+import org.kddm2.indexing.InvalidIndexException;
 import org.kddm2.indexing.WikiPage;
 import org.kddm2.indexing.xml.WikiXmlReader;
 import org.kddm2.lucene.IndexingUtils;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.util.Comparator;
 import java.util.List;
 
 public class EntityIdentifierTest {
 
-    private static final float LINK_TO_WORD_COUNT_RATE = 0.05f;
+    private static final float LINK_TO_WORD_COUNT_RATE = 0.1f;
 
-    private final TestIndexConfig config = IndexTestSuite.testIndexValidation;
+    private final TestIndexConfig config = IndexTestSuite.testIndexFull;
 
     @Test
     public void testEntityExtraction() throws Exception {
@@ -37,32 +40,41 @@ public class EntityIdentifierTest {
 
     @Test
     public void testEntityIdentification() throws Exception {
-        WikiXmlReader wikiXmlReader = new WikiXmlReader(config.dataSourceResource.getInputStream(), config.vocabulary);
+        WikiXmlReader wikiXmlReader = new WikiXmlReader(IndexTestSuite.testIndexValidation.dataSourceResource.getInputStream(), config.vocabulary);
 
         IndexStatsHelper indexHelper = new IndexStatsHelper(config.luceneDirectory);
         EntityTools entityTools = new EntityTools(config.vocabulary);
 
         //TODO check more than one page
         WikiPage nextPage = wikiXmlReader.getNextPage();
-
-        //TODO
-        int maxShingleSize = 3;
-        TokenStream wikiPlaintextTokenizer = IndexingUtils.createWikiTokenizer(
-                new StringReader(nextPage.getText()), config.vocabulary, maxShingleSize);
-
+        //TODO plain-text contains "goodness good" for a link like [[Goodness|Good]] "
+        TokenStream wikiPlaintextTokenizer = IndexingUtils.createWikiToPlaintextTokenizer(new StringReader(nextPage.getText()));
         String plainText = IndexingUtils.tokenStreamToString(wikiPlaintextTokenizer);
-        //TODO plain-text contains "the the"
-        EntityWeightingAlgorithm algorithm = new EntityWeightingTFIDF(indexHelper, entityTools);
-        EntityIdentifier identifier = new EntityIdentifier(algorithm, entityTools, LINK_TO_WORD_COUNT_RATE);
+        //TODO aliases like "goodness" and "good" are both linked, even though they would be the same page
+        
+        EntityWeightingAlgorithm tfidf = new EntityWeightingTFIDF(indexHelper, entityTools);
+        EntityWeightingAlgorithm keyphraseness = new EntityWeightingKeyphraseness(indexHelper, entityTools);
+        evaluateWeightingAlgorithm(tfidf, entityTools, nextPage, plainText);
+        evaluateWeightingAlgorithm(keyphraseness, entityTools, nextPage, plainText);
+    }
+
+    private void evaluateWeightingAlgorithm(EntityWeightingAlgorithm weightingAlgorithm, EntityTools entityTools, WikiPage nextPage, String plainText) throws InvalidIndexException, IOException {
+
+        EntityIdentifier identifier = new EntityIdentifier(weightingAlgorithm, entityTools, LINK_TO_WORD_COUNT_RATE);
 
         List<EntityCandidateWeighted> actual = identifier.identifyEntities(plainText);
+        actual.sort(Comparator.comparingInt(EntityCandidate::getStartPos));
 
         EntityWikiLinkExtractor entityExtractionTokenStream =
                 IndexingUtils.createEntityExtractionTokenStream(nextPage.getText());
 
         List<EntityCandidate> expected = entityExtractionTokenStream.readEntities();
 
-        System.out.println(getFScoreForEntityIdentification(expected, actual));
+        System.out.println("Algorithm performance: " + weightingAlgorithm.getClass().getSimpleName());
+        System.out.println("Precision: " + getPrecision(expected, actual));
+        System.out.println("Recall   : " + getRecall(expected, actual));
+        System.out.println("F1 score : " + getFScoreForEntityIdentification(expected, actual));
+        System.out.println("\n");
     }
 
     private float getFScoreForEntityIdentification(List<? extends EntityCandidate> expected,

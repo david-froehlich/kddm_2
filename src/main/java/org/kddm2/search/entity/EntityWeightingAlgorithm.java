@@ -16,7 +16,13 @@ public abstract class EntityWeightingAlgorithm {
         this.entityTools = entityTools;
     }
 
-    public List<EntityCandidateWeighted> determineWeight(List<EntityCandidate> candidates) throws InvalidIndexException {
+    /**
+     * Assigns weights to candidates and deletes duplicates by choosing the first occurrence.
+     * @param candidates The candidates to weigh and de-duplicate.
+     * @return The weighted and de-duplicated candidates.
+     * @throws InvalidIndexException If the lucene index is invalid.
+     */
+    public List<EntityCandidateWeighted> determineWeightAndDeduplicate(List<EntityCandidate> candidates) throws InvalidIndexException {
         List<EntityCandidateWeighted> weightedCandidates = new LinkedList<>();
         Map<String, List<EntityCandidate>> groupedCandidates = entityTools.groupEntitiesByText(candidates);
         for (List<EntityCandidate> group : groupedCandidates.values()) {
