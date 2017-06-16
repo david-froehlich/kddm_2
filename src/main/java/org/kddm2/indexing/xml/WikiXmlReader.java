@@ -34,6 +34,12 @@ public class WikiXmlReader {
     private int numPages = 0;
     private Set<String> vocabulary;
 
+    public void reset() throws XMLStreamException, IOException {
+        compressorInputStream.reset();
+        XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+        xmlEventReader = xmlInputFactory.createXMLEventReader(compressorInputStream);
+    }
+
     public WikiXmlReader(InputStream inputStream, Set<String> vocabulary) throws IOException, XMLStreamException {
         compressorInputStream = new BZip2CompressorInputStream(inputStream);
         XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
