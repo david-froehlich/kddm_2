@@ -115,6 +115,7 @@ public class IndexingUtils {
     }
 
     public static TokenStream createWikiTokenizer(Reader reader, boolean keepInternalLinks) {
+        //TODO: use lucene Analyzers to re-use these token streams. This could improve performance
         Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
         wikipediaTokenizer.setReader(reader);
         TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer, keepInternalLinks);

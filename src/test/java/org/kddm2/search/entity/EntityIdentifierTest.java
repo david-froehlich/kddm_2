@@ -45,7 +45,6 @@ public class EntityIdentifierTest {
         IndexStatsHelper indexHelper = new IndexStatsHelper(config.luceneDirectory);
         EntityTools entityTools = new EntityTools(config.vocabulary);
 
-
         //TODO plain-text contains "goodness good" for a link like [[Goodness|Good]] "
         //TODO aliases like "goodness" and "good" are both linked, even though they would be the same page
 

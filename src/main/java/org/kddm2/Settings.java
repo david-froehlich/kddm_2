@@ -11,14 +11,8 @@ public class Settings {
     public final static String SYNONYMS_FIELD_NAME = "synonyms";
     public final static String DOCUMENT_ID_FIELD_NAME = "document_id";
 
-    public final static String VOCABULARY_PATH = "vocabulary.txt";
-
-    //    public final static String XML_FILE_PATH = "test-pages.xml.bz2";
-    public final static String XML_FILE_PATH = "data/simplewiki-20170501-pages-meta-current.xml.bz2";
-    public final static int CONSUMER_COUNT = 1;
-
+    public final static int CONSUMER_COUNT = 5;
     public final static int MAX_SHINGLE_SIZE = 3;
-
     public final static float ENTITY_CUTOFF_RATE = 0.06f;
 }
 

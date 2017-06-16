@@ -2,8 +2,15 @@ package org.kddm2.indexing;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.StoredField;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.kddm2.Settings;
 import org.slf4j.Logger;
@@ -17,9 +24,7 @@ import org.springframework.stereotype.Service;
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,8 +41,9 @@ public class IndexingService {
     private BlockingQueue<IndexingTask> indexingTasks = new ArrayBlockingQueue<>(Settings.QUEUE_LENGTH);
     private Directory indexDirectory;
     private Set<String> vocabulary;
-
     private Resource wikiXmlFile;
+    private Map<String, Set<String>> documentSynonyms;
+
 
     @Autowired
     public IndexingService(Directory indexDirectory, Set<String> vocabulary, @Value("${wiki_xml_file}")
@@ -45,6 +51,7 @@ public class IndexingService {
         this.indexDirectory = indexDirectory;
         this.vocabulary = vocabulary;
         this.wikiXmlFile = wikiXmlFile;
+        documentSynonyms = new HashMap<>();
     }
 
     public boolean isRunning() {
@@ -55,11 +62,42 @@ public class IndexingService {
         return new IndexingStatus(numProcessedPages.get(), indexingTasks.size(), isRunning());
     }
 
+    /**
+     * Writes all collected synonyms to the lucene index.
+     * TODO: batch this if out of memory
+     * or use mapdb set that caches to filesystem
+     */
+    private void writeSynonyms() {
+        try {
+            DirectoryReader directoryReader = DirectoryReader.open(indexWriter);
+            IndexSearcher searcher = new IndexSearcher(directoryReader);
+
+            for (Map.Entry<String, Set<String>> entry : documentSynonyms.entrySet()) {
+                String docId = entry.getKey();
+                Term docTerm = new Term(Settings.DOCUMENT_ID_FIELD_NAME, docId);
+
+                TopDocs topDocs = searcher.search(new TermQuery(docTerm), 1);
+                if (topDocs.scoreDocs.length == 0) {
+                    continue;
+                }
+                Document doc = searcher.doc(topDocs.scoreDocs[0].doc);
+                for (String synonym : entry.getValue()) {
+                    doc.add(new StoredField(Settings.SYNONYMS_FIELD_NAME, synonym, WikiPageIndexer.INDEX_FIELD_TYPE));
+                }
+                indexWriter.updateDocument(docTerm, doc);
+            }
+        } catch (IOException e) {
+            LOG.error("Could not write synonyms to lucene index", e);
+        }
+    }
+
     @Async
     public void start() throws InvalidWikiFileException {
         running.set(true);
         try {
             numProcessedPages.set(0);
+            documentSynonyms = new HashMap<>();
+
             Analyzer analyzer = new StandardAnalyzer();
             IndexWriterConfig config = new IndexWriterConfig(analyzer);
             indexWriter = new IndexWriter(indexDirectory, config);
@@ -72,6 +110,10 @@ public class IndexingService {
             for (Thread thread : consumers) {
                 thread.join();
             }
+            LOG.info("Writing collected synonyms");
+            writeSynonyms();
+            indexWriter.close();
+            documentSynonyms.clear();
             LOG.info("Indexing took " + (System.currentTimeMillis() - start) / 1000 + " seconds");
         } catch (InterruptedException | IOException e) {
             LOG.error("Exception while indexing:", e);
@@ -97,7 +139,7 @@ public class IndexingService {
         producer.start();
         consumers = new ArrayList<>();
         for (int i = 0; i < Settings.CONSUMER_COUNT; i++) {
-            consumers.add(new Thread(new WikiPageIndexer(indexingTasks, indexWriter, vocabulary)));
+            consumers.add(new Thread(new WikiPageIndexer(indexingTasks, indexWriter, vocabulary, documentSynonyms)));
             consumers.get(consumers.size() - 1).start();
         }
     }
