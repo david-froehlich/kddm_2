@@ -6,7 +6,6 @@ import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.shingle.ShingleFilter;
-import org.apache.lucene.analysis.standard.StandardFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
@@ -108,8 +107,7 @@ public class IndexingUtils {
         final StandardTokenizer src = new StandardTokenizer();
         src.setReader(reader);
         src.setMaxTokenLength(255);
-        TokenStream tokenStream = new StandardFilter(src);
-        tokenStream = new LowerCaseFilter(tokenStream);
+        TokenStream tokenStream = new LowerCaseFilter(src);
 
         return createIndexFilters(tokenStream, vocabulary, maxShingleSize);
     }
@@ -149,7 +147,7 @@ public class IndexingUtils {
     /**
      * Creates a Wiki syntax tokenizer that converts all the wiki text to plain text
      *
-     * @param reader         The source to read from.
+     * @param reader The source to read from.
      * @return
      */
     public static TokenStream createWikiToPlaintextTokenizer(Reader reader) {

@@ -6,7 +6,8 @@ function wikify() {
     $.ajax({
         url: "/wikify/",
         method: "POST",
-        data: {'text': content}
+        contentType: 'text/plain',
+        data: content
     }).done((response) => {
         parseLinks(response);
     }).fail((jqXHR, msg) => {
