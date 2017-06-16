@@ -12,7 +12,7 @@ public class IndexingTest {
         String termName = "is";
         IndexTermStats statsForDictTerm = helper.getStatsForDictTerm(termName);
         System.out.println(statsForDictTerm);
-        Assert.assertEquals(97, statsForDictTerm.getCountOccurences());
+        Assert.assertEquals(95, statsForDictTerm.getCountOccurences());
         Assert.assertEquals(0, statsForDictTerm.getCountLinkings());
         Assert.assertEquals(5, statsForDictTerm.getCountOccurenceDocuments());
         Assert.assertEquals(0, statsForDictTerm.getCountLinkingDocuments());
