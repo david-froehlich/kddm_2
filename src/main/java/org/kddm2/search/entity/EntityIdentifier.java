@@ -1,5 +1,6 @@
 package org.kddm2.search.entity;
 
+import org.kddm2.indexing.InvalidIndexException;
 import org.kddm2.lucene.IndexingUtils;
 
 import java.io.StringReader;
@@ -21,14 +22,14 @@ public class EntityIdentifier {
         }
     }
 
-    public List<EntityCandidateWeighted> identifyEntities(String text) {
+    public List<EntityCandidateWeighted> identifyEntities(String text) throws InvalidIndexException {
         List<EntityCandidate> entityCandidates = entityTools.identifyEntities(text);
         List<EntityCandidateWeighted> entities = algorithm.determineWeight(entityCandidates);
         entities.sort((left, right) -> (int) Math.signum(right.getWeight() - left.getWeight()));
 
         int wordCount = IndexingUtils.getWordCount(new StringReader(text));
-        int returnedEntitityCount = Math.min((int)Math.ceil(wordCount * entityRate)
+        int returnedEntityCount = Math.min((int) Math.ceil(wordCount * entityRate)
                 , entities.size());
-        return entities.subList(0, returnedEntitityCount);
+        return entities.subList(0, returnedEntityCount);
     }
 }

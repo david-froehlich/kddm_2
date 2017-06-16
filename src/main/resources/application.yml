@@ -1,0 +1,9 @@
+spring:
+  jackson:
+    serialization:
+      indent_output: true
+
+
+wiki_xml_file: "file:data/simplewiki-20170501-pages-meta-current.xml.bz2"
+vocabulary_file: "classpath:vocabulary.txt"
+

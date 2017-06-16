@@ -1,10 +1,15 @@
 package org.kddm2.search.entity;
 
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.junit.Before;
 import org.junit.Test;
 import org.kddm2.indexing.IndexStatsHelper;
-import org.kddm2.indexing.IndexingController;
+import org.kddm2.indexing.IndexingService;
+import org.kddm2.indexing.InvalidWikiFileException;
+import org.springframework.core.io.ClassPathResource;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
@@ -15,24 +20,21 @@ import static org.junit.Assert.assertTrue;
 
 public class EntityToolsTest {
     private static final String INDEX_PATH = "/tmp/kddmTestIndex";
-
+    private static final String XML_FILE = "test-pages.xml.bz2";
     private static final String CONTENT = "This is a text. August, August. April. April. Chinese.";
 
     private Set<String> vocabulary;
 
     @Before
-    public void createIndex() throws Exception {
-        IndexingController indexingController = new IndexingController(Paths.get(INDEX_PATH));
-        indexingController.start();
-    }
-
-    @Before
-    public void readVocabulary() {
+    public void createIndex() throws InvalidWikiFileException, IOException {
+        Directory indexDirectory = FSDirectory.open(Paths.get(INDEX_PATH));
         vocabulary = new HashSet<>();
-
         vocabulary.add("april");
         vocabulary.add("august");
         vocabulary.add("chinese");
+
+        IndexingService indexingService = new IndexingService(indexDirectory, vocabulary, new ClassPathResource(XML_FILE));
+        indexingService.start();
     }
 
     @Test
@@ -48,7 +50,7 @@ public class EntityToolsTest {
     @Test
     public void testEntityWeighting() throws Exception {
         IndexStatsHelper helper = new IndexStatsHelper(Paths.get(INDEX_PATH));
-        EntityTools entityTools = new EntityTools(helper, vocabulary);
+        EntityTools entityTools = new EntityTools(vocabulary);
         EntityWeightingAlgorithm alg = new EntityWeightingTFIDF(helper, entityTools);
         List<EntityCandidateWeighted> weightedEntityCandidates = alg.determineWeight(entityTools.identifyEntities(CONTENT));
         System.out.println(weightedEntityCandidates);
@@ -59,7 +61,7 @@ public class EntityToolsTest {
     @Test
     public void testEntityIdentification() throws Exception {
         IndexStatsHelper helper = new IndexStatsHelper(Paths.get(INDEX_PATH));
-        EntityTools entityTools = new EntityTools(helper, vocabulary);
+        EntityTools entityTools = new EntityTools(vocabulary);
         List<EntityCandidate> candidates = entityTools.identifyEntities(CONTENT);
         System.out.println(candidates);
         //TODO assert

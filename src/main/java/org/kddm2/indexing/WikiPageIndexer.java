@@ -11,6 +11,8 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.kddm2.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -21,6 +23,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class WikiPageIndexer implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(WikiPageIndexer.class);
     private static final FieldType INDEX_FIELD_TYPE = new FieldType();
 
     static {
@@ -39,6 +42,7 @@ public class WikiPageIndexer implements Runnable {
     private IndexWriter indexWriter;
     private BlockingQueue<IndexingTask> indexingTasks;
     private Map<String, Set<String>> documentSynonyms = new HashMap<>();
+
 
     public WikiPageIndexer(BlockingQueue<IndexingTask> indexingTasks, IndexWriter indexWriter) {
         this.indexingTasks = indexingTasks;
@@ -119,15 +123,15 @@ public class WikiPageIndexer implements Runnable {
         while ((i = WikiPageIndexer.indexedPages.incrementAndGet()) < MAX_INDEXED_PAGES || MAX_INDEXED_PAGES == -1) {
             IndexingTask task = indexingTasks.take();
             if (task.isEndOfStream()) {
-                System.out.println("Consumer has eaten all souls!");
-                System.out.println("Writing synonyms");
+                logger.info("Consumer has eaten all souls!");
+                logger.info("Writing synonyms");
                 writeSynonyms();
-                System.out.println("Writing synonyms finished");
+                logger.info("Writing synonyms finished");
                 return;
             }
             this.indexPage(task.getWikiPage());
             if (i % PRINT_INTERVAL == 0) {
-                System.out.println("indexed " + i + " pages");
+                logger.info("indexed " + i + " pages");
             }
         }
     }

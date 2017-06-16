@@ -2,9 +2,11 @@ package org.kddm2.search.entity;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.kddm2.Settings;
-import org.kddm2.indexing.IndexStatsHelper;
 import org.kddm2.lucene.IndexingUtils;
 import org.kddm2.lucene.TokenOccurrence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -12,12 +14,12 @@ import java.io.StringReader;
 import java.util.*;
 
 public class EntityTools {
+    private static final Logger LOG = LoggerFactory.getLogger(EntityTools.class);
 
-    private IndexStatsHelper indexHelper;
     private Set<String> vocabulary;
 
-    public EntityTools(IndexStatsHelper indexHelper, Set<String> vocabulary) {
-        this.indexHelper = indexHelper;
+    @Autowired
+    public EntityTools(Set<String> vocabulary) {
         this.vocabulary = vocabulary;
     }
 
@@ -48,7 +50,7 @@ public class EntityTools {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("Error identifying entities", e);
         }
         return candidates;
     }

@@ -10,9 +10,10 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
 import org.kddm2.search.entity.EntityExtractor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,6 +21,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class IndexingUtils {
+    private static final Logger LOG = LoggerFactory.getLogger(IndexingUtils.class);
 
     public static int getWordCount(Reader reader) {
         TokenStream tokenStream = IndexingUtils.createWikiPlaintextTokenizer(reader);
@@ -27,7 +29,7 @@ public class IndexingUtils {
         int wordCount = 0;
         try {
             tokenStream.reset();
-            while(tokenStream.incrementToken()) {
+            while (tokenStream.incrementToken()) {
                 wordCount++;
             }
         } catch (IOException e) {
@@ -71,8 +73,24 @@ public class IndexingUtils {
                 Paths.get(fileURI))) {
             stream.forEach(s -> vocabulary.add(s.toLowerCase()));
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("Error reading vocabulary file", e);
         }
+        return vocabulary;
+    }
+
+    public static Set<String> readDictionary(InputStream stream) {
+        Set<String> vocabulary = new HashSet<>();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                vocabulary.add(line);
+            }
+        } catch (IOException e) {
+            LOG.error("Error reading vocabulary file", e);
+        }
+
         return vocabulary;
     }
 
@@ -111,6 +129,13 @@ public class IndexingUtils {
         wikipediaTokenizer.setReader(reader);
         TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer);
         return new LowerCaseFilter(tokenStream);
+    }
+
+    public static EntityExtractor createEntityExtractionTokenStream(String fullString) {
+        Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
+        wikipediaTokenizer.setReader(new StringReader(fullString));
+        TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer);
+        return new EntityExtractor(tokenStream, fullString);
     }
 
     public static EntityExtractor createEntityExtractionTokenStream(Reader reader, String fullString) {

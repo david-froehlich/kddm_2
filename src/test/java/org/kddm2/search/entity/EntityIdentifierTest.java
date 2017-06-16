@@ -1,45 +1,49 @@
 package org.kddm2.search.entity;
 
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.store.FSDirectory;
 import org.junit.Before;
 import org.junit.Test;
 import org.kddm2.Settings;
 import org.kddm2.indexing.IndexStatsHelper;
-import org.kddm2.indexing.IndexingController;
+import org.kddm2.indexing.IndexingService;
+import org.kddm2.indexing.InvalidWikiFileException;
 import org.kddm2.indexing.WikiPage;
 import org.kddm2.indexing.xml.WikiXmlReader;
 import org.kddm2.lucene.IndexingUtils;
+import org.springframework.core.io.ClassPathResource;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 
 public class EntityIdentifierTest {
     private static final String INDEX_PATH = "/tmp/test_index/";
+    private static final String XML_FILE = "test-pages.xml.bz2";
+
     private static final float CUTOFF_RATE = 0.06f;
 
     private Set<String> vocabulary;
 
     @Before
-    public void setUpVocabulary() throws URISyntaxException {
+    public void setUp() throws IOException, XMLStreamException, URISyntaxException, InvalidWikiFileException {
         vocabulary = IndexingUtils.readDictionary(
                 getClass().getClassLoader().getResource(Settings.VOCABULARY_PATH).toURI());
-    }
-
-    @Before
-    public void setUpDirectory() throws IOException, XMLStreamException {
-        IndexingController indexingController = new IndexingController(Paths.get(INDEX_PATH));
-        indexingController.start();
+        Path indexPath = Paths.get(INDEX_PATH);
+        FSDirectory indexDirectory = FSDirectory.open(indexPath);
+        IndexingService indexingService = new IndexingService(indexDirectory, vocabulary,  new ClassPathResource(XML_FILE));
+        indexingService.start();
     }
 
     @Test
     public void testEntityExtraction() throws Exception {
-        InputStream wikiInputStream = getClass().getClassLoader().getResourceAsStream(Settings.XML_FILE_PATH);
+        InputStream wikiInputStream = new ClassPathResource(XML_FILE).getInputStream();
         WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream, vocabulary);
 
         WikiPage nextPage = wikiXmlReader.getNextPage();
@@ -53,11 +57,11 @@ public class EntityIdentifierTest {
 
     @Test
     public void testEntityIdentification() throws Exception {
-        InputStream wikiInputStream = getClass().getClassLoader().getResourceAsStream(Settings.XML_FILE_PATH);
+        InputStream wikiInputStream = new ClassPathResource(XML_FILE).getInputStream();
         WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream, vocabulary);
 
         IndexStatsHelper indexHelper = new IndexStatsHelper(Paths.get(INDEX_PATH));
-        EntityTools entityTools = new EntityTools(indexHelper, vocabulary);
+        EntityTools entityTools = new EntityTools(vocabulary);
 
         //TODO check more than one page
         WikiPage nextPage = wikiXmlReader.getNextPage();
@@ -97,17 +101,17 @@ public class EntityIdentifierTest {
                 truePositives++;
             }
         }
-        return (float)truePositives / actual.size();
+        return (float) truePositives / actual.size();
     }
 
     private float getRecall(List<? extends EntityCandidate> expected, List<? extends EntityCandidate> actual) {
         int truePositives = 0;
-        for (EntityCandidate currentExpected:
+        for (EntityCandidate currentExpected :
                 expected) {
             if (actual.contains(currentExpected)) {
                 truePositives++;
             }
         }
-        return (float)truePositives / expected.size();
+        return (float) truePositives / expected.size();
     }
 }
