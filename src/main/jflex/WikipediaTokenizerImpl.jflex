@@ -238,9 +238,12 @@ DOUBLE_EQUALS = "="{2}
 }
 
 <INTERNAL_LINK_STATE>{
+  [:{][^|\]\[]+  {positionInc = 1; yybegin(INTERNAL_LINK_STATE_IGNORE); break;}
+  [iI]"mage:"[^|\]\[]+  {positionInc = 1; yybegin(INTERNAL_LINK_STATE_IGNORE); break;}
   [fF]"ile:"[^|\]\[]+  {positionInc = 1; yybegin(INTERNAL_LINK_STATE_IGNORE); break;}
   [sS]"pecial:"[^|\]\[]+  {positionInc = 1; yybegin(INTERNAL_LINK_STATE_IGNORE); break;}
-  ":"?[cC]"ategory:"[^|\]\[]+  {positionInc = 1; yybegin(INTERNAL_LINK_STATE_IGNORE); break;}
+  [cC]"ategory:"[^|\]\[]+  {positionInc = 1; yybegin(INTERNAL_LINK_STATE_IGNORE); break;}
+
    // match link target first
   [^|\]\[]+ {positionInc = 1; numWikiTokensSeen++; return currentTokType;}
   // no push here since it is not nesting, just continuation!

@@ -46,7 +46,8 @@ public class WikiLinkAliasExtractor extends FilteringTokenFilter {
         if (type.equals(WikipediaTokenizer.INTERNAL_LINK) || type.equals(WikipediaTokenizer.INTERNAL_LINK_TARGET)) {
             int length = oAttr.endOffset() - oAttr.startOffset();
             if (length >= 2) {
-                extractedAliases.add(cAttr.toString());
+                String alias = cAttr.toString().trim();
+                extractedAliases.add(alias);
             }
         }
         return true;

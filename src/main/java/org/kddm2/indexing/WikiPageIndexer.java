@@ -61,6 +61,7 @@ public class WikiPageIndexer implements Runnable {
             }
         }
 
+        //TODO: use tokenizer here!
         Map<WikiLink, Integer> links = WikiUtils.parseLinkedOccurrences(page.getText(), vocabulary);
         for (Map.Entry<WikiLink, Integer> entry : links.entrySet()) {
             WikiLink wikiLink = entry.getKey();

@@ -229,6 +229,25 @@ public class WikipediaParserTest {
 
     }
 
+    @Test
+    public void testFuckedUpImageLinks4() throws Exception {
+        String exampleText = "before [[Image:bernhard plockhorst - schutzengel.jpg|thumb|right|225|an angel watching over two [[children|gremlins]] hell starts here.]] after";
+        System.out.println("Testing on this text:\n  " + exampleText);
+        org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
+        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        System.out.println("\nTesting lucene tokenizer");
+        testTokenizer(luceneTokenizer, exampleText);
+        System.out.println("\nTesting our custom tokenizer");
+        List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
+
+        TokenizerResult[] expected = {
+                new TokenizerResult("before","<ALPHANUM>"),
+                new TokenizerResult("after","<ALPHANUM>")
+        };
+        Assert.assertArrayEquals(expected, tokenizerResults.toArray());
+
+    }
+
     private List<TokenizerResult> testTokenizer(Tokenizer tokenizer, String text) throws IOException {
         List<TokenizerResult> tokenizerResults = new ArrayList<>();
         tokenizer.setReader(new StringReader(text));

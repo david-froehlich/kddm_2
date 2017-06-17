@@ -24,13 +24,22 @@ public class WikiUtils {
         Map<WikiLink, Integer> wikiLinks = new HashMap<>();
         Matcher matcher = WikiUtils.linkRegex.matcher(text);
         while (matcher.find()) {
-            String pageId = matcher.group(1);
+            String pageId = matcher.group(1).trim();
             String linkText = pageId;
             if (matcher.groupCount() > 2) {
                 linkText = matcher.group(2);
                 if (linkText == null) {
                     linkText = pageId;
+                } else {
+                    linkText = linkText.trim();
                 }
+            }
+            //TODO: hack for weird links that start with |
+            if (pageId.startsWith("|")) {
+                pageId = pageId.substring(1);
+            }
+            if (linkText.startsWith("|")) {
+                linkText = linkText.substring(1);
             }
             WikiLink wikiLink = new WikiLink(pageId, linkText);
             Integer count = wikiLinks.get(wikiLink);
