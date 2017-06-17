@@ -129,6 +129,88 @@ public class WikipediaParserTest {
     }
 
     @Test
+    public void testCitations() throws Exception {
+        String exampleText = "before {{admin|Kennedy|(former bureaucrat)}} after";
+        System.out.println("Testing on this text:\n  " + exampleText);
+        org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
+        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        System.out.println("\nTesting lucene tokenizer");
+        testTokenizer(luceneTokenizer, exampleText);
+        System.out.println("\nTesting our custom tokenizer");
+        List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
+        Assert.assertEquals(2, tokenizerResults.size());
+
+        TokenizerResult[] expected = {
+                new TokenizerResult("before","<ALPHANUM>"),
+                new TokenizerResult("after","<ALPHANUM>")
+        };
+
+        Assert.assertArrayEquals(expected, tokenizerResults.toArray());
+    }
+
+    @Test
+    public void testSpecialLinks() throws Exception {
+        String exampleText = "before [[Special:Contributions/46.18.183.34|46.18.183.34]] after";
+        System.out.println("Testing on this text:\n  " + exampleText);
+        org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
+        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        System.out.println("\nTesting lucene tokenizer");
+        testTokenizer(luceneTokenizer, exampleText);
+        System.out.println("\nTesting our custom tokenizer");
+        List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
+        Assert.assertEquals(2, tokenizerResults.size());
+
+        TokenizerResult[] expected = {
+                new TokenizerResult("before","<ALPHANUM>"),
+                new TokenizerResult("after","<ALPHANUM>")
+        };
+
+        Assert.assertArrayEquals(expected, tokenizerResults.toArray());
+    }
+
+    @Test
+    public void testCategoryLinks() throws Exception {
+        String exampleText = "before [[Category:Basic English 850 words]] after";
+        System.out.println("Testing on this text:\n  " + exampleText);
+        org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
+        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        System.out.println("\nTesting lucene tokenizer");
+        testTokenizer(luceneTokenizer, exampleText);
+        System.out.println("\nTesting our custom tokenizer");
+        List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
+        Assert.assertEquals(2, tokenizerResults.size());
+
+        TokenizerResult[] expected = {
+                new TokenizerResult("before","<ALPHANUM>"),
+                new TokenizerResult("after","<ALPHANUM>")
+        };
+
+        Assert.assertArrayEquals(expected, tokenizerResults.toArray());
+    }
+
+
+    @Test
+    public void testReflinks() throws Exception {
+        String exampleText = "before {{Reflist|refs=\n" +
+                "&lt;ref name=&quot;Britannica&quot;&gt;&quot;A&quot;, &quot;Encyclopaedia Britannica&quot;, Volume 1, 1962. p.1.&lt;/ref&gt; \n" +
+                "}}\n after";
+        System.out.println("Testing on this text:\n  " + exampleText);
+        org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
+        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        System.out.println("\nTesting lucene tokenizer");
+        testTokenizer(luceneTokenizer, exampleText);
+        System.out.println("\nTesting our custom tokenizer");
+        List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
+
+        TokenizerResult[] expected = {
+                new TokenizerResult("before","<ALPHANUM>"),
+                new TokenizerResult("after","<ALPHANUM>")
+        };
+
+        Assert.assertArrayEquals(expected, tokenizerResults.toArray());
+    }
+
+    @Test
     public void testFuckedUpImageLinks3() throws Exception {
         String exampleText = "before [[file:bernhard plockhorst - schutzengel.jpg|thumb|right|225|an angel watching over two [[children|gremlins]] hell starts here.]] after";
         System.out.println("Testing on this text:\n  " + exampleText);

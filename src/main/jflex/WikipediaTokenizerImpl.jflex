@@ -179,7 +179,6 @@ WHITESPACE = \r\n | [ \r\n\t\f]
 //Wikipedia
 DOUBLE_BRACKET = "["{2}
 DOUBLE_BRACKET_CLOSE = "]"{2}
-DOUBLE_BRACKET_CAT = "["{2}":"?"Category:"
 EXTERNAL_LINK = "["
 TWO_SINGLE_QUOTES = "'"{2}
 CITATION = "<ref>"
@@ -222,25 +221,26 @@ DOUBLE_EQUALS = "="{2}
   //set it to 0 for the next token, such that the link and the first token are in the same position, but then subsequent
   //tokens within the link are incremented
   {DOUBLE_BRACKET} {numWikiTokensSeen = 0; positionInc = 1; currentTokType = INTERNAL_LINK_TARGET; yypushstate(INTERNAL_LINK_STATE); break;}
-  {DOUBLE_BRACKET_CAT} {numWikiTokensSeen = 0; positionInc = 1; currentTokType = CATEGORY; yybegin(CATEGORY_STATE); break;}
   {EXTERNAL_LINK} {numWikiTokensSeen = 0; positionInc = 1; currentTokType = EXTERNAL_LINK_URL; yybegin(EXTERNAL_LINK_STATE); break;}
   {TWO_SINGLE_QUOTES} {numWikiTokensSeen = 0; positionInc = 1; if (numBalanced == 0){numBalanced++;yybegin(TWO_SINGLE_QUOTES_STATE);} else{numBalanced = 0;} break;}
   {DOUBLE_EQUALS} {numWikiTokensSeen = 0; positionInc = 1; yybegin(DOUBLE_EQUALS_STATE); break;}
   {DOUBLE_BRACE} {numWikiTokensSeen = 0; positionInc = 1; currentTokType = CITATION; yybegin(DOUBLE_BRACE_STATE); break;}
   {CITATION} {numWikiTokensSeen = 0; positionInc = 1; currentTokType = CITATION; yybegin(DOUBLE_BRACE_STATE); break;}
-//ignore
+  //ignore
   [^] |{INFOBOX}                                               {numWikiTokensSeen = 0;  positionInc = 1;  break;}
 }
 
 <INTERNAL_LINK_STATE_IGNORE> {
-   [^\]\[]+ {positionInc = 1; break;}
-   {DOUBLE_BRACKET} {positionInc = 1; yypushstate(INTERNAL_LINK_STATE_IGNORE); break; }
-   {DOUBLE_BRACKET_CLOSE} {numLinkToks = 0; positionInc=0; yypopstate(); break;}
-   [^]                                               { positionInc = 1; break;}
+  [^\]\[]+ {positionInc = 1; break;}
+  {DOUBLE_BRACKET} {positionInc = 1; yypushstate(INTERNAL_LINK_STATE_IGNORE); break; }
+  {DOUBLE_BRACKET_CLOSE} {numLinkToks = 0; positionInc=0; yypopstate(); break;}
+  [^]                                               { positionInc = 1; break;}
 }
 
 <INTERNAL_LINK_STATE>{
-  [fF][iI][lL][eE]":"[^|\]\[]+  {positionInc = 1; yybegin(INTERNAL_LINK_STATE_IGNORE); break;}
+  [fF]"ile:"[^|\]\[]+  {positionInc = 1; yybegin(INTERNAL_LINK_STATE_IGNORE); break;}
+  [sS]"pecial:"[^|\]\[]+  {positionInc = 1; yybegin(INTERNAL_LINK_STATE_IGNORE); break;}
+  ":"?[cC]"ategory:"[^|\]\[]+  {positionInc = 1; yybegin(INTERNAL_LINK_STATE_IGNORE); break;}
    // match link target first
   [^|\]\[]+ {positionInc = 1; numWikiTokensSeen++; return currentTokType;}
   // no push here since it is not nesting, just continuation!
@@ -249,22 +249,19 @@ DOUBLE_EQUALS = "="{2}
   //ignore
   [^]                                               { positionInc = 1; break;}
 }
-
 <INTERNAL_LINK_TEXT_STATE> {
-   [^|\]\[]+ {positionInc = 1; numWikiTokensSeen++; return currentTokType;}
-   {DOUBLE_BRACKET} {positionInc = 1; currentTokType = INTERNAL_LINK_TARGET; yypushstate(INTERNAL_LINK_STATE); break; }
-   {DOUBLE_BRACKET_CLOSE} {numLinkToks = 0; positionInc=0; yypopstate(); break;}
-   [^]                                               { positionInc = 1; break;}
+  [^|\]\[]+ {positionInc = 1; numWikiTokensSeen++; return currentTokType;}
+  {DOUBLE_BRACKET} {positionInc = 1; currentTokType = INTERNAL_LINK_TARGET; yypushstate(INTERNAL_LINK_STATE); break; }
+  {DOUBLE_BRACKET_CLOSE} {numLinkToks = 0; positionInc=0; yypopstate(); break;}
+  [^]                                               { positionInc = 1; break;}
 }
-
 <EXTERNAL_LINK_STATE>{
-//increment the link token, but then don't increment the tokens after that which are still in the link
+  //increment the link token, but then don't increment the tokens after that which are still in the link
   ("http://"|"https://"){HOST}("/"?({ALPHANUM}|{P}|\?|"&"|"="|"#")*)* {positionInc = 1; numWikiTokensSeen++; yybegin(EXTERNAL_LINK_STATE); return currentTokType;}
   {ALPHANUM} {if (numLinkToks == 0){positionInc = 0;} else{positionInc = 1;} numWikiTokensSeen++; currentTokType = EXTERNAL_LINK; yybegin(EXTERNAL_LINK_STATE); numLinkToks++; return currentTokType;}
   "]" {numLinkToks = 0; positionInc = 0; yybegin(YYINITIAL);  break;}
   {WHITESPACE}                                               { positionInc = 1;  break;}
 }
-
 <CATEGORY_STATE>{
   {ALPHANUM} {yybegin(CATEGORY_STATE); numWikiTokensSeen++; return currentTokType;}
   {DOUBLE_BRACKET_CLOSE} {yybegin(YYINITIAL); break;}
@@ -274,50 +271,43 @@ DOUBLE_EQUALS = "="{2}
 //italics
 <TWO_SINGLE_QUOTES_STATE>{
   "'" {currentTokType = BOLD;  yybegin(THREE_SINGLE_QUOTES_STATE);  break;}
-   "'''" {currentTokType = BOLD_ITALICS;  yybegin(FIVE_SINGLE_QUOTES_STATE);  break;}
-   {ALPHANUM} {currentTokType = ITALICS; numWikiTokensSeen++;  yybegin(STRING); return currentTokType;/*italics*/}
-   //we can have links inside, let those override
-   {DOUBLE_BRACKET} {currentTokType = INTERNAL_LINK_TARGET; numWikiTokensSeen = 0; yypushstate(INTERNAL_LINK_STATE);  break;}
-   {DOUBLE_BRACKET_CAT} {currentTokType = CATEGORY; numWikiTokensSeen = 0; yybegin(CATEGORY_STATE);  break;}
-   {EXTERNAL_LINK} {currentTokType = EXTERNAL_LINK; numWikiTokensSeen = 0; yybegin(EXTERNAL_LINK_STATE);  break;}
-
-   //ignore
-   [^]                                               {  break;/* ignore */ }
+  "'''" {currentTokType = BOLD_ITALICS;  yybegin(FIVE_SINGLE_QUOTES_STATE);  break;}
+  {ALPHANUM} {currentTokType = ITALICS; numWikiTokensSeen++;  yybegin(STRING); return currentTokType;/*italics*/}
+  //we can have links inside, let those override
+  {DOUBLE_BRACKET} {currentTokType = INTERNAL_LINK_TARGET; numWikiTokensSeen = 0; yypushstate(INTERNAL_LINK_STATE);  break;}
+  {EXTERNAL_LINK} {currentTokType = EXTERNAL_LINK; numWikiTokensSeen = 0; yybegin(EXTERNAL_LINK_STATE);  break;}
+  //ignore
+  [^]                                               {  break;/* ignore */ }
 }
 //bold
 <THREE_SINGLE_QUOTES_STATE>{
   {ALPHANUM} {yybegin(STRING); numWikiTokensSeen++; return currentTokType;}
   //we can have links inside, let those override
-   {DOUBLE_BRACKET} {currentTokType = INTERNAL_LINK_TARGET; numWikiTokensSeen = 0; yypushstate(INTERNAL_LINK_STATE);  break;}
-   {DOUBLE_BRACKET_CAT} {currentTokType = CATEGORY; numWikiTokensSeen = 0; yybegin(CATEGORY_STATE);  break;}
-   {EXTERNAL_LINK} {currentTokType = EXTERNAL_LINK; numWikiTokensSeen = 0; yybegin(EXTERNAL_LINK_STATE);  break;}
-
-   //ignore
-   [^]                                               {  break;/* ignore */ }
-
+  {DOUBLE_BRACKET} {currentTokType = INTERNAL_LINK_TARGET; numWikiTokensSeen = 0; yypushstate(INTERNAL_LINK_STATE);  break;}
+  {EXTERNAL_LINK} {currentTokType = EXTERNAL_LINK; numWikiTokensSeen = 0; yybegin(EXTERNAL_LINK_STATE);  break;}
+  //ignore
+  [^]                                               {  break;/* ignore */ }
 }
 //bold italics
 <FIVE_SINGLE_QUOTES_STATE>{
   {ALPHANUM} {yybegin(STRING); numWikiTokensSeen++; return currentTokType;}
   //we can have links inside, let those override
-   {DOUBLE_BRACKET} {currentTokType = INTERNAL_LINK_TARGET; numWikiTokensSeen = 0;  yypushstate(INTERNAL_LINK_STATE);  break;}
-   {DOUBLE_BRACKET_CAT} {currentTokType = CATEGORY; numWikiTokensSeen = 0; yybegin(CATEGORY_STATE);  break;}
-   {EXTERNAL_LINK} {currentTokType = EXTERNAL_LINK; numWikiTokensSeen = 0; yybegin(EXTERNAL_LINK_STATE);  break;}
-
-   //ignore
-   [^]                                               {  break;/* ignore */ }
+  {DOUBLE_BRACKET} {currentTokType = INTERNAL_LINK_TARGET; numWikiTokensSeen = 0;  yypushstate(INTERNAL_LINK_STATE);  break;}
+  {EXTERNAL_LINK} {currentTokType = EXTERNAL_LINK; numWikiTokensSeen = 0; yybegin(EXTERNAL_LINK_STATE);  break;}
+  //ignore
+  [^]                                               {  break;/* ignore */ }
 }
 
 <DOUBLE_EQUALS_STATE>{
- "=" {currentTokType = SUB_HEADING; numWikiTokensSeen = 0; yybegin(STRING);  break;}
- {ALPHANUM} {currentTokType = HEADING; yybegin(DOUBLE_EQUALS_STATE); numWikiTokensSeen++; return currentTokType;}
- {DOUBLE_EQUALS} {yybegin(YYINITIAL);  break;}
+  "=" {currentTokType = SUB_HEADING; numWikiTokensSeen = 0; yybegin(STRING);  break;}
+  {ALPHANUM} {currentTokType = HEADING; yybegin(DOUBLE_EQUALS_STATE); numWikiTokensSeen++; return currentTokType;}
+  {DOUBLE_EQUALS} {yybegin(YYINITIAL);  break;}
   //ignore
   [^]                                               {  break;/* ignore */ }
 }
 
 <DOUBLE_BRACE_STATE>{
-  {ALPHANUM} {yybegin(DOUBLE_BRACE_STATE); numWikiTokensSeen = 0; return currentTokType;}
+  {ALPHANUM} {yybegin(DOUBLE_BRACE_STATE); numWikiTokensSeen = 0; break; }
   {DOUBLE_BRACE_CLOSE} {yybegin(YYINITIAL);  break;}
   {CITATION_CLOSE} {yybegin(YYINITIAL);  break;}
   //ignore
@@ -331,45 +321,13 @@ DOUBLE_EQUALS = "="{2}
   "===" {numBalanced = 0;currentTokType = ALPHANUM; yybegin(YYINITIAL);  break;/*end sub header*/}
   {ALPHANUM} {yybegin(STRING); numWikiTokensSeen++; return currentTokType;/* STRING ALPHANUM*/}
   //we can have links inside, let those override
-   {DOUBLE_BRACKET} {numBalanced = 0; numWikiTokensSeen = 0; currentTokType = INTERNAL_LINK_TARGET;yypushstate(INTERNAL_LINK_STATE);  break;}
-   {DOUBLE_BRACKET_CAT} {numBalanced = 0; numWikiTokensSeen = 0; currentTokType = CATEGORY;yybegin(CATEGORY_STATE);  break;}
-   {EXTERNAL_LINK} {numBalanced = 0; numWikiTokensSeen = 0; currentTokType = EXTERNAL_LINK;yybegin(EXTERNAL_LINK_STATE);  break;}
-
-
+  {DOUBLE_BRACKET} {numBalanced = 0; numWikiTokensSeen = 0; currentTokType = INTERNAL_LINK_TARGET;yypushstate(INTERNAL_LINK_STATE);  break;}
+  {EXTERNAL_LINK} {numBalanced = 0; numWikiTokensSeen = 0; currentTokType = EXTERNAL_LINK;yybegin(EXTERNAL_LINK_STATE);  break;}
   {PIPE} {yybegin(STRING); return currentTokType;/*pipe*/}
 
   [^]                                              {  break;/* ignore STRING */ }
 }
 
-
-
-
-/*
-{INTERNAL_LINK}                                                { return curentTokType; }
-
-{CITATION}                                                { return currentTokType; }
-{CATEGORY}                                                { return currentTokType; }
-
-{BOLD}                                                { return currentTokType; }
-{ITALICS}                                                { return currentTokType; }
-{BOLD_ITALICS}                                                { return currentTokType; }
-{HEADING}                                                { return currentTokType; }
-{SUB_HEADING}                                                { return currentTokType; }
-
-*/
-//end wikipedia
-
 /** Ignore the rest */
 [^] | {TAGS}                                          {  break;/* ignore */ }
 
-
-//INTERNAL_LINK = "["{2}({ALPHANUM}+{WHITESPACE}*)+"]"{2}
-//EXTERNAL_LINK = "["http://"{HOST}.*?"]"
-//CITATION = "{"{2}({ALPHANUM}+{WHITESPACE}*)+"}"{2}
-//CATEGORY = "["{2}"Category:"({ALPHANUM}+{WHITESPACE}*)+"]"{2}
-//CATEGORY_COLON = "["{2}":Category:"({ALPHANUM}+{WHITESPACE}*)+"]"{2}
-//BOLD = '''({ALPHANUM}+{WHITESPACE}*)+'''
-//ITALICS = ''({ALPHANUM}+{WHITESPACE}*)+''
-//BOLD_ITALICS = '''''({ALPHANUM}+{WHITESPACE}*)+'''''
-//HEADING = "="{2}({ALPHANUM}+{WHITESPACE}*)+"="{2}
-//SUB_HEADING ="="{3}({ALPHANUM}+{WHITESPACE}*)+"="{3}
