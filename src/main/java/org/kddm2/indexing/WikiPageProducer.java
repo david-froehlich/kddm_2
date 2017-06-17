@@ -23,7 +23,7 @@ public class WikiPageProducer implements Runnable {
                             InputStream inputStream, AtomicInteger numProcessedPages) throws IOException, XMLStreamException {
         this.indexingTasks = unindexedPages;
         this.numProcessedPages = numProcessedPages;
-        this.reader = new WikiXmlReader(inputStream, vocabulary);
+        this.reader = new WikiXmlReader(inputStream);
     }
 
     private void produce() throws InterruptedException, IOException, XMLStreamException {

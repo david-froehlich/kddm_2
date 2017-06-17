@@ -20,7 +20,7 @@ public class WikiXmlReaderTest {
     public void testSimpleOpenClose() throws Exception {
         InputStream inputStream = new ClassPathResource(TEST_FILE).getInputStream();
         assertNotNull(inputStream);
-        WikiXmlReader w = new WikiXmlReader(inputStream, null);
+        WikiXmlReader w = new WikiXmlReader(inputStream);
         w.close();
     }
 
@@ -28,7 +28,7 @@ public class WikiXmlReaderTest {
     public void testIterate() throws Exception {
         InputStream inputStream = new ClassPathResource(TEST_FILE).getInputStream();
         assertNotNull(inputStream);
-        WikiXmlReader w = new WikiXmlReader(inputStream, null);
+        WikiXmlReader w = new WikiXmlReader(inputStream);
         w.iteratePages();
         w.close();
     }
@@ -43,7 +43,7 @@ public class WikiXmlReaderTest {
         vocabulary.add("same day");
         vocabulary.add("flower");
 
-        WikiXmlReader w = new WikiXmlReader(inputStream, vocabulary);
+        WikiXmlReader w = new WikiXmlReader(inputStream);
         WikiPage page = w.getNextPage();
         assertEquals("april", page.getTitle());
         assertNotNull(page.getText());
@@ -56,7 +56,7 @@ public class WikiXmlReaderTest {
     public void testLargeIterate() throws Exception {
         InputStream inputStream = new FileSystemResource("data/simplewiki-20170501-pages-meta-current.xml.bz2").getInputStream();
         assertNotNull(inputStream);
-        WikiXmlReader w = new WikiXmlReader(inputStream, null);
+        WikiXmlReader w = new WikiXmlReader(inputStream);
         w.iteratePages();
         w.close();
     }

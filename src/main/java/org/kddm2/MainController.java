@@ -1,6 +1,5 @@
 package org.kddm2;
 
-
 import org.kddm2.indexing.IndexingService;
 import org.kddm2.indexing.InvalidIndexException;
 import org.kddm2.indexing.InvalidWikiFileException;

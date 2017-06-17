@@ -48,9 +48,7 @@ public class IndexTestSuite {
     static {
         try {
             createLuceneIndices();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } catch (InvalidWikiFileException e) {
+        } catch (Exception | InvalidWikiFileException e) {
             e.printStackTrace();
         }
     }
@@ -91,7 +89,7 @@ public class IndexTestSuite {
             System.out.println("Creating validation test pages");
             int numPages = 10;
             InputStream xmlInputStream = resourceLoader.getResource(dataSourcePath).getInputStream();
-            WikiXmlReader reader = new WikiXmlReader(xmlInputStream, vocabulary);
+            WikiXmlReader reader = new WikiXmlReader(xmlInputStream);
             IndexingTestUtils utils = new IndexingTestUtils(reader, vocabulary);
             List<WikiPage> extractedPages = utils.extractRandomTestPagesSet(
                     numPages, 0.05f, 0.01f);

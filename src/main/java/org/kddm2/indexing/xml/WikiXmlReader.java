@@ -13,7 +13,6 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Set;
 
 public class WikiXmlReader {
     private static final Logger logger = LoggerFactory.getLogger(WikiXmlReader.class);
@@ -22,7 +21,6 @@ public class WikiXmlReader {
     private XMLEventReader xmlEventReader;
     private WikiPage currentPage;
     private int numPages = 0;
-    private Set<String> vocabulary;
 
     public void reset() throws XMLStreamException, IOException {
         compressorInputStream.reset();
@@ -30,11 +28,10 @@ public class WikiXmlReader {
         xmlEventReader = xmlInputFactory.createXMLEventReader(compressorInputStream);
     }
 
-    public WikiXmlReader(InputStream inputStream, Set<String> vocabulary) throws IOException, XMLStreamException {
+    public WikiXmlReader(InputStream inputStream) throws IOException, XMLStreamException {
         compressorInputStream = new BZip2CompressorInputStream(inputStream);
         XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
         xmlEventReader = xmlInputFactory.createXMLEventReader(this.compressorInputStream);
-        this.vocabulary = vocabulary;
     }
 
     public void iteratePages() throws XMLStreamException {

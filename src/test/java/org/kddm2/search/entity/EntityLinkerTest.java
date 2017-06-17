@@ -20,7 +20,7 @@ public class EntityLinkerTest {
     public void testSimpleLinking() throws Exception {
         // use validation set for the test page, but the full index for the analysis
         InputStream wikiInputStream = IndexTestSuite.testIndexValidation.dataSourceResource.getInputStream();
-        WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream, config.vocabulary);
+        WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream);
 
         WikiPage nextPage = wikiXmlReader.getNextPage();
         System.out.println("Testing on this wiki page:");

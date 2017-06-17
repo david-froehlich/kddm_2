@@ -26,7 +26,7 @@ public class EntityIdentifierTest {
     @Test
     public void testEntityExtraction() throws Exception {
         InputStream wikiInputStream = config.dataSourceResource.getInputStream();
-        WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream, config.vocabulary);
+        WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream);
 
         WikiPage nextPage = wikiXmlReader.getNextPage();
 
@@ -40,7 +40,7 @@ public class EntityIdentifierTest {
 
     @Test
     public void testEntityIdentification() throws Exception {
-        WikiXmlReader wikiXmlReader = new WikiXmlReader(IndexTestSuite.testIndexValidation.dataSourceResource.getInputStream(), config.vocabulary);
+        WikiXmlReader wikiXmlReader = new WikiXmlReader(IndexTestSuite.testIndexValidation.dataSourceResource.getInputStream());
 
         IndexStatsHelper indexHelper = new IndexStatsHelper(config.luceneDirectory);
         EntityTools entityTools = new EntityTools(config.vocabulary);

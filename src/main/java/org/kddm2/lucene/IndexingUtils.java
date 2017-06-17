@@ -10,10 +10,13 @@ import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
+import org.kddm2.indexing.WikiPage;
+import org.kddm2.indexing.xml.WikiXmlReader;
 import org.kddm2.search.entity.EntityWikiLinkExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -65,6 +68,20 @@ public class IndexingUtils {
             builder.append(" ");
         }
         return builder.toString();
+    }
+
+    public static void extractDictionary(InputStream stream) throws IOException, XMLStreamException {
+        WikiXmlReader reader = new WikiXmlReader(stream);
+        WikiPage page = reader.getNextPage();
+        while (page != null) {
+            WikipediaTokenizer tokenizer = new WikipediaTokenizer();
+            tokenizer.setReader(new StringReader(page.getText()));
+            WikiLinkAliasExtractor extractor = new WikiLinkAliasExtractor(tokenizer);
+            List<String> aliases = extractor.readAliases();
+
+            page = reader.getNextPage();
+        }
+
     }
 
     //TODO write dictionary by reading xml file
