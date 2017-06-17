@@ -73,7 +73,7 @@ public class EntityLinker {
                         .add(contextQueryLinked, BooleanClause.Occur.SHOULD)
                         .add(contextQueryOccurrence, BooleanClause.Occur.SHOULD).build();
 
-                TopDocs searchResults = searcher.search(finalQuery, 100);
+                TopDocs searchResults = searcher.search(finalQuery, 10);
                 Set<String> fieldsToRetrieve = new HashSet<>();
                 fieldsToRetrieve.add(Settings.DOCUMENT_ID_FIELD_NAME);
 
@@ -96,7 +96,7 @@ public class EntityLinker {
             if (relevantDocuments.isEmpty()) {
                 continue;
             }
-            relevantDocuments.sort((left, right) -> Float.compare(left.getRelevance(), right.getRelevance()));
+            relevantDocuments.sort((left, right) -> Float.compare(right.getRelevance(), left.getRelevance()));
             EntityLink link = new EntityLink(candidate, relevantDocuments);
             resultingLinks.add(link);
         }

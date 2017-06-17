@@ -15,6 +15,7 @@ public class EntityWeightingTFIDF extends EntityWeightingAlgorithm {
         if (statsForDictTerm.getCountOccurenceDocuments() > 1) {
             return (float) (occurenceCount / Math.log(statsForDictTerm.getCountOccurenceDocuments()));
         } else {
+            //TODO probably remove the factor, this places candidates that only occur once in the doc. and don't occur anywhere else rather high
             return (float) (occurenceCount * Math.E);
         }
     }

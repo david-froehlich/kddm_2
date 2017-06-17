@@ -104,12 +104,12 @@ public class MainApplication extends WebMvcConfigurerAdapter{
 
     @Bean
     public EntityIdentifier entityIdentifier(EntityWeightingAlgorithm algorithm, EntityTools tools) {
-        return new EntityIdentifier(algorithm, tools, Settings.ENTITY_CUTOFF_RATE);
+        return new EntityIdentifier(algorithm, tools, Settings.ENTITY_CUTOFF_RATE_AFTER_IDENTIFICATION);
     }
 
 
     @Bean
     public EntityWeightingAlgorithm entityWeightingAlgorithm(IndexStatsHelper indexStatsHelper, EntityTools entityTools) {
-        return new EntityWeightingTFIDF(indexStatsHelper, entityTools);
+        return new EntityWeightingKeyphraseness(indexStatsHelper, entityTools);
     }
 }

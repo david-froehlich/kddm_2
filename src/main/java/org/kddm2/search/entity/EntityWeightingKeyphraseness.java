@@ -18,6 +18,6 @@ public class EntityWeightingKeyphraseness extends EntityWeightingAlgorithm {
         if (linkings + occurrences == 0) {
             return 0.0f;
         }
-        return ((float) linkings / occurrences + linkings);
+        return ((float) linkings / (occurrences + linkings));
     }
 }

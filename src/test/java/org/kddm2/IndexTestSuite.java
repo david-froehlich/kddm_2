@@ -57,7 +57,7 @@ public class IndexTestSuite {
         resourceLoader = new DefaultResourceLoader();
         System.out.println("Reading dictionary");
         vocabulary = IndexingUtils.readDictionary(resourceLoader.getResource(testVocabularyPath).getInputStream());
-
+        System.out.println(vocabulary.size() + " terms in dictionary");
         createValidationTestPages();
 
         System.out.println("Loading indices");

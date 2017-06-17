@@ -49,10 +49,10 @@ function parseLinks(links) {
     for (let link of sortedLinks) {
         let startPos = link.entity.startPos;
         let endPos = link.entity.endPos;
-        let oldText = newContent.substr(startPos, endPos - startPos + 1);
+        let oldText = newContent.substr(startPos, endPos - startPos);
 
         newContent = newContent.substr(0, startPos) + "<a id='link_" + i + "' href='#'>"
-            + oldText + "</a>" + newContent.substr(endPos + 1);
+            + oldText + "</a>" + newContent.substr(endPos);
         i++;
     }
 

@@ -79,7 +79,7 @@ public class MainController {
 
     @PostMapping(value="/wikify",headers="content-type=text/plain")
     public List<EntityLink> wikify(@RequestBody String text) throws InvalidIndexException {
-        List<EntityCandidateWeighted> candidates = entityIdentifier.identifyEntities(text);
+        List<EntityCandidateWeighted> candidates = entityIdentifier.identifyEntities(text.toLowerCase());
         List<EntityLink> entityLinks = entityLinker.identifyLinksForCandidates(candidates);
         return entityLinks;
     }

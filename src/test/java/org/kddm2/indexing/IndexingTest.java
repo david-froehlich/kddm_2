@@ -1,12 +1,14 @@
 package org.kddm2.indexing;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kddm2.IndexTestSuite;
 import org.kddm2.lucene.IndexingUtils;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ClassPathResource;
 
-import java.io.InputStream;
+import java.io.*;
+import java.util.Set;
 
 public class IndexingTest {
 
@@ -23,8 +25,19 @@ public class IndexingTest {
     }
 
     @Test
+    @Ignore
     public void extractVocabulary() throws Exception {
-        InputStream inputStream = new FileSystemResource("/tmp/test-pages.xml.bz2").getInputStream();
-        IndexingUtils.extractDictionary(inputStream);
+        InputStream inputStream = new ClassPathResource("simplewiki-20170501-pages-meta-current.xml.bz2").getInputStream();
+        Set<String> vocabulary = IndexingUtils.extractVocabulary(inputStream);
+
+        String dictPath = "/tmp/vocabulary.txt";
+        try (Writer w = new BufferedWriter(new FileWriter(dictPath))) {
+            for (String s : vocabulary) {
+                w.write(s);
+                w.write("\n");
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 }

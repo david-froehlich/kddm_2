@@ -5,19 +5,13 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
-import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
+import org.kddm2.indexing.wiki.WikipediaTokenizer;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 public class WikiLinkAliasExtractor extends FilteringTokenFilter {
-    int start;
-    int end;
-
-    private Set<String> extractedAliases = new HashSet<>();
+    private Set<String> extractedAliases;
     private TypeAttribute tAttr;
     private CharTermAttribute cAttr;
     private OffsetAttribute oAttr;
@@ -29,15 +23,14 @@ public class WikiLinkAliasExtractor extends FilteringTokenFilter {
         oAttr = addAttribute(OffsetAttribute.class);
     }
 
-    public List<String> readAliases() throws IOException {
+    public Set<String> readAliases(Set<String> previouslyExtractedAliases) throws IOException {
+        this.extractedAliases = previouslyExtractedAliases;
         this.reset();
         while (incrementToken()) {
             //do nothing
         }
 
-        List<String> ret = new LinkedList<>();
-        //TODO
-        return ret;
+        return extractedAliases;
     }
 
     /**
@@ -49,11 +42,12 @@ public class WikiLinkAliasExtractor extends FilteringTokenFilter {
     @Override
     protected boolean accept() throws IOException {
         String type = tAttr.type();
-        if (type.equals(WikipediaTokenizer.INTERNAL_LINK)) {
-            String temp = cAttr.toString();
-            extractedAliases.add(temp);
-            start = oAttr.startOffset();
-            end = oAttr.endOffset();
+
+        if (type.equals(WikipediaTokenizer.INTERNAL_LINK) || type.equals(WikipediaTokenizer.INTERNAL_LINK_TARGET)) {
+            int length = oAttr.endOffset() - oAttr.startOffset();
+            if (length >= 2) {
+                extractedAliases.add(cAttr.toString());
+            }
         }
         return true;
     }

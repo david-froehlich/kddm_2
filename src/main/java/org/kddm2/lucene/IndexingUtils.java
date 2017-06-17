@@ -70,21 +70,33 @@ public class IndexingUtils {
         return builder.toString();
     }
 
-    public static void extractDictionary(InputStream stream) throws IOException, XMLStreamException {
+    //TODO hack plaintext replacement and reextract vocab.
+    //TODO scaling for TfIDF
+    //TODO combine candidate identification score and linking score
+    //TODO test if disambiguation pages are linked more often
+    //TODO parameters from frontend
+    //TODO filter numeric words from vocabulary
+    public static Set<String> extractVocabulary(InputStream stream) throws IOException, XMLStreamException {
         WikiXmlReader reader = new WikiXmlReader(stream);
         WikiPage page = reader.getNextPage();
+        Set<String> extractedAliases = new HashSet<>();
+
+        int parsedPages = 0;
         while (page != null) {
-            WikipediaTokenizer tokenizer = new WikipediaTokenizer();
+            org.kddm2.indexing.wiki.WikipediaTokenizer tokenizer = new org.kddm2.indexing.wiki.WikipediaTokenizer();
             tokenizer.setReader(new StringReader(page.getText()));
             WikiLinkAliasExtractor extractor = new WikiLinkAliasExtractor(tokenizer);
-            List<String> aliases = extractor.readAliases();
 
+            extractedAliases = extractor.readAliases(extractedAliases);
             page = reader.getNextPage();
+            if (++parsedPages % 500 == 0) {
+                System.out.println("parsed " + parsedPages + " pages");
+            }
         }
-
+        return extractedAliases;
     }
 
-    //TODO write dictionary by reading xml file
+
     public static Set<String> readDictionary(InputStream stream) {
         Set<String> vocabulary = new HashSet<>();
 
@@ -131,9 +143,9 @@ public class IndexingUtils {
 
     public static TokenStream createWikiTokenizer(Reader reader, boolean keepInternalLinks) {
         //TODO: use lucene Analyzers to re-use these token streams. This could improve performance
-        Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
-        wikipediaTokenizer.setReader(reader);
-        TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer, keepInternalLinks);
+        org.kddm2.indexing.wiki.WikipediaTokenizer tokenizer = new org.kddm2.indexing.wiki.WikipediaTokenizer();
+        tokenizer.setReader(reader);
+        TokenStream tokenStream = new WikiReplacerTokenFilter(tokenizer, keepInternalLinks);
         return new LowerCaseFilter(tokenStream);
     }
 
@@ -141,9 +153,9 @@ public class IndexingUtils {
      * Extracts links from wiki markup text.
      */
     public static EntityWikiLinkExtractor createEntityExtractionTokenStream(String wikiPageText) {
-        Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
-        wikipediaTokenizer.setReader(new StringReader(wikiPageText));
-        TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer, true);
+        org.kddm2.indexing.wiki.WikipediaTokenizer tokenizer = new org.kddm2.indexing.wiki.WikipediaTokenizer();
+        tokenizer.setReader(new StringReader(wikiPageText));
+        TokenStream tokenStream = new WikiReplacerTokenFilter(tokenizer, true);
         return new EntityWikiLinkExtractor(tokenStream, wikiPageText);
     }
 
@@ -184,7 +196,6 @@ public class IndexingUtils {
      */
     private static TokenStream createIndexFilters(TokenStream source, Set<String> vocabulary, int maxShingleSize) {
         ShingleFilter shingleFilter = new ShingleFilter(source, maxShingleSize);
-
         return new VocabTokenFilter(shingleFilter, vocabulary);
     }
 }

@@ -26,7 +26,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 %%
 
 %class WikipediaTokenizerImpl
-%unicode 3.0
+
 %integer
 %function getNextToken
 %pack
@@ -217,7 +217,7 @@ DOUBLE_EQUALS = "="{2}
 //ignore
   [^] |{INFOBOX}                                               {numWikiTokensSeen = 0;  positionInc = 1;  break;}
 }
-
+//TODO still splits internal links at apostrophe
 <INTERNAL_LINK_STATE>{
    // match link target first
   {ALPHANUM}({WHITESPACE}{ALPHANUM})* {positionInc = 1; numWikiTokensSeen++; yybegin(INTERNAL_LINK_STATE); return currentTokType;}
