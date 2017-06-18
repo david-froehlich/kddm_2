@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class WikiReplacerTokenFilter extends FilteringTokenFilter {
+public class WikiToPlaintextFilter extends FilteringTokenFilter {
     private static Set<String> acceptedTypes;
 
     static {
@@ -22,7 +22,7 @@ public class WikiReplacerTokenFilter extends FilteringTokenFilter {
 
     private final boolean keepInternalLinks;
 
-    public WikiReplacerTokenFilter(TokenStream in, boolean keepInternalLinks) {
+    public WikiToPlaintextFilter(TokenStream in, boolean keepInternalLinks) {
         super(in);
         this.keepInternalLinks = keepInternalLinks;
     }

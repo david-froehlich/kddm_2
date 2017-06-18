@@ -26,10 +26,10 @@ public class WikipediaParserTest {
         List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
 
         TokenizerResult[] expected = {
-                new TokenizerResult("before","<ALPHANUM>"),
-                new TokenizerResult("Testing wiki parsers","ilt"),
-                new TokenizerResult("parser test","il"),
-                new TokenizerResult("after","<ALPHANUM>")
+                new TokenizerResult("before", "<ALPHANUM>"),
+                new TokenizerResult("Testing wiki parsers", "ilt"),
+                new TokenizerResult("parser test", "il"),
+                new TokenizerResult("after", "<ALPHANUM>")
         };
 
         Assert.assertArrayEquals(expected, tokenizerResults.toArray());
@@ -59,10 +59,10 @@ public class WikipediaParserTest {
         List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
 
         TokenizerResult[] expected = {
-                new TokenizerResult("before","<ALPHANUM>"),
-                new TokenizerResult("\"Adam's apple\" (disambiguation)","ilt"),
-                new TokenizerResult("link-text","il"),
-                new TokenizerResult("after","<ALPHANUM>")
+                new TokenizerResult("before", "<ALPHANUM>"),
+                new TokenizerResult("\"Adam's apple\" (disambiguation)", "ilt"),
+                new TokenizerResult("link-text", "il"),
+                new TokenizerResult("after", "<ALPHANUM>")
         };
 
         Assert.assertArrayEquals(expected, tokenizerResults.toArray());
@@ -80,9 +80,9 @@ public class WikipediaParserTest {
         List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
 
         TokenizerResult[] expected = {
-                new TokenizerResult("before","<ALPHANUM>"),
-                new TokenizerResult("Testing simple links","ilt"),
-                new TokenizerResult("after","<ALPHANUM>")
+                new TokenizerResult("before", "<ALPHANUM>"),
+                new TokenizerResult("Testing simple links", "ilt"),
+                new TokenizerResult("after", "<ALPHANUM>")
         };
 
         Assert.assertArrayEquals(expected, tokenizerResults.toArray());
@@ -100,8 +100,8 @@ public class WikipediaParserTest {
         List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
 
         TokenizerResult[] expected = {
-                new TokenizerResult("before","<ALPHANUM>"),
-                new TokenizerResult("after","<ALPHANUM>")
+                new TokenizerResult("before", "<ALPHANUM>"),
+                new TokenizerResult("after", "<ALPHANUM>")
         };
 
         Assert.assertArrayEquals(expected, tokenizerResults.toArray());
@@ -121,8 +121,8 @@ public class WikipediaParserTest {
         Assert.assertEquals(2, tokenizerResults.size());
 
         TokenizerResult[] expected = {
-                new TokenizerResult("before","<ALPHANUM>"),
-                new TokenizerResult("after","<ALPHANUM>")
+                new TokenizerResult("before", "<ALPHANUM>"),
+                new TokenizerResult("after", "<ALPHANUM>")
         };
 
         Assert.assertArrayEquals(expected, tokenizerResults.toArray());
@@ -141,8 +141,8 @@ public class WikipediaParserTest {
         Assert.assertEquals(2, tokenizerResults.size());
 
         TokenizerResult[] expected = {
-                new TokenizerResult("before","<ALPHANUM>"),
-                new TokenizerResult("after","<ALPHANUM>")
+                new TokenizerResult("before", "<ALPHANUM>"),
+                new TokenizerResult("after", "<ALPHANUM>")
         };
 
         Assert.assertArrayEquals(expected, tokenizerResults.toArray());
@@ -161,8 +161,8 @@ public class WikipediaParserTest {
         Assert.assertEquals(2, tokenizerResults.size());
 
         TokenizerResult[] expected = {
-                new TokenizerResult("before","<ALPHANUM>"),
-                new TokenizerResult("after","<ALPHANUM>")
+                new TokenizerResult("before", "<ALPHANUM>"),
+                new TokenizerResult("after", "<ALPHANUM>")
         };
 
         Assert.assertArrayEquals(expected, tokenizerResults.toArray());
@@ -181,8 +181,8 @@ public class WikipediaParserTest {
         Assert.assertEquals(2, tokenizerResults.size());
 
         TokenizerResult[] expected = {
-                new TokenizerResult("before","<ALPHANUM>"),
-                new TokenizerResult("after","<ALPHANUM>")
+                new TokenizerResult("before", "<ALPHANUM>"),
+                new TokenizerResult("after", "<ALPHANUM>")
         };
 
         Assert.assertArrayEquals(expected, tokenizerResults.toArray());
@@ -203,8 +203,8 @@ public class WikipediaParserTest {
         List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
 
         TokenizerResult[] expected = {
-                new TokenizerResult("before","<ALPHANUM>"),
-                new TokenizerResult("after","<ALPHANUM>")
+                new TokenizerResult("before", "<ALPHANUM>"),
+                new TokenizerResult("after", "<ALPHANUM>")
         };
 
         Assert.assertArrayEquals(expected, tokenizerResults.toArray());
@@ -222,8 +222,8 @@ public class WikipediaParserTest {
         List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
 
         TokenizerResult[] expected = {
-                new TokenizerResult("before","<ALPHANUM>"),
-                new TokenizerResult("after","<ALPHANUM>")
+                new TokenizerResult("before", "<ALPHANUM>"),
+                new TokenizerResult("after", "<ALPHANUM>")
         };
         Assert.assertArrayEquals(expected, tokenizerResults.toArray());
 
@@ -241,17 +241,33 @@ public class WikipediaParserTest {
         List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
 
         TokenizerResult[] expected = {
-                new TokenizerResult("before","<ALPHANUM>"),
-                new TokenizerResult("after","<ALPHANUM>")
+                new TokenizerResult("before", "<ALPHANUM>"),
+                new TokenizerResult("after", "<ALPHANUM>")
         };
         Assert.assertArrayEquals(expected, tokenizerResults.toArray());
+
+    }
+
+    @Test
+    public void testLinkWithinItalics() throws Exception {
+        String exampleText = "''this page is about the first [[letter]] in the [[alphabet]].\n" +
+                ": ''for the indefinite article, see [[article (grammar)]].''\n" +
+                ": ''for other uses of a, see [[a (disambiguation)]]''\n";
+        System.out.println("Testing on this text:\n  " + exampleText);
+        org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
+        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        System.out.println("\nTesting lucene tokenizer");
+        testTokenizer(luceneTokenizer, exampleText);
+        System.out.println("\nTesting our custom tokenizer");
+        List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
+        Assert.assertEquals(tokenizerResults.get(7), new TokenizerResult("in", "i"));
 
     }
 
     private List<TokenizerResult> testTokenizer(Tokenizer tokenizer, String text) throws IOException {
         List<TokenizerResult> tokenizerResults = new ArrayList<>();
         tokenizer.setReader(new StringReader(text));
-        CharTermAttribute textAttribute =  tokenizer.addAttribute(CharTermAttribute.class);
+        CharTermAttribute textAttribute = tokenizer.addAttribute(CharTermAttribute.class);
         TypeAttribute typeAttribute = tokenizer.addAttribute(TypeAttribute.class);
         tokenizer.reset();
         while (tokenizer.incrementToken()) {

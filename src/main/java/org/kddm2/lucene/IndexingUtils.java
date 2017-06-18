@@ -9,8 +9,9 @@ import org.apache.lucene.analysis.shingle.ShingleFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
-import org.apache.lucene.analysis.wikipedia.WikipediaTokenizer;
+import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.kddm2.indexing.WikiPage;
+import org.kddm2.indexing.wiki.WikipediaTokenizer;
 import org.kddm2.indexing.xml.WikiXmlReader;
 import org.kddm2.search.entity.EntityWikiLinkExtractor;
 import org.slf4j.Logger;
@@ -83,7 +84,7 @@ public class IndexingUtils {
 
         int parsedPages = 0;
         while (page != null) {
-            org.kddm2.indexing.wiki.WikipediaTokenizer tokenizer = new org.kddm2.indexing.wiki.WikipediaTokenizer();
+            WikipediaTokenizer tokenizer = new WikipediaTokenizer();
             tokenizer.setReader(new StringReader(page.getText()));
             WikiLinkAliasExtractor extractor = new WikiLinkAliasExtractor(tokenizer);
 
@@ -132,7 +133,7 @@ public class IndexingUtils {
      * @param maxShingleSize The maximum n-gram(shingle) size that is used to create new tokens.
      * @return
      */
-    public static TokenStream createPlaintextTokenize(Reader reader, Set<String> vocabulary, int maxShingleSize) {
+    public static TokenStream createPlaintextTokenizer(Reader reader, Set<String> vocabulary, int maxShingleSize) {
         final StandardTokenizer src = new StandardTokenizer();
         src.setReader(reader);
         src.setMaxTokenLength(255);
@@ -143,7 +144,7 @@ public class IndexingUtils {
 
     public static TokenStream createWikiTokenizer(Reader reader, boolean keepInternalLinks) {
         //TODO: use lucene Analyzers to re-use these token streams. This could improve performance
-        org.kddm2.indexing.wiki.WikipediaTokenizer tokenizer = new org.kddm2.indexing.wiki.WikipediaTokenizer();
+        WikipediaTokenizer tokenizer = new WikipediaTokenizer();
         tokenizer.setReader(reader);
         TokenStream tokenStream = new WikiReplacerTokenFilter(tokenizer, keepInternalLinks);
         return new LowerCaseFilter(tokenStream);
@@ -179,11 +180,37 @@ public class IndexingUtils {
      * @param reader The source to read from.
      * @return
      */
-    public static TokenStream createWikiToPlaintextTokenizer(Reader reader) {
+    public static String getWikiPlainText(Reader reader) throws IOException {
         Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
         wikipediaTokenizer.setReader(reader);
-        TokenStream tokenStream = new WikiReplacerTokenFilter(wikipediaTokenizer, true);
-        return tokenStream;
+        TokenStream tokenStream = new WikiToPlaintextFilter(wikipediaTokenizer, true);
+
+        StringBuilder plaintext = new StringBuilder();
+
+        CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
+        TypeAttribute typeAttribute = tokenStream.addAttribute(TypeAttribute.class);
+        tokenStream.reset();
+
+        boolean insideLink = false;
+        String linkText = null;
+        while (tokenStream.incrementToken()) {
+            if (WikipediaTokenizer.INTERNAL_LINK.equals(typeAttribute.type()) ||
+                    WikipediaTokenizer.INTERNAL_LINK_TARGET.equals(typeAttribute.type())) {
+                insideLink = true;
+                linkText = charTermAttribute.toString();
+            } else {
+                if (insideLink) {
+                    plaintext.append(linkText);
+                    plaintext.append(" ");
+                    insideLink = false;
+                    linkText = null;
+                }
+                plaintext.append(charTermAttribute.toString());
+                plaintext.append(" ");
+            }
+        }
+
+        return plaintext.toString().trim();
     }
 
     /**

@@ -1,6 +1,5 @@
 package org.kddm2.search.entity;
 
-import org.apache.lucene.analysis.TokenStream;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kddm2.IndexTestSuite;
@@ -55,8 +54,7 @@ public class EntityIdentifierTest {
         List<IdentificationResults> keyphrasenessResults = new ArrayList<>();
         WikiPage nextPage;
         while ((nextPage = wikiXmlReader.getNextPage()) != null) {
-            TokenStream wikiPlaintextTokenizer = IndexingUtils.createWikiToPlaintextTokenizer(new StringReader(nextPage.getText()));
-            String plainText = IndexingUtils.tokenStreamToString(wikiPlaintextTokenizer);
+            String plainText = IndexingUtils.getWikiPlainText(new StringReader(nextPage.getText()));
 
             tfidfResults.add(evaluateWeightingAlgorithm(tfidf, entityTools, nextPage, plainText));
             keyphrasenessResults.add(evaluateWeightingAlgorithm(keyphraseness, entityTools, nextPage, plainText));
