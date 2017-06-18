@@ -3,11 +3,20 @@ var WIKIPEDIA_BASEURL = "http://simple.m.wikipedia.org/wiki/";
 var content;
 function wikify() {
     content = $('#content').text();
+    let used_algorithm = $('input[name=algorithm]:checked').val();
     $.ajax({
         url: "/wikify/",
         method: "POST",
         contentType: 'text/plain',
-        data: content
+        data: JSON.stringify({
+            text: content,
+            algorithmId: used_algorithm
+        }),
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        dataType: 'json'
     }).done((response) => {
         parseLinks(response);
     }).fail((jqXHR, msg) => {

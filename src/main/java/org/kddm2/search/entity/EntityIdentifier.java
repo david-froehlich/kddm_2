@@ -6,12 +6,29 @@ import org.kddm2.lucene.IndexingUtils;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class EntityIdentifier {
     private EntityWeightingAlgorithm algorithm;
     private EntityTools entityTools;
     //ratio of words in text to entities
     private float entityRate;
+
+    private Map<String, EntityWeightingAlgorithm> availableAlgorithms;
+
+    public void setUsedAlgorithm(String algorithmId)  {
+        this.algorithm = availableAlgorithms.get(algorithmId);
+    }
+
+    public EntityIdentifier(Map<String, EntityWeightingAlgorithm> availableAlgorithms, EntityTools entityTools, float entityRate) {
+        this.availableAlgorithms = availableAlgorithms;
+        this.algorithm = availableAlgorithms.values().iterator().next();
+        this.entityTools = entityTools;
+        this.entityRate = entityRate;
+        if (this.entityRate > 1.0f) {
+            throw new IllegalArgumentException("cutoff-rate > 1.0 doesn't make sense...");
+        }
+    }
 
     public EntityIdentifier(EntityWeightingAlgorithm algorithm, EntityTools entityTools, float entityRate) {
         this.algorithm = algorithm;

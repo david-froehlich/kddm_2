@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class EntityWeightingAlgorithm {
+    public static final String TF_IDF_ID = "tf_idf";
+    public static final String KEYPHRASENESS_ID= "keyphraseness";
+
     protected IndexStatsHelper indexHelper;
     private EntityTools entityTools;
 

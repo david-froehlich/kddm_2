@@ -3,6 +3,7 @@ package org.kddm2;
 import org.kddm2.indexing.IndexingService;
 import org.kddm2.indexing.InvalidIndexException;
 import org.kddm2.indexing.InvalidWikiFileException;
+import org.kddm2.search.WikifyRequest;
 import org.kddm2.search.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,9 +78,10 @@ public class MainController {
         return indexingService.getStatus();
     }
 
-    @PostMapping(value="/wikify",headers="content-type=text/plain")
-    public List<EntityLink> wikify(@RequestBody String text) throws InvalidIndexException {
-        List<EntityCandidateWeighted> candidates = entityIdentifier.identifyEntities(text.toLowerCase());
+    @PostMapping(value="/wikify")
+    public List<EntityLink> wikify(@RequestBody WikifyRequest request) throws InvalidIndexException {
+        entityIdentifier.setUsedAlgorithm(request.getAlgorithmId());
+        List<EntityCandidateWeighted> candidates = entityIdentifier.identifyEntities(request.getText().toLowerCase());
         List<EntityLink> entityLinks = entityLinker.identifyLinksForCandidates(candidates);
         return entityLinks;
     }

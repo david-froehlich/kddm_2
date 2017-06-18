@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -103,13 +105,16 @@ public class MainApplication extends WebMvcConfigurerAdapter{
     }
 
     @Bean
-    public EntityIdentifier entityIdentifier(EntityWeightingAlgorithm algorithm, EntityTools tools) {
-        return new EntityIdentifier(algorithm, tools, Settings.ENTITY_CUTOFF_RATE_AFTER_IDENTIFICATION);
+    public EntityIdentifier entityIdentifier(Map<String, EntityWeightingAlgorithm> algorithms, EntityTools tools) {
+        return new EntityIdentifier(algorithms, tools, Settings.ENTITY_CUTOFF_RATE_AFTER_IDENTIFICATION);
     }
 
 
     @Bean
-    public EntityWeightingAlgorithm entityWeightingAlgorithm(IndexStatsHelper indexStatsHelper, EntityTools entityTools) {
-        return new EntityWeightingKeyphraseness(indexStatsHelper, entityTools);
+    public Map<String, EntityWeightingAlgorithm> entityWeightingAlgorithms(IndexStatsHelper indexStatsHelper, EntityTools entityTools) {
+        Map<String, EntityWeightingAlgorithm> algorithms = new HashMap<>();
+        algorithms.put(EntityWeightingAlgorithm.KEYPHRASENESS_ID, new EntityWeightingKeyphraseness(indexStatsHelper, entityTools));
+        algorithms.put(EntityWeightingAlgorithm.TF_IDF_ID, new EntityWeightingTFIDF(indexStatsHelper, entityTools));
+        return algorithms;
     }
 }
