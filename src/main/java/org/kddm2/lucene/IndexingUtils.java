@@ -71,7 +71,6 @@ public class IndexingUtils {
         return builder.toString();
     }
 
-    //TODO hack plaintext replacement and reextract vocab.
     //TODO scaling for TfIDF
     //TODO combine candidate identification score and linking score
     //TODO test if disambiguation pages are linked more often

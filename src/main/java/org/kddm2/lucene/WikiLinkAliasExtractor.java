@@ -3,7 +3,6 @@ package org.kddm2.lucene;
 import org.apache.lucene.analysis.FilteringTokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.kddm2.indexing.wiki.WikipediaTokenizer;
 
@@ -14,13 +13,12 @@ public class WikiLinkAliasExtractor extends FilteringTokenFilter {
     private Set<String> extractedAliases;
     private TypeAttribute tAttr;
     private CharTermAttribute cAttr;
-    private OffsetAttribute oAttr;
+    private String simpleNumberRegex = "-?\\d+(\\.\\d+)?";
 
     public WikiLinkAliasExtractor(TokenStream su) {
         super(su);
         tAttr = getAttribute(TypeAttribute.class);
         cAttr = getAttribute(CharTermAttribute.class);
-        oAttr = addAttribute(OffsetAttribute.class);
     }
 
     public Set<String> readAliases(Set<String> previouslyExtractedAliases) throws IOException {
@@ -33,6 +31,11 @@ public class WikiLinkAliasExtractor extends FilteringTokenFilter {
         return extractedAliases;
     }
 
+    private boolean isNumeric(String test) {
+        //TODO replace with lib
+        return test.matches(simpleNumberRegex);
+    }
+
     /**
      * the stream is the last stream in the pipe, so it only gets the tokens that should be accepted anyway
      *
@@ -43,10 +46,11 @@ public class WikiLinkAliasExtractor extends FilteringTokenFilter {
     protected boolean accept() throws IOException {
         String type = tAttr.type();
 
+
         if (type.equals(WikipediaTokenizer.INTERNAL_LINK) || type.equals(WikipediaTokenizer.INTERNAL_LINK_TARGET)) {
-            int length = oAttr.endOffset() - oAttr.startOffset();
-            if (length >= 2) {
-                String alias = cAttr.toString().trim();
+            String alias = cAttr.toString().trim();
+
+            if (alias.length() >= 2 && !isNumeric(alias)) {
                 extractedAliases.add(alias);
             }
         }
