@@ -264,6 +264,53 @@ public class WikipediaParserTest {
 
     }
 
+    @Test
+    public void testWikitable() throws Exception {
+        //TODO: this stuff does not work yet
+        String exampleText = "    \"\\n\"+\n" +
+                "            \"{| class=\\\"wikitable\\\"\\n\"+\n" +
+                "            \"|- style=\\\"background-color:#EEEEEE; text-align:center;\\\"\\n\"+\n" +
+                "            \"! Egyptian\\n\"+\n" +
+                "            \"! Phoenician <br>''[[aleph]]''\\n\"+\n" +
+                "            \"! Greek <br>''[[Alpha (letter)|Alpha]]''\\n\"+\n" +
+                "            \"! Etruscan <br>A\\n\"+\n" +
+                "            \"! Roman/Cyrillic <br>A\\n\"+\n" +
+                "            \"|- style=\\\"background-color:white; text-align:center;\\\"\\n\"+\n" +
+                "            \"|[[File:EgyptianA-01.svg|Egyptian hieroglyphic ox head]]\\n\"+\n" +
+                "            \"|[[File:PhoenicianA-01.svg|Phoenician aleph]]\\n\"+\n" +
+                "            \"|[[File:Alpha uc lc.svg|65px|Greek alpha]]\\n\"+\n" +
+                "            \"|[[File:EtruscanA.svg|Etruscan A]]\\n\"+\n" +
+                "            \"|[[File:RomanA-01.svg|Roman A]]\\n\"+\n" +
+                "            \"|}\"";
+        org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
+        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        System.out.println("\nTesting lucene tokenizer");
+        testTokenizer(luceneTokenizer, exampleText);
+        System.out.println("\nTesting our custom tokenizer");
+        List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
+        for (TokenizerResult res : tokenizerResults) {
+            Assert.assertNotEquals("class", res.text);
+            Assert.assertNotEquals("style", res.text);
+        }
+    }
+
+
+    @Test
+    public void testRefHTMLStyle() throws Exception {
+        //TODO: this stuff does not work yet
+        String exampleText = "The earliest letter 'A' has appeared was in the Phoenician alphabet's [[aleph]].<ref name=\\\"Britannica\\\"/> This symbol came from a simple picture of an [[ox]] head. ";
+        org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
+        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        System.out.println("\nTesting lucene tokenizer");
+        testTokenizer(luceneTokenizer, exampleText);
+        System.out.println("\nTesting our custom tokenizer");
+        List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
+        for (TokenizerResult res : tokenizerResults) {
+            Assert.assertNotEquals("ref", res.text);
+        }
+    }
+
+
     private List<TokenizerResult> testTokenizer(Tokenizer tokenizer, String text) throws IOException {
         List<TokenizerResult> tokenizerResults = new ArrayList<>();
         tokenizer.setReader(new StringReader(text));
