@@ -6,4 +6,9 @@
 #text_container {
     width: 60em;
     height: 40em;
+    float: left;
+}
+
+#debug {
+    float: right;
 }

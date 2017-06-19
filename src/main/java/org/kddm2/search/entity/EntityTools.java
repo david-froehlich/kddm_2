@@ -37,6 +37,49 @@ public class EntityTools {
         return groupedEntities;
     }
 
+    private float getMaxDocumentRelevanceForLinks(List<EntityLink> links) {
+        float maxDocumentRelevance = 0.0f;
+        for(EntityLink link : links) {
+            EntityDocument bestDocForLink = link.getTargets().get(0);
+            if(bestDocForLink.getRelevance() > maxDocumentRelevance) {
+                maxDocumentRelevance = bestDocForLink.getRelevance();
+            }
+        }
+        return maxDocumentRelevance;
+    }
+
+    private float getMaxCandidateWeightForLinks(List<EntityLink> links) {
+        float maxCandidateWeight = 0.0f;
+        for(EntityLink link : links) {
+            try {
+                EntityCandidateWeighted entity = (EntityCandidateWeighted) link.getEntity();
+                if(entity.getWeight() > maxCandidateWeight) {
+                    maxCandidateWeight = entity.getWeight();
+                }
+            } catch(ClassCastException ex) {
+                throw new IllegalArgumentException(
+                        "trying to normalize weight of unweighted EntityCandidate");
+            }
+        }
+        return maxCandidateWeight;
+    }
+
+    public List<EntityLink> cutoffCombinedWeightLinks(List<EntityLink> links, int maxLinkCount) {
+        links.sort((left,  right) -> Float.compare(right.getCombinedWeight(), left.getCombinedWeight()));
+        links = links.subList(0, maxLinkCount);
+        return links;
+    }
+
+    public List<EntityLink> calculateCombinedWeightsForEntityLinks(List<EntityLink> links, float candidateToDocumentWeightRatio) {
+        float maxCandidateWeight = getMaxCandidateWeightForLinks(links);
+        float maxDocumentRelevance = getMaxDocumentRelevanceForLinks(links);
+        for(EntityLink link : links) {
+            float normCW = ((EntityCandidateWeighted) link.getEntity()).getWeight() / maxCandidateWeight;
+            float normDR = link.getTargets().get(0).getRelevance() / maxDocumentRelevance;
+            link.setCombinedWeight(normCW * candidateToDocumentWeightRatio + normDR);
+        }
+        return links;
+    }
 
     public List<EntityCandidate> identifyEntities(String content) {
         List<EntityCandidate> candidates = new ArrayList<>();

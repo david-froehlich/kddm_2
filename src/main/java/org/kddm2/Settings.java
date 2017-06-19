@@ -14,6 +14,5 @@ public class Settings {
     public final static int CONSUMER_COUNT = 5;
     public final static int MAX_SHINGLE_SIZE = 3;
     public final static float ENTITY_CUTOFF_RATE_AFTER_IDENTIFICATION = 0.5f;
-    public final static float ENTITY_CUTOFF_RATE_AFTER_LINKING = 0.08f;
 }
 

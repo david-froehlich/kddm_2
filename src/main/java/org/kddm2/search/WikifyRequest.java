@@ -6,6 +6,24 @@ package org.kddm2.search;
 public class WikifyRequest {
     private String text;
     private String algorithmId;
+    private float weightRatio;
+    private float linkRatio;
+
+    public float getLinkRatio() {
+        return linkRatio;
+    }
+
+    public void setLinkRatio(float linkRatio) {
+        this.linkRatio = linkRatio;
+    }
+
+    public float getWeightRatio() {
+        return weightRatio;
+    }
+
+    public void setWeightRatio(float weightRatio) {
+        this.weightRatio = weightRatio;
+    }
 
     public String getText() {
         return text;

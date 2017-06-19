@@ -9,15 +9,41 @@
 <body>
 <div class="main_container">
     <div id="text_container">
-        <div spellcheck="false" contenteditable="true" id="content">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam eu iaculis lectus. Nam mi dui, porta at finibus ac, tincidunt vitae enim. Sed efficitur in odio eu cursus. Suspendisse rutrum tortor aliquet, vehicula nisi et, auctor lorem. Suspendisse vel euismod orci, vitae blandit dui. Donec vel enim quis enim aliquam aliquet. Nullam sagittis tristique magna, laoreet convallis sapien. Ut a porttitor turpis, nec mattis diam. Pellentesque tincidunt sapien vel augue aliquam lobortis. Cras ex dui, volutpat at est non, viverra mollis justo. Nullam facilisis semper nulla, et luctus diam rutrum vel. Quisque a varius dui, non venenatis quam. Nullam eu tellus quis ante venenatis pulvinar ac non libero. Pellentesque tempus ultricies efficitur. Duis tempus faucibus eleifend. Integer molestie euismod libero id egestas.</div>
+        <div spellcheck="false" contenteditable="true" id="content">Lorem ipsum dolor sit amet, consectetur adipiscing
+            elit. Aliquam eu iaculis lectus. Nam mi dui, porta at finibus ac, tincidunt vitae enim. Sed efficitur in
+            odio eu cursus. Suspendisse rutrum tortor aliquet, vehicula nisi et, auctor lorem. Suspendisse vel euismod
+            orci, vitae blandit dui. Donec vel enim quis enim aliquam aliquet. Nullam sagittis tristique magna, laoreet
+            convallis sapien. Ut a porttitor turpis, nec mattis diam. Pellentesque tincidunt sapien vel augue aliquam
+            lobortis. Cras ex dui, volutpat at est non, viverra mollis justo. Nullam facilisis semper nulla, et luctus
+            diam rutrum vel. Quisque a varius dui, non venenatis quam. Nullam eu tellus quis ante venenatis pulvinar ac
+            non libero. Pellentesque tempus ultricies efficitur. Duis tempus faucibus eleifend. Integer molestie euismod
+            libero id egestas.
+        </div>
         <button id="btn">Put some links up in this bitch!</button>
     </div>
 </div>
 <div id="config">
-    <input id="algorithm_tf_idf" type="radio" name="algorithm" value="tf_idf"/>
-    <label for="algorithm_tf_idf">TF-IDF</label>
-    <input id="algorithm_keyphraseness" type="radio" name="algorithm" value="keyphraseness"/>
-    <label for="algorithm_keyphraseness">Keyphraseness</label>
+    <div>
+        <input id="algorithm_tf_idf" type="radio" name="algorithm" value="tf_idf" checked/>
+        <label for="algorithm_tf_idf">TF-IDF</label>
+        <input id="algorithm_keyphraseness" type="radio" name="algorithm" value="keyphraseness"/>
+        <label for="algorithm_keyphraseness">Keyphraseness</label>
+    </div>
+    <div>
+        <input type="text" id="weight_ratio" name="weight_ratio" value="1.0"></div>
+    <input type="text" id="link_ratio" name="link_ratio" value="0.05"></div>
+</div>
+</div>
+<div id="debug">
+    <div class="row">
+        <label for="entity_weight">Candidate-Weight:</label>
+        <input type="text" id="entity_weight"/>
+    </div>
+    <div class="row">
+        <label for="top_doc_relevance">Top doc-relevance:</label>
+        <input type="text" id="top_doc_relevance"/>
+    </div>
+
 </div>
 <div id="dialog">
     <div id="dlg_top_bar">

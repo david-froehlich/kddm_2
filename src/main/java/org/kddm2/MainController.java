@@ -3,6 +3,7 @@ package org.kddm2;
 import org.kddm2.indexing.IndexingService;
 import org.kddm2.indexing.InvalidIndexException;
 import org.kddm2.indexing.InvalidWikiFileException;
+import org.kddm2.lucene.IndexingUtils;
 import org.kddm2.search.WikifyRequest;
 import org.kddm2.search.entity.*;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,14 +33,16 @@ public class MainController {
     private final List<RequestMappingHandlerMapping> mappings;
     private final EntityLinker entityLinker;
     private final EntityIdentifier entityIdentifier;
+    private final EntityTools entityTools;
     private IndexingService indexingService;
 
     @Autowired
-    public MainController(IndexingService indexingService, List<RequestMappingHandlerMapping> mappings, EntityLinker entityLinker, EntityIdentifier entityIdentifier) {
+    public MainController(IndexingService indexingService, List<RequestMappingHandlerMapping> mappings, EntityLinker entityLinker, EntityIdentifier entityIdentifier, EntityTools entityTools) {
         this.indexingService = indexingService;
         this.mappings = mappings;
         this.entityLinker = entityLinker;
         this.entityIdentifier = entityIdentifier;
+        this.entityTools = entityTools;
     }
 
     /**
@@ -83,7 +87,12 @@ public class MainController {
         entityIdentifier.setUsedAlgorithm(request.getAlgorithmId());
         List<EntityCandidateWeighted> candidates = entityIdentifier.identifyEntities(request.getText().toLowerCase());
         List<EntityLink> entityLinks = entityLinker.identifyLinksForCandidates(candidates);
-        return entityLinks;
+
+        int wordCount = IndexingUtils.getWordCount(new StringReader(request.getText()));
+        int maxLinkCount = (int) (wordCount * request.getLinkRatio());
+        return entityTools.cutoffCombinedWeightLinks(
+                entityTools.calculateCombinedWeightsForEntityLinks(
+                        entityLinks, request.getWeightRatio()), maxLinkCount);
     }
 
     @PostMapping("/wikifyHC")

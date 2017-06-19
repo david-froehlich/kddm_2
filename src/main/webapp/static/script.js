@@ -3,14 +3,15 @@ var WIKIPEDIA_BASEURL = "http://simple.m.wikipedia.org/wiki/";
 var content;
 function wikify() {
     content = $('#content').text();
-    let used_algorithm = $('input[name=algorithm]:checked').val();
     $.ajax({
         url: "/wikify/",
         method: "POST",
         contentType: 'text/plain',
         data: JSON.stringify({
             text: content,
-            algorithmId: used_algorithm
+            algorithmId: $('input[name=algorithm]:checked').val(),
+            weightRatio: $('#weight_ratio').val(),
+            linkRatio: $('#link_ratio').val()
         }),
         headers: {
             'Accept': 'application/json',
@@ -24,7 +25,7 @@ function wikify() {
     })
 }
 
-function linkClicked(targets, id) {
+function linkClicked(targets, id, entity_weight, top_doc_relevance) {
     $('#dlg_iframe').attr('src', WIKIPEDIA_BASEURL + targets[id].documentId);
 
     let next_id = id < targets.length ? id + 1 : id;
@@ -37,12 +38,15 @@ function linkClicked(targets, id) {
         linkClicked(targets, next_id);
     });
 
+    $('#top_doc_relevance').val(top_doc_relevance);
+    $('#entity_weight').val(entity_weight);
+
     $('#dialog').show();
 }
 
 function parseLinks(links) {
     //map to array
-    var sortedLinks = $.map(links, function (value, index) {
+    let sortedLinks = $.map(links, function (value, index) {
         return [value];
     });
 
@@ -70,7 +74,7 @@ function parseLinks(links) {
     for (let i = 0; i < sortedLinks.length; i++) {
         let link = sortedLinks[i];
         $('#link_' + i).click(() => {
-            linkClicked(link.targets, 0);
+            linkClicked(link.targets, 0, link.entity.weight, link.targets[0].relevance);
         });
     }
 }
