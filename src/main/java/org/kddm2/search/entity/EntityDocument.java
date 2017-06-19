@@ -37,10 +37,7 @@ public class EntityDocument {
 
     @Override
     public String toString() {
-        return "EntityDocument{" +
-                "documentId='" + documentId + '\'' +
-                ", luceneDocId=" + luceneDocId +
-                ", relevance=" + relevance +
-                '}';
+        return "\'" + documentId + '\'' +
+                " " + relevance;
     }
 }

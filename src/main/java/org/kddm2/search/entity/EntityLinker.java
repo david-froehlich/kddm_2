@@ -12,10 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class EntityLinker {
     private static final Logger LOG = LoggerFactory.getLogger(EntityLinker.class);
@@ -100,6 +97,8 @@ public class EntityLinker {
             EntityLink link = new EntityLink(candidate, relevantDocuments);
             resultingLinks.add(link);
         }
+
+        resultingLinks.sort(Comparator.comparingInt(link -> link.getEntity().startPos));
         return resultingLinks;
     }
 }

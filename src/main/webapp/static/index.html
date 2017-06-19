@@ -1,14 +1,16 @@
 <!DOCTYPE HTML>
+<html>
 <head>
     <title>Wikify</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <link rel="stylesheet" href="style.css"/>
-    <script type="text/javascript" src="jquery-3.2.1.js"></script>
-    <script type="text/javascript" src="script.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
-<div class="main_container">
-    <div id="text_container">
+<div class="container" id="main_container">
+    <div id="text_container" class="col-md-8">
+        <h1>Wikification demo</h1>
         <div spellcheck="false" contenteditable="true" id="content">Lorem ipsum dolor sit amet, consectetur adipiscing
             elit. Aliquam eu iaculis lectus. Nam mi dui, porta at finibus ac, tincidunt vitae enim. Sed efficitur in
             odio eu cursus. Suspendisse rutrum tortor aliquet, vehicula nisi et, auctor lorem. Suspendisse vel euismod
@@ -19,39 +21,81 @@
             non libero. Pellentesque tempus ultricies efficitur. Duis tempus faucibus eleifend. Integer molestie euismod
             libero id egestas.
         </div>
-        <button id="btn">Put some links up in this bitch!</button>
+        <button id="btn" class="btn btn-primary">Put some links up in this bitch!</button>
+        <div id="dialog" class="row">
+            <div class="col-md-12">
+            <div id="dlg_top_bar" class="col-md-12 btn-group bg-primary">
+                <button id="dlg_close" class="btn btn-default pull-right">X</button>
+                <button id="dlg_next_target" class="btn btn-default pull-right">&gt;</button>
+                <button id="dlg_prev_target" class="btn btn-default pull-right">&lt;</button>
+            </div>
+            <iframe id="dlg_iframe" class="col-md-12"></iframe>
+            </div>
+        </div>
+    </div>
+    <div id="sidebar" class="col-md-4">
+        <div id="config" class="row">
+            <h2>Config</h2>
+            <table>
+                <tr>
+                    <td><input id="algorithm_tf_idf" type="radio" name="algorithm" value="tf_idf" checked/>
+                        <label for="algorithm_tf_idf">TF-IDF</label></td>
+                    <td><input id="algorithm_keyphraseness" type="radio" name="algorithm" value="keyphraseness"/>
+                        <label for="algorithm_keyphraseness">Keyphraseness</label></td>
+                </tr>
+                <tr>
+                    <td><label for="weight_ratio">Weight ratio</label></td>
+                    <td><input type="text" id="weight_ratio" name="weight_ratio" value="1.0"/></td>
+                </tr>
+                <tr>
+                    <td><label for="link_ratio">Link ratio</label></td>
+                    <td><input type="text" id="link_ratio" name="link_ratio" value="0.05"/></td>
+                </tr>
+            </table>
+        </div>
+        <div id="indexing" class="row">
+            <h2>Indexing</h2>
+            <button id="start_indexing_btn" class="btn btn-primary">Start indexing</button>
+            <table>
+                <tr>
+                    <td><label for="index_status">Index status</label></td>
+                    <td><span id="index_status"></span></td>
+                </tr>
+                <tr>
+                    <td><label for="index_num_docs">Indexed documents</label></td>
+                    <td><span id="index_num_docs"></span></td>
+                </tr>
+                <tr>
+                    <td><label for="indexing_running">Indexing running</label></td>
+                    <td><span id="indexing_running"></span></td>
+                </tr>
+                <tr>
+                    <td><label for="indexing_progress">Indexing progress</label></td>
+                    <td><span id="indexing_progress"></span></td>
+                </tr>
+            </table>
+        </div>
+        <div id="debug" class="row">
+            <h2>Debug</h2>
+            <table>
+                <tr>
+                    <td><label for="entity_weight">Candidate-Weight:</label></td>
+                    <td><input type="text" id="entity_weight"/></td>
+                </tr>
+                <tr>
+                    <td><label for="top_doc_relevance">Top doc-relevance:</label></td>
+                    <td><input type="text" id="top_doc_relevance"/></td>
+                </tr>
+            </table>
+        </div>
     </div>
 </div>
-<div id="config">
-    <div>
-        <input id="algorithm_tf_idf" type="radio" name="algorithm" value="tf_idf" checked/>
-        <label for="algorithm_tf_idf">TF-IDF</label>
-        <input id="algorithm_keyphraseness" type="radio" name="algorithm" value="keyphraseness"/>
-        <label for="algorithm_keyphraseness">Keyphraseness</label>
-    </div>
-    <div>
-        <input type="text" id="weight_ratio" name="weight_ratio" value="1.0"></div>
-    <input type="text" id="link_ratio" name="link_ratio" value="0.05"></div>
-</div>
-</div>
-<div id="debug">
-    <div class="row">
-        <label for="entity_weight">Candidate-Weight:</label>
-        <input type="text" id="entity_weight"/>
-    </div>
-    <div class="row">
-        <label for="top_doc_relevance">Top doc-relevance:</label>
-        <input type="text" id="top_doc_relevance"/>
-    </div>
 
-</div>
-<div id="dialog">
-    <div id="dlg_top_bar">
-        <span id="dlg_prev_target">&lt;</span>
-        <span id="dlg_next_target">&gt;</span>
-        <span id="dlg_close">X</span>
-    </div>
-    <iframe id="dlg_iframe"></iframe>
-</div>
+
+
+<script type="text/javascript" src="js/jquery-3.2.1.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/script.js"></script>
+
 </body>
 </html>

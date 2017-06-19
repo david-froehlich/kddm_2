@@ -58,10 +58,10 @@ public class EntityCandidate {
 
     @Override
     public String toString() {
-        return "EntityCandidate{" +
-                "startPos=" + startPos +
-                ", endPos=" + endPos +
-                ", text='" + getCandidateText() + '\'' +
+        return "EC{'" +
+                 getCandidateText() + "', " +
+                "s=" + startPos +
+                ", e=" + endPos +
                 "}\n";
     }
 }

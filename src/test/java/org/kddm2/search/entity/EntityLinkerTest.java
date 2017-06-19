@@ -32,7 +32,7 @@ public class EntityLinkerTest {
         IndexStatsHelper indexHelper = new IndexStatsHelper(config.luceneDirectory);
         EntityTools entityTools = new EntityTools(config.vocabulary);
 
-        EntityWeightingAlgorithm algorithm = new EntityWeightingTFIDF(indexHelper, entityTools);
+        EntityWeightingAlgorithm algorithm = new EntityWeightingKeyphraseness(indexHelper, entityTools);
         List<EntityCandidateWeighted> entityCandidatesWeighted = algorithm.determineWeightAndDeduplicate(entityCandidates);
 
         EntityLinker entityLinker = new EntityLinker(config.luceneDirectory);

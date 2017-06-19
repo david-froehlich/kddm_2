@@ -36,6 +36,7 @@ public class IndexingService {
     private Thread producer;
     private List<Thread> consumers;
     private IndexWriter indexWriter;
+    private DirectoryReader directoryReader;
     private AtomicBoolean running = new AtomicBoolean(false);
     private AtomicInteger numProcessedPages = new AtomicInteger();
     private BlockingQueue<IndexingTask> indexingTasks = new ArrayBlockingQueue<>(Settings.QUEUE_LENGTH);
@@ -59,7 +60,27 @@ public class IndexingService {
     }
 
     public IndexingStatus getStatus() {
-        return new IndexingStatus(numProcessedPages.get(), indexingTasks.size(), isRunning());
+        boolean indexValid = false;
+        int numDocumentsInIndex = 0;
+        try {
+            if (directoryReader == null) {
+                directoryReader = DirectoryReader.open(indexDirectory);
+            }
+            if (!directoryReader.isCurrent()) {
+                DirectoryReader tmpReader = DirectoryReader.openIfChanged(directoryReader);
+                if (tmpReader != null) {
+                    directoryReader.close();
+                    directoryReader = tmpReader;
+                }
+            }
+            //TODO: find better metric
+            indexValid = directoryReader.numDocs() > 0;
+            numDocumentsInIndex = directoryReader.numDocs();
+        } catch (IOException e) {
+            indexValid = false;
+        }
+
+        return new IndexingStatus(indexValid, numDocumentsInIndex, numProcessedPages.get(), indexingTasks.size(), isRunning());
     }
 
     /**
@@ -145,11 +166,16 @@ public class IndexingService {
     }
 
     public class IndexingStatus {
+        public final boolean indexIsValid;
+        public final int numDocumentsInIndex;
+
         public final int numProcessedPages;
         public final int numPagesInQueue;
         public final boolean isRunning;
 
-        public IndexingStatus(int numProcessedPages, int numPagesInQueue, boolean isRunning) {
+        public IndexingStatus(boolean indexIsValid, int numDocumentsInIndex, int numProcessedPages, int numPagesInQueue, boolean isRunning) {
+            this.indexIsValid = indexIsValid;
+            this.numDocumentsInIndex = numDocumentsInIndex;
             this.numProcessedPages = numProcessedPages;
             this.numPagesInQueue = numPagesInQueue;
             this.isRunning = isRunning;

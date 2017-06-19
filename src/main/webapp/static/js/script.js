@@ -79,6 +79,40 @@ function parseLinks(links) {
     }
 }
 
+function refreshIndexingStatus() {
+    $.ajax({
+        type: 'GET',
+        url: '/indexing/',
+        dataType: 'json',
+        headers: {
+            'Accept': 'application/json',
+        }
+    }).done(function (data) {
+        $('#index_status').text(data['indexIsValid'] ? 'valid' : 'invalid');
+        $('#indexing_progress').text(data['numProcessedPages']);
+        $('#indexing_running').text(data['isRunning'] ? 'yes' : 'no');
+        $('#index_num_docs').text(data['numDocumentsInIndex']);
+        $('#start_indexing_btn').prop('disabled', data['isRunning']);
+    }).fail(function (err) {
+        console.error(err);
+    }).always(function () {
+        setTimeout(refreshIndexingStatus, 2000);
+    });
+}
+
+function startIndexing() {
+    $.ajax({
+        type: 'GET',
+        url: '/indexing/start',
+    }).done(function (data) {
+        console.log(data);
+        $('#start_indexing_btn').prop('disabled', true);
+    }).fail(function (err) {
+        console.error(err);
+    }).always(function () {
+    });
+}
+
 $(document).ready(function () {
     $('#btn').click(() => {
         wikify();
@@ -86,5 +120,8 @@ $(document).ready(function () {
     $('#dialog').hide();
     $('#dlg_close').click(() => {
         $('#dialog').hide();
-    })
+    });
+
+    $('#start_indexing_btn').click(startIndexing);
+    refreshIndexingStatus();
 });

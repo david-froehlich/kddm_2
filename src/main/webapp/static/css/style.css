@@ -1,0 +1,11 @@
+#sidebar table td {
+    padding: 3px;
+}
+
+#dialog {
+    padding-top: 1em;
+}
+
+#dlg_top_bar {
+    padding-right: 0px;
+}

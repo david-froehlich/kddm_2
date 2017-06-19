@@ -12,16 +12,13 @@ public class EntityCandidateWeighted extends EntityCandidate {
         return weight;
     }
 
-    public void setWeight(float weight) {
-        this.weight = weight;
-    }
-
     @Override
     public String toString() {
-        return "EntityCandidateWeighted{" +
-                "startPos=" + startPos +
-                ", endPos=" + endPos +
-                ", text='" + getCandidateText() + '\'' +
-                ", weight=" + weight + "}\n";
+        return "ECW{'" +
+                getCandidateText() + "', " +
+                "s=" + startPos +
+                ", e=" + endPos +
+                ", w=" + weight +
+                "}\n";
     }
 }
