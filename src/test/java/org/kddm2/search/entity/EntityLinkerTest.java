@@ -9,7 +9,9 @@ import org.kddm2.indexing.xml.WikiXmlReader;
 import org.kddm2.lucene.IndexingUtils;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertNotEquals;
 
@@ -27,20 +29,75 @@ public class EntityLinkerTest {
         System.out.println("Title: " + nextPage.getTitle());
 
         EntityWikiLinkExtractor entityExtractionTokenStream = IndexingUtils.createEntityExtractionTokenStream(nextPage.getText());
-        List<EntityCandidate> entityCandidates = entityExtractionTokenStream.readEntities();
+        Map<EntityCandidate, String> actualLinks = entityExtractionTokenStream.readWikiLinks();
+        ArrayList<EntityCandidate> actualCandidates = new ArrayList<>(actualLinks.keySet());
 
         IndexStatsHelper indexHelper = new IndexStatsHelper(config.luceneDirectory);
         EntityTools entityTools = new EntityTools(config.vocabulary);
 
         EntityWeightingAlgorithm algorithm = new EntityWeightingKeyphraseness(indexHelper, entityTools);
-        List<EntityCandidateWeighted> entityCandidatesWeighted = algorithm.determineWeightAndDeduplicate(entityCandidates);
+        List<EntityCandidateWeighted> actualCandidatesWeighted = algorithm.determineWeightAndDeduplicate(actualCandidates);
 
         EntityLinker entityLinker = new EntityLinker(config.luceneDirectory);
-        List<EntityLink> entityLinks = entityLinker.identifyLinksForCandidates(entityCandidatesWeighted);
+        List<EntityLink> entityLinks = entityLinker.identifyLinksForCandidates(actualCandidatesWeighted);
 
         assertNotEquals(entityLinks.size(), 0);
 
         System.out.println("\nResulting links:");
         System.out.println(entityLinks);
+    }
+
+    @Test
+    public void testLinkingStats() throws Exception {
+        // use validation set for the test page, but the full index for the analysis
+        InputStream wikiInputStream = IndexTestSuite.testIndexValidation.dataSourceResource.getInputStream();
+        WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream);
+
+
+        List<ResultStats> pageStats = new ArrayList<>();
+        WikiPage nextPage;
+        while ((nextPage = wikiXmlReader.getNextPage()) != null) {
+            EntityWikiLinkExtractor entityExtractionTokenStream = IndexingUtils.createEntityExtractionTokenStream(nextPage.getText());
+            Map<EntityCandidate, String> actualLinks = entityExtractionTokenStream.readWikiLinks();
+            ArrayList<EntityCandidate> actualCandidates = new ArrayList<>(actualLinks.keySet());
+
+            IndexStatsHelper indexHelper = new IndexStatsHelper(config.luceneDirectory);
+            EntityTools entityTools = new EntityTools(config.vocabulary);
+
+            EntityWeightingAlgorithm algorithm = new EntityWeightingKeyphraseness(indexHelper, entityTools);
+            List<EntityCandidateWeighted> actualCandidatesWeighted = algorithm.determineWeightAndDeduplicate(actualCandidates);
+
+            EntityLinker entityLinker = new EntityLinker(config.luceneDirectory);
+            List<EntityLink> entityLinks = entityLinker.identifyLinksForCandidates(actualCandidatesWeighted);
+
+            assertNotEquals(entityLinks.size(), 0);
+
+            ResultStats stats = getStats(actualLinks, entityLinks);
+            pageStats.add(stats);
+
+        }
+
+        ResultStats mean = new ResultStats(0.0f, 0.0f);
+        for (ResultStats result : pageStats) {
+            mean.setPrecision(mean.getPrecision() + result.getPrecision() / pageStats.size());
+            mean.setRecall(mean.getRecall() + result.getRecall() / pageStats.size());
+        }
+
+        System.out.println("Mean stats over " + pageStats.size() + " pages:");
+        System.out.println(mean);
+    }
+
+    private ResultStats getStats(Map<EntityCandidate, String> expected, List<EntityLink> actual) {
+        int truePositives = 0;
+        for (EntityLink currentActual : actual) {
+            EntityCandidate currentActualEntity = currentActual.getEntity();
+            String expectedPage = expected.get(currentActualEntity);
+            if (expectedPage != null) {
+                if (expectedPage.equals(currentActual.getTargets().get(0).getDocumentId())) {
+                   truePositives++;
+                }
+            }
+        }
+        return new ResultStats((float)truePositives / actual.size(), (float)truePositives/expected.size());
     }
 }

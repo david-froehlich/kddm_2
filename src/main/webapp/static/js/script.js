@@ -1,4 +1,4 @@
-var WIKIPEDIA_BASEURL = "http://simple.m.wikipedia.org/wiki/";
+var WIKIPEDIA_BASEURL = "http://simple.wikipedia.org/wiki/";
 
 var content;
 function wikify() {
@@ -28,7 +28,7 @@ function wikify() {
 function linkClicked(targets, id, entity_weight, top_doc_relevance) {
     $('#dlg_iframe').attr('src', WIKIPEDIA_BASEURL + targets[id].documentId);
 
-    let next_id = id < targets.length ? id + 1 : id;
+    let next_id = id < (targets.length - 1) ? id + 1 : id;
     let prev_id = id > 0 ? id - 1 : 0;
     $('#dlg_prev_target').click(() => {
         linkClicked(targets, prev_id);
@@ -38,8 +38,12 @@ function linkClicked(targets, id, entity_weight, top_doc_relevance) {
         linkClicked(targets, next_id);
     });
 
-    $('#top_doc_relevance').val(top_doc_relevance);
-    $('#entity_weight').val(entity_weight);
+    if (top_doc_relevance) {
+        $('#top_doc_relevance').text(top_doc_relevance.toFixed(2));
+    }
+    if (entity_weight) {
+        $('#entity_weight').text(entity_weight.toFixed(2));
+    }
 
     $('#dialog').show();
 }

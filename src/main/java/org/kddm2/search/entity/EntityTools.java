@@ -40,7 +40,7 @@ public class EntityTools {
     private float getMaxDocumentRelevanceForLinks(List<EntityLink> links) {
         float maxDocumentRelevance = 0.0f;
         for(EntityLink link : links) {
-            EntityDocument bestDocForLink = link.getTargets().get(0);
+            EntityLinkTarget bestDocForLink = link.getTargets().get(0);
             if(bestDocForLink.getRelevance() > maxDocumentRelevance) {
                 maxDocumentRelevance = bestDocForLink.getRelevance();
             }

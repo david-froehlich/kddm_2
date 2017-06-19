@@ -61,7 +61,7 @@ public class EntityLinker {
 
         for (EntityCandidateWeighted candidate : candidates) {
             String candidateText = candidate.getCandidateText();
-            List<EntityDocument> relevantDocuments = new ArrayList<>();
+            List<EntityLinkTarget> relevantDocuments = new ArrayList<>();
             // query to find synonym documents
             Query synonymQuery = new TermQuery(new Term(Settings.SYNONYMS_FIELD_NAME, candidateText));
 
@@ -84,7 +84,7 @@ public class EntityLinker {
                     } else if (docIdValues.length != 1) {
                         throw new RuntimeException("Error: multiple document ids found, something is wrong with the index");
                     }
-                    relevantDocuments.add(new EntityDocument(docIdValues[0], luceneDocId, searchResults.scoreDocs[i].score));
+                    relevantDocuments.add(new EntityLinkTarget(docIdValues[0], luceneDocId, searchResults.scoreDocs[i].score));
                 }
             } catch (IOException e) {
                 e.printStackTrace();

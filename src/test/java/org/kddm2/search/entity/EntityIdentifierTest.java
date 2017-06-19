@@ -13,9 +13,7 @@ import org.kddm2.lucene.IndexingUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class EntityIdentifierTest {
 
@@ -32,8 +30,9 @@ public class EntityIdentifierTest {
         EntityWikiLinkExtractor entityExtractionTokenStream = IndexingUtils.createEntityExtractionTokenStream(
                 nextPage.getText());
 
-        List<EntityCandidate> entityCandidates = entityExtractionTokenStream.readEntities();
-        Assert.assertNotEquals(0, entityCandidates.size());
+        Map<EntityCandidate, String> links = entityExtractionTokenStream.readWikiLinks();
+
+        Assert.assertNotEquals(0, links.size());
         //TODO assert more
     }
 
@@ -44,14 +43,13 @@ public class EntityIdentifierTest {
         IndexStatsHelper indexHelper = new IndexStatsHelper(config.luceneDirectory);
         EntityTools entityTools = new EntityTools(config.vocabulary);
 
-        //TODO plain-text contains "goodness good" for a link like [[Goodness|Good]] "
         //TODO aliases like "goodness" and "good" are both linked, even though they would be the same page
 
         EntityWeightingAlgorithm tfidf = new EntityWeightingTFIDF(indexHelper, entityTools);
         EntityWeightingAlgorithm keyphraseness = new EntityWeightingKeyphraseness(indexHelper, entityTools);
 
-        List<IdentificationResults> tfidfResults = new ArrayList<>();
-        List<IdentificationResults> keyphrasenessResults = new ArrayList<>();
+        List<ResultStats> tfidfResults = new ArrayList<>();
+        List<ResultStats> keyphrasenessResults = new ArrayList<>();
         WikiPage nextPage;
         while ((nextPage = wikiXmlReader.getNextPage()) != null) {
             String plainText = IndexingUtils.getWikiPlainText(new StringReader(nextPage.getText()));
@@ -63,22 +61,18 @@ public class EntityIdentifierTest {
         printResults(keyphraseness, keyphrasenessResults);
     }
 
-    private void printResults(EntityWeightingAlgorithm algorithm, List<IdentificationResults> results) {
-        float meanPrecision = 0.0f;
-        float meanRecall = 0.0f;
-
-        for (IdentificationResults result : results) {
-            meanPrecision += result.precision / results.size();
-            meanRecall += result.recall / results.size();
+    private void printResults(EntityWeightingAlgorithm algorithm, List<ResultStats> results) {
+        ResultStats meanResult = new ResultStats(0.0f, 0.0f);
+        for (ResultStats result : results) {
+            meanResult.setPrecision(meanResult.getPrecision() + result.getPrecision() / results.size());
+            meanResult.setRecall(meanResult.getRecall() + result.getRecall() / results.size());
         }
 
         System.out.println("\nAlgorithm performance: " + algorithm.getClass().getSimpleName());
-        System.out.format("Precision: %.3f\n", meanPrecision);
-        System.out.format("Recall   : %.3f\n", meanRecall);
-        System.out.format("F1 score : %.3f\n", calculateF1Score(meanPrecision, meanRecall));
+        System.out.println(meanResult);
     }
 
-    private IdentificationResults evaluateWeightingAlgorithm(EntityWeightingAlgorithm weightingAlgorithm, EntityTools entityTools, WikiPage nextPage, String plainText) throws InvalidIndexException, IOException {
+    private ResultStats evaluateWeightingAlgorithm(EntityWeightingAlgorithm weightingAlgorithm, EntityTools entityTools, WikiPage nextPage, String plainText) throws InvalidIndexException, IOException {
 
         EntityIdentifier identifier = new EntityIdentifier(weightingAlgorithm, entityTools, LINK_TO_WORD_COUNT_RATE);
 
@@ -88,13 +82,8 @@ public class EntityIdentifierTest {
         EntityWikiLinkExtractor entityExtractionTokenStream =
                 IndexingUtils.createEntityExtractionTokenStream(nextPage.getText());
 
-        List<EntityCandidate> expected = entityExtractionTokenStream.readEntities();
-        return new IdentificationResults(getPrecision(expected, actual), getRecall(expected, actual));
-    }
-
-    private float calculateF1Score(float precision,
-                                   float recall) {
-        return 2 * precision * recall / (precision + recall);
+        List<EntityCandidate> expected = new ArrayList<>(entityExtractionTokenStream.readWikiLinks().keySet());
+        return new ResultStats(getPrecision(expected, actual), getRecall(expected, actual));
     }
 
     private float getPrecision(List<? extends EntityCandidate> expected, List<? extends EntityCandidate> actual) {
@@ -110,7 +99,6 @@ public class EntityIdentifierTest {
 
     //TODO stem words and replace duplicates
     //TODO look at tf-idf, the is top candidate
-
     private float getRecall(List<? extends EntityCandidate> expected, List<? extends EntityCandidate> actual) {
         int truePositives = 0;
         for (EntityCandidate currentExpected :
@@ -122,13 +110,6 @@ public class EntityIdentifierTest {
         return (float) truePositives / expected.size();
     }
 
-    class IdentificationResults {
-        public final float precision;
-        public final float recall;
-
-        public IdentificationResults(float precision, float recall) {
-            this.precision = precision;
-            this.recall = recall;
-        }
-    }
 }
+
+

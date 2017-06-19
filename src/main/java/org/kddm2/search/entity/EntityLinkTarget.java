@@ -1,11 +1,11 @@
 package org.kddm2.search.entity;
 
-public class EntityDocument {
+public class EntityLinkTarget {
     private String documentId;
     private int luceneDocId;
     private float relevance;
 
-    public EntityDocument(String documentId, int luceneDocId, float relevance) {
+    public EntityLinkTarget(String documentId, int luceneDocId, float relevance) {
         this.documentId = documentId;
         this.luceneDocId = luceneDocId;
         this.relevance = relevance;

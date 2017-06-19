@@ -111,9 +111,9 @@ public class MainController {
                 "Pellentesque tempus ultricies efficitur. Duis tempus faucibus eleifend. Integer molestie euismod libero id egestas.";
 
         String[] entities = new String[]{"dolor sit amet", "efficitur", "aliquam lobortis", "non venenatis"};
-        List<EntityDocument> dummyTargets = new LinkedList<>();
-        dummyTargets.add(new EntityDocument("lorem_ipsum", -1, 1));
-        dummyTargets.add(new EntityDocument("bobby_robson", -1, 1));
+        List<EntityLinkTarget> dummyTargets = new LinkedList<>();
+        dummyTargets.add(new EntityLinkTarget("lorem_ipsum", -1, 1));
+        dummyTargets.add(new EntityLinkTarget("bobby_robson", -1, 1));
 
         List<EntityLink> links = new LinkedList<>();
         for (String s :

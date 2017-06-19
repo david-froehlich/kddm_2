@@ -4,10 +4,10 @@ import java.util.List;
 
 public class EntityLink {
     private EntityCandidate entity;
-    private List<EntityDocument> targets;
+    private List<EntityLinkTarget> targets;
     private float combinedWeight;
 
-    public EntityLink(EntityCandidate entity, List<EntityDocument> targets) {
+    public EntityLink(EntityCandidate entity, List<EntityLinkTarget> targets) {
         this.entity = entity;
         this.targets = targets;
     }
@@ -24,15 +24,15 @@ public class EntityLink {
         return entity;
     }
 
-    public void setEntity(EntityCandidateWeighted entity) {
+    public void setEntity(EntityCandidate entity) {
         this.entity = entity;
     }
 
-    public List<EntityDocument> getTargets() {
+    public List<EntityLinkTarget> getTargets() {
         return targets;
     }
 
-    public void setTargets(List<EntityDocument> targets) {
+    public void setTargets(List<EntityLinkTarget> targets) {
         this.targets = targets;
     }
 

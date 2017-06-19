@@ -166,7 +166,7 @@ public class IndexingUtils {
      * @param reader         The source to read from.
      * @param vocabulary     Only tokens and shingles in the vocabulary are kept.
      * @param maxShingleSize The maximum n-gram(shingle) size that is used to create new tokens.
-     * @return
+     * @return The wiki tokenizer token stream.
      */
     public static TokenStream createWikiTokenizer(Reader reader, Set<String> vocabulary, int maxShingleSize) {
         TokenStream tokenStream = createWikiTokenizer(reader, false);
