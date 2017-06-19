@@ -1,6 +1,6 @@
 package org.kddm2.search.entity;
 
-public class EntityCandidate {
+public class EntityCandidate implements Comparable<EntityCandidate> {
     final int startPos;
     final int endPos;
     final String wholeContent;
@@ -59,9 +59,14 @@ public class EntityCandidate {
     @Override
     public String toString() {
         return "EC{'" +
-                 getCandidateText() + "', " +
+                getCandidateText() + "', " +
                 "s=" + startPos +
                 ", e=" + endPos +
                 "}\n";
+    }
+
+    @Override
+    public int compareTo(EntityCandidate o) {
+        return Integer.compare(startPos, o.startPos);
     }
 }

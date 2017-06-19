@@ -24,6 +24,11 @@ public class EntityLinkerTest {
         InputStream wikiInputStream = IndexTestSuite.testIndexValidation.dataSourceResource.getInputStream();
         WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream);
 
+        IndexStatsHelper indexHelper = new IndexStatsHelper(config.luceneDirectory);
+        EntityTools entityTools = new EntityTools(config.vocabulary);
+        EntityLinker entityLinker = new EntityLinker(config.luceneDirectory);
+        EntityWeightingAlgorithm algorithm = new EntityWeightingKeyphraseness(indexHelper, entityTools);
+
         WikiPage nextPage = wikiXmlReader.getNextPage();
         System.out.println("Testing on this wiki page:");
         System.out.println("Title: " + nextPage.getTitle());
@@ -32,13 +37,8 @@ public class EntityLinkerTest {
         Map<EntityCandidate, String> actualLinks = entityExtractionTokenStream.readWikiLinks();
         ArrayList<EntityCandidate> actualCandidates = new ArrayList<>(actualLinks.keySet());
 
-        IndexStatsHelper indexHelper = new IndexStatsHelper(config.luceneDirectory);
-        EntityTools entityTools = new EntityTools(config.vocabulary);
-
-        EntityWeightingAlgorithm algorithm = new EntityWeightingKeyphraseness(indexHelper, entityTools);
         List<EntityCandidateWeighted> actualCandidatesWeighted = algorithm.determineWeightAndDeduplicate(actualCandidates);
 
-        EntityLinker entityLinker = new EntityLinker(config.luceneDirectory);
         List<EntityLink> entityLinks = entityLinker.identifyLinksForCandidates(actualCandidatesWeighted);
 
         assertNotEquals(entityLinks.size(), 0);
@@ -54,27 +54,28 @@ public class EntityLinkerTest {
         WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream);
 
 
+        IndexStatsHelper indexHelper = new IndexStatsHelper(config.luceneDirectory);
+        EntityTools entityTools = new EntityTools(config.vocabulary);
+        EntityLinker entityLinker = new EntityLinker(config.luceneDirectory);
+        EntityWeightingAlgorithm algorithm = new EntityWeightingKeyphraseness(indexHelper, entityTools);
+
+
         List<ResultStats> pageStats = new ArrayList<>();
         WikiPage nextPage;
         while ((nextPage = wikiXmlReader.getNextPage()) != null) {
             EntityWikiLinkExtractor entityExtractionTokenStream = IndexingUtils.createEntityExtractionTokenStream(nextPage.getText());
             Map<EntityCandidate, String> actualLinks = entityExtractionTokenStream.readWikiLinks();
             ArrayList<EntityCandidate> actualCandidates = new ArrayList<>(actualLinks.keySet());
+            actualCandidates.sort(null);
 
-            IndexStatsHelper indexHelper = new IndexStatsHelper(config.luceneDirectory);
-            EntityTools entityTools = new EntityTools(config.vocabulary);
-
-            EntityWeightingAlgorithm algorithm = new EntityWeightingKeyphraseness(indexHelper, entityTools);
             List<EntityCandidateWeighted> actualCandidatesWeighted = algorithm.determineWeightAndDeduplicate(actualCandidates);
-
-            EntityLinker entityLinker = new EntityLinker(config.luceneDirectory);
             List<EntityLink> entityLinks = entityLinker.identifyLinksForCandidates(actualCandidatesWeighted);
+
 
             assertNotEquals(entityLinks.size(), 0);
 
             ResultStats stats = getStats(actualLinks, entityLinks);
             pageStats.add(stats);
-
         }
 
         ResultStats mean = new ResultStats(0.0f, 0.0f);
@@ -85,6 +86,10 @@ public class EntityLinkerTest {
 
         System.out.println("Mean stats over " + pageStats.size() + " pages:");
         System.out.println(mean);
+
+        assert (mean.getRecall() > 0.3f);
+        assert (mean.getPrecision() > 0.3f);
+        assert (mean.getF1Score() > 0.3f);
     }
 
     private ResultStats getStats(Map<EntityCandidate, String> expected, List<EntityLink> actual) {

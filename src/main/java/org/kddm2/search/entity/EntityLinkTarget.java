@@ -37,7 +37,6 @@ public class EntityLinkTarget {
 
     @Override
     public String toString() {
-        return "\'" + documentId + '\'' +
-                " " + relevance;
+        return String.format("'%s' %.2f", documentId, relevance);
     }
 }

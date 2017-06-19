@@ -98,7 +98,7 @@ public class EntityLinker {
             resultingLinks.add(link);
         }
 
-        resultingLinks.sort(Comparator.comparingInt(link -> link.getEntity().startPos));
+        resultingLinks.sort(null);
         return resultingLinks;
     }
 }

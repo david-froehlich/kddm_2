@@ -5,7 +5,8 @@ DUMPVERSION=20170501
 MIRROR="https://dumps.wikimedia.org"
 
 WANTED=(
-pages-meta-current.xml.bz2
+pages-articles.xml.bz2
+sha1sums.txt
 )
 
 
@@ -17,15 +18,6 @@ for W in ${WANTED[@]} ; do
   fi
 done
 
-
-# Fancy but unnecessary:
-#WANTED=(
-#pagetable
-#)
-# for W in ${WANTED[@]} ; do
-#   URL=$(cat dumpstatus.json | jq '.jobs|to_entries[] | select(.key=="'$W'").value.files[] | .urlPatterns' | tr -d '"')
-#   SHA1=$(cat dumpstatus.json | jq '.jobs|to_entries[] | select(.key=="'$W'").value.files[] | .sha1' | tr -d '"')
-#   curl "$MIRROR/$URL" -z $W -o $W
-# done
-
-
+echo ""
+echo "== Validating files"
+sha1sum --ignore-missing -c "$DATASET-$DUMPVERSION-sha1sums.txt"

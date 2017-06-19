@@ -35,6 +35,7 @@ public abstract class EntityWeightingAlgorithm {
                     new EntityCandidateWeighted(refCandidate,
                             getWeightForCandidate(refCandidate, occurrenceCount)));
         }
+        weightedCandidates.sort(null);
         return weightedCandidates;
     }
 

@@ -14,11 +14,6 @@ public class EntityCandidateWeighted extends EntityCandidate {
 
     @Override
     public String toString() {
-        return "ECW{'" +
-                getCandidateText() + "', " +
-                "s=" + startPos +
-                ", e=" + endPos +
-                ", w=" + weight +
-                "}\n";
+        return String.format("ECW{%s, s=%d, e=%d, w=%.2f}\n", getCandidateText(), getStartPos(), getEndPos(), getWeight());
     }
 }

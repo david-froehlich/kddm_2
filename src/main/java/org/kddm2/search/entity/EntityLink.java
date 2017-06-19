@@ -2,7 +2,7 @@ package org.kddm2.search.entity;
 
 import java.util.List;
 
-public class EntityLink {
+public class EntityLink implements Comparable<EntityLink> {
     private EntityCandidate entity;
     private List<EntityLinkTarget> targets;
     private float combinedWeight;
@@ -38,9 +38,11 @@ public class EntityLink {
 
     @Override
     public String toString() {
-        return "EntityLink{" +
-                "entity=" + entity +
-                "    , targets=" + targets +
-                "}\n";
+        return "EntityLink{" + entity + "            targets=" + targets + "}\n";
+    }
+
+    @Override
+    public int compareTo(EntityLink o) {
+        return entity.compareTo(o.entity);
     }
 }
