@@ -1,4 +1,5 @@
 *.gz
 *.json
-*.bz2
+*xml.bz2
 *sha1sums*
+*.xml

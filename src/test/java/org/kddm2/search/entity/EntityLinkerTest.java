@@ -53,12 +53,10 @@ public class EntityLinkerTest {
         InputStream wikiInputStream = IndexTestSuite.testIndexValidation.dataSourceResource.getInputStream();
         WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream);
 
-
         IndexStatsHelper indexHelper = new IndexStatsHelper(config.luceneDirectory);
         EntityTools entityTools = new EntityTools(config.vocabulary);
         EntityLinker entityLinker = new EntityLinker(config.luceneDirectory);
         EntityWeightingAlgorithm algorithm = new EntityWeightingKeyphraseness(indexHelper, entityTools);
-
 
         List<ResultStats> pageStats = new ArrayList<>();
         WikiPage nextPage;
@@ -70,7 +68,6 @@ public class EntityLinkerTest {
 
             List<EntityCandidateWeighted> actualCandidatesWeighted = algorithm.determineWeightAndDeduplicate(actualCandidates);
             List<EntityLink> entityLinks = entityLinker.identifyLinksForCandidates(actualCandidatesWeighted);
-
 
             assertNotEquals(entityLinks.size(), 0);
 

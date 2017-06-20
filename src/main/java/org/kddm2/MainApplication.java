@@ -17,10 +17,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -55,15 +53,6 @@ public class MainApplication extends WebMvcConfigurerAdapter{
     @Bean
     public Path indexPath() {
         return Paths.get("/tmp/wikificationLuceneIndex");
-    }
-
-    private void createIndexDirectory(Path directoryPath) throws IOException {
-        File f = directoryPath.toFile();
-        if (f == null || !f.isDirectory()) {
-            Files.createDirectories(directoryPath);
-        }
-        //noinspection ResultOfMethodCallIgnored
-        Files.walk(directoryPath).map(Path::toFile).filter(File::isFile).forEach(File::delete);
     }
 
     @Bean
