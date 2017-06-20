@@ -9,3 +9,8 @@
 #dlg_top_bar {
     padding-right: 0px;
 }
+
+.error {
+    border: 1px red solid;
+    border-radius: 2px;
+}

@@ -2,6 +2,8 @@ var WIKIPEDIA_BASEURL = "http://simple.wikipedia.org/wiki/";
 
 var content;
 function wikify() {
+    $('#btn').attr('disabled', 'disabled');
+
     content = $('#content').text();
     $.ajax({
         url: "/wikify/",
@@ -11,7 +13,8 @@ function wikify() {
             text: content,
             algorithmId: $('input[name=algorithm]:checked').val(),
             weightRatio: $('#weight_ratio').val(),
-            linkRatio: $('#link_ratio').val()
+            linkRatio: $('#link_ratio').val(),
+            tfIdfDocFreqScaling: $('#tf_idf_doc_freq_scaling').val()
         }),
         headers: {
             'Accept': 'application/json',
@@ -20,8 +23,10 @@ function wikify() {
         dataType: 'json'
     }).done((response) => {
         parseLinks(response);
+        $('#btn').removeAttr('disabled');
     }).fail((jqXHR, msg) => {
-        console.log("ERROR: " + msg);
+        $('#btn').removeAttr('disabled');
+        $('#log').html('<p class="error">' + msg + '</p>');
     })
 }
 

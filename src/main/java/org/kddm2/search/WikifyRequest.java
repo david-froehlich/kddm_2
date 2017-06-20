@@ -1,8 +1,5 @@
 package org.kddm2.search;
 
-/**
- * Created by david on 6/18/17.
- */
 public class WikifyRequest {
     private String text;
     private String algorithmId;

@@ -24,6 +24,10 @@ public class IndexStatsHelper {
         this.indexDirectory = indexDirectory;
     }
 
+    public int getNumDocuments() {
+        return directoryReader.numDocs();
+    }
+
     public IndexTermStats getStatsForDictTerm(String dictTerm) throws InvalidIndexException {
         try {
             if (directoryReader == null) {
