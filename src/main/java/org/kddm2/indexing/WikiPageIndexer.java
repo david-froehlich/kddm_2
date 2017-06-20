@@ -71,23 +71,36 @@ public class WikiPageIndexer implements Runnable {
                         WikiPageIndexer.INDEX_FIELD_TYPE));
             }
             // if synonym
-            if (!wikiLink.getPageId().equalsIgnoreCase(wikiLink.getLinkText())) {
-                synchronized (documentSynonyms) {
-                    Set<String> otherDocSynonyms = documentSynonyms.getOrDefault(wikiLink.getPageId(), null);
-                    // create hash set on demand
-                    if (otherDocSynonyms == null) {
-                        otherDocSynonyms = new HashSet<>();
-                        documentSynonyms.put(wikiLink.getPageId(), otherDocSynonyms);
-                    }
-                    // add new link text, convert to lowercase to hopefully save some memory
-                    otherDocSynonyms.add(wikiLink.getLinkText().toLowerCase());
-                }
+            String pageId = wikiLink.getPageId();
+            if (!pageId.equalsIgnoreCase(wikiLink.getLinkText())) {
+                addSynonymForPage(pageId, wikiLink.getLinkText().toLowerCase());
             }
         }
 
         indexWriter.addDocument(doc);
     }
 
+    private void addSynonymForPage(String pageId, String synonym) {
+        synchronized (documentSynonyms) {
+            Set<String> otherDocSynonyms = documentSynonyms.getOrDefault(pageId, null);
+            // create hash set on demand
+            if (otherDocSynonyms == null) {
+                otherDocSynonyms = new HashSet<>();
+                documentSynonyms.put(pageId, otherDocSynonyms);
+            }
+            // add new link text, convert to lowercase to hopefully save some memory
+
+            otherDocSynonyms.add(synonym);
+        }
+    }
+
+    private void handlePage(WikiPage page) throws IOException {
+        if (page.isRedirectPage()) {
+            this.addSynonymForPage(page.getRedirectTarget(), page.getTitle());
+        } else {
+            this.indexPage(page);
+        }
+    }
 
     /**
      * eats baby souls
@@ -99,7 +112,7 @@ public class WikiPageIndexer implements Runnable {
                 LOG.info("Consumer has eaten all souls!");
                 return;
             }
-            indexPage(task.getWikiPage());
+            handlePage(task.getWikiPage());
             int i = indexedPages.incrementAndGet();
             if (i % PRINT_INTERVAL == 0) {
                 LOG.info("indexed " + i + " pages");

@@ -5,6 +5,7 @@ import org.kddm2.indexing.WikiPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -88,6 +89,12 @@ public class WikiXmlReader {
             case "text":
                 if (currentPage != null) {
                     currentPage.setText(getTextForPage());
+                }
+                break;
+            case "redirect":
+                String title = startElement.getAttributeByName(QName.valueOf("title")).getValue().toLowerCase().trim();
+                if(currentPage != null) {
+                    currentPage.setRedirectTarget(title);
                 }
                 break;
             case "ns":

@@ -6,6 +6,7 @@ import java.io.Serializable;
 public class WikiPage implements Serializable {
     private String title;
     private String text;
+    private String redirectTarget;
 
     public WikiPage() {
     }
@@ -13,6 +14,18 @@ public class WikiPage implements Serializable {
     public WikiPage(String title, String text) {
         this.title = title;
         this.text = text;
+    }
+
+    public boolean isRedirectPage()  {
+        return this.redirectTarget != null;
+    }
+
+    public String getRedirectTarget() {
+        return redirectTarget;
+    }
+
+    public void setRedirectTarget(String redirectTarget) {
+        this.redirectTarget = redirectTarget;
     }
 
     public String getTitle() {

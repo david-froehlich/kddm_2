@@ -66,21 +66,23 @@ public class IndexTestSuite {
                 dataSourcePath,
                 vocabulary
         );
-        testIndexFull.createIndexIfNotExists();
-
-        testIndexValidation = new TestIndexConfig(
-                "/tmp/wikificationTestIndexValidation",
-                validationTestPagesPath,
-                vocabulary
-        );
-        testIndexValidation.createIndexIfNotExists();
 
         testIndexSmall = new TestIndexConfig(
                 "/tmp/wikificationTestIndexSmall",
                 "classpath:test-pages.xml.bz2",
                 vocabulary
         );
+
+        testIndexValidation = new TestIndexConfig(
+                "/tmp/wikificationTestIndexValidation",
+                validationTestPagesPath,
+                vocabulary
+        );
+
+
         testIndexSmall.createIndexIfNotExists();
+        testIndexValidation.createIndexIfNotExists();
+        testIndexFull.createIndexIfNotExists();
     }
 
     private static void createValidationTestPages() throws IOException, XMLStreamException {
