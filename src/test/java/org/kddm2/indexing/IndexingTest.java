@@ -8,6 +8,7 @@ import org.kddm2.lucene.IndexingUtils;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.*;
+import java.util.HashSet;
 import java.util.Set;
 
 public class IndexingTest {
@@ -28,7 +29,8 @@ public class IndexingTest {
     @Ignore
     public void extractVocabulary() throws Exception {
         InputStream inputStream = new ClassPathResource("simplewiki-20170501-pages-meta-current.xml.bz2").getInputStream();
-        Set<String> vocabulary = IndexingUtils.extractVocabulary(inputStream);
+        Set<String> vocabulary = new HashSet<>();
+        IndexingUtils.extractVocabulary(inputStream, vocabulary);
 
         String dictPath = "/tmp/vocabulary.txt";
         try (Writer w = new BufferedWriter(new FileWriter(dictPath))) {

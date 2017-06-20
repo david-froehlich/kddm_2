@@ -3,14 +3,11 @@ package org.kddm2;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.kddm2.indexing.IndexStatsHelper;
-import org.kddm2.lucene.IndexingUtils;
 import org.kddm2.search.entity.*;
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -18,10 +15,10 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -64,21 +61,16 @@ public class MainApplication extends WebMvcConfigurerAdapter{
         }
     }
 
-    //TODO: maybe put vocabulary in separate type to avoid confusion?
     @Bean
-    public Set<String> vocabulary(@Value("${vocabulary_file}") Resource vocabularyFile) {
-        //TODO: load on startup
-        //TODO: case sensitive page titles
-        try {
+    public Set<String> vocabulary() {
+        //will be filled when vocabulary is extracted
+        //only needed for shared reference
+        return new HashSet<>();
+    }
 
-            InputStream inputStream = vocabularyFile.getInputStream();
-            if (inputStream == null) {
-                throw new BeanCreationException("Could not find vocabulary resource in classpath");
-            }
-            return IndexingUtils.readDictionary(inputStream);
-        } catch (IOException e) {
-            throw new BeanCreationException("Error reading vocabulary file", e);
-        }
+    @Bean
+    public Path vocabularyPath() {
+        return Paths.get("/tmp/vocabulary.txt");
     }
 
     @Bean

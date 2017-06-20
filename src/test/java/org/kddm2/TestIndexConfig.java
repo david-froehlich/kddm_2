@@ -10,6 +10,7 @@ import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
 
@@ -17,10 +18,12 @@ public class TestIndexConfig {
     public final String indexDirectoryPath;
     public Directory luceneDirectory;
     public Set<String> vocabulary;
+    public Path vocabularyPath;
     public Resource dataSourceResource;
 
-    public TestIndexConfig(String indexDirectoryPath, String dataSourcePath, Set<String> vocabulary) throws IOException {
+    public TestIndexConfig(String indexDirectoryPath, String dataSourcePath, Path vocabularyPath, Set<String> vocabulary) throws IOException {
         this.indexDirectoryPath = indexDirectoryPath;
+        this.vocabularyPath = vocabularyPath;
 
         DefaultResourceLoader loader = new DefaultResourceLoader();
         dataSourceResource = loader.getResource(dataSourcePath);
@@ -32,7 +35,8 @@ public class TestIndexConfig {
 
     public void createIndexIfNotExists() throws InvalidWikiFileException, IOException {
         if (!DirectoryReader.indexExists(luceneDirectory)) {
-            IndexingService indexingService = new IndexingService(luceneDirectory, vocabulary, dataSourceResource);
+            IndexingService indexingService = new IndexingService(luceneDirectory, vocabularyPath,
+                    vocabulary, dataSourceResource);
             indexingService.start();
         }
     }

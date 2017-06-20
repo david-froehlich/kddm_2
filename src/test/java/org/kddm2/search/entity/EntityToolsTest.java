@@ -34,7 +34,7 @@ public class EntityToolsTest {
         vocabulary.add("august");
         vocabulary.add("chinese");
 
-        IndexingService indexingService = new IndexingService(indexDirectory, vocabulary, new ClassPathResource(XML_FILE));
+        IndexingService indexingService = new IndexingService(indexDirectory, null, vocabulary, new ClassPathResource(XML_FILE));
         indexingService.start();
     }
 

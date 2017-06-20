@@ -71,15 +71,11 @@ public class IndexingUtils {
         return builder.toString();
     }
 
-    //TODO scaling for TfIDF
-    //TODO combine candidate identification score and linking score
     //TODO test if disambiguation pages are linked more often
     //TODO parameters from frontend
-    //TODO filter numeric words from vocabulary
-    public static Set<String> extractVocabulary(InputStream stream) throws IOException, XMLStreamException {
+    public static void extractVocabulary(InputStream stream, Set<String> vocabulary) throws IOException, XMLStreamException {
         WikiXmlReader reader = new WikiXmlReader(stream);
         WikiPage page = reader.getNextPage();
-        Set<String> extractedAliases = new HashSet<>();
 
         int parsedPages = 0;
         while (page != null) {
@@ -87,19 +83,15 @@ public class IndexingUtils {
             tokenizer.setReader(new StringReader(page.getText()));
             WikiLinkAliasExtractor extractor = new WikiLinkAliasExtractor(tokenizer);
 
-            extractedAliases = extractor.readAliases(extractedAliases);
+            vocabulary = extractor.readAliases(vocabulary);
             page = reader.getNextPage();
             if (++parsedPages % 500 == 0) {
                 System.out.println("parsed " + parsedPages + " pages");
             }
         }
-        return extractedAliases;
     }
 
-
-    public static Set<String> readDictionary(InputStream stream) {
-        Set<String> vocabulary = new HashSet<>();
-
+    public static void readVocabulary(InputStream stream, Set<String> vocabulary) {
         try {
             LineIterator lineIterator = IOUtils.lineIterator(stream, StandardCharsets.UTF_8);
             while (lineIterator.hasNext()) {
@@ -108,8 +100,6 @@ public class IndexingUtils {
         } catch (IOException e) {
             LOG.error("Error reading vocabulary file", e);
         }
-
-        return vocabulary;
     }
 
     public static List<TokenOccurrence> getTokensInStream(TokenStream stream) throws IOException {

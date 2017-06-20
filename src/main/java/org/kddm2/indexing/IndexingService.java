@@ -13,6 +13,7 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.kddm2.Settings;
+import org.kddm2.lucene.IndexingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -41,17 +43,20 @@ public class IndexingService {
     private AtomicInteger numProcessedPages = new AtomicInteger();
     private BlockingQueue<IndexingTask> indexingTasks = new ArrayBlockingQueue<>(Settings.QUEUE_LENGTH);
     private Directory indexDirectory;
+    private Path vocabularyPath;
     private Set<String> vocabulary;
     private Resource wikiXmlFile;
     private Map<String, Set<String>> documentSynonyms;
 
 
     @Autowired
-    public IndexingService(Directory indexDirectory, Set<String> vocabulary, @Value("${wiki_xml_file}")
-            Resource wikiXmlFile) {
+    public IndexingService(Directory indexDirectory, Path vocabularyPath,
+                           Set<String> vocabulary,
+                           @Value("${wiki_xml_file}") Resource wikiXmlFile) {
         this.indexDirectory = indexDirectory;
         this.vocabulary = vocabulary;
         this.wikiXmlFile = wikiXmlFile;
+        this.vocabularyPath = vocabularyPath;
         documentSynonyms = new HashMap<>();
     }
 
@@ -116,10 +121,38 @@ public class IndexingService {
         }
     }
 
+    private void readOrExtractVocabulary() {
+        try {
+            if (Files.exists(vocabularyPath)) {
+                System.out.println("Reading vocabulary");
+                IndexingUtils.readVocabulary(Files.newInputStream(vocabularyPath), vocabulary);
+            } else {
+                System.out.println("Extracting vocabulary from " + wikiXmlFile.getFilename());
+                IndexingUtils.extractVocabulary(wikiXmlFile.getInputStream(), vocabulary);
+                try (Writer w = new BufferedWriter(new FileWriter(vocabularyPath.toFile()))) {
+                    for (String s : vocabulary) {
+                        w.write(s);
+                        w.write("\n");
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } catch (IOException | XMLStreamException e) {
+            e.printStackTrace();
+        }
+        System.out.println(vocabulary.size() + " terms in dictionary");
+    }
+
+
     @Async
     public void start() throws InvalidWikiFileException {
         running.set(true);
         try {
+            if(vocabulary.isEmpty()) {
+                readOrExtractVocabulary();
+            }
+
             numProcessedPages.set(0);
             documentSynonyms = new HashMap<>();
 
