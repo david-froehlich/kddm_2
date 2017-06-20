@@ -92,7 +92,6 @@ public class MainApplication extends WebMvcConfigurerAdapter{
         return new EntityIdentifier(algorithms, tools, Settings.ENTITY_CUTOFF_RATE_AFTER_IDENTIFICATION);
     }
 
-
     @Bean
     public Map<String, EntityWeightingAlgorithm> entityWeightingAlgorithms(IndexStatsHelper indexStatsHelper, EntityTools entityTools) {
         Map<String, EntityWeightingAlgorithm> algorithms = new HashMap<>();

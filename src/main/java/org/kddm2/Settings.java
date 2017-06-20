@@ -12,7 +12,7 @@ public class Settings {
     public final static String DOCUMENT_ID_FIELD_NAME = "document_id";
 
     public final static int CONSUMER_COUNT = 5;
-    public final static int MAX_SHINGLE_SIZE = 3;
+    public final static int MAX_SHINGLE_SIZE = 5;
     public final static float ENTITY_CUTOFF_RATE_AFTER_IDENTIFICATION = 0.5f;
 }
 

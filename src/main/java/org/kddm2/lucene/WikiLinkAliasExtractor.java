@@ -45,8 +45,6 @@ public class WikiLinkAliasExtractor extends FilteringTokenFilter {
     @Override
     protected boolean accept() throws IOException {
         String type = tAttr.type();
-
-
         if (type.equals(WikipediaTokenizer.INTERNAL_LINK) || type.equals(WikipediaTokenizer.INTERNAL_LINK_TARGET)) {
             String alias = cAttr.toString().trim();
 
