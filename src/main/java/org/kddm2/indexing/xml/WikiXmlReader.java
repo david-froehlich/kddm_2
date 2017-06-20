@@ -82,13 +82,12 @@ public class WikiXmlReader {
                 break;
             case "title":
                 if (currentPage != null) {
-                    currentPage.setTitle(
-                            xmlEventReader.nextEvent().asCharacters().getData().toLowerCase().trim());
+                    currentPage.setTitle(getContentForElement().toLowerCase().trim());
                 }
                 break;
             case "text":
                 if (currentPage != null) {
-                    currentPage.setText(getTextForPage());
+                    currentPage.setText(getContentForElement());
                 }
                 break;
             case "redirect":
@@ -106,7 +105,7 @@ public class WikiXmlReader {
         }
     }
 
-    private String getTextForPage() throws XMLStreamException {
+    private String getContentForElement() throws XMLStreamException {
         StringBuilder builder = new StringBuilder();
 
         XMLEvent xmlEvent = xmlEventReader.nextEvent();

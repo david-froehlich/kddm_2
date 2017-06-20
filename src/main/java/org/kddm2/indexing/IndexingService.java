@@ -102,7 +102,7 @@ public class IndexingService {
                     continue;
                 }
                 if (topDocs.scoreDocs.length > 1) {
-                    System.out.println("Error: Found multiple documents!");
+                    System.out.println("Error: Found multiple documents for docId " + docId);
                 }
                 Document doc = searcher.doc(topDocs.scoreDocs[0].doc);
 
