@@ -93,14 +93,14 @@ public class WikiPageIndexer implements Runnable {
      * eats baby souls
      */
     private void consume() throws InterruptedException, IOException {
-        int i = 0;
-        while ((i = WikiPageIndexer.indexedPages.incrementAndGet()) < MAX_INDEXED_PAGES || MAX_INDEXED_PAGES == -1) {
+        while (true) {
             IndexingTask task = indexingTasks.take();
             if (task.isEndOfStream()) {
                 LOG.info("Consumer has eaten all souls!");
                 return;
             }
-            this.indexPage(task.getWikiPage());
+            indexPage(task.getWikiPage());
+            int i = indexedPages.incrementAndGet();
             if (i % PRINT_INTERVAL == 0) {
                 LOG.info("indexed " + i + " pages");
             }

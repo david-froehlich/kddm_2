@@ -97,11 +97,15 @@ public class IndexingService {
                 String docId = entry.getKey();
                 Term docTerm = new Term(Settings.DOCUMENT_ID_FIELD_NAME, docId);
 
-                TopDocs topDocs = searcher.search(new TermQuery(docTerm), 1);
+                TopDocs topDocs = searcher.search(new TermQuery(docTerm), 100);
                 if (topDocs.scoreDocs.length == 0) {
                     continue;
                 }
+                if (topDocs.scoreDocs.length > 1) {
+                    System.out.println("Error: Found multiple documents!");
+                }
                 Document doc = searcher.doc(topDocs.scoreDocs[0].doc);
+
                 for (String synonym : entry.getValue()) {
                     doc.add(new StoredField(Settings.SYNONYMS_FIELD_NAME, synonym, WikiPageIndexer.INDEX_FIELD_TYPE));
                 }

@@ -67,6 +67,8 @@ public class MainApplication extends WebMvcConfigurerAdapter{
     //TODO: maybe put vocabulary in separate type to avoid confusion?
     @Bean
     public Set<String> vocabulary(@Value("${vocabulary_file}") Resource vocabularyFile) {
+        //TODO: load on startup
+        //TODO: case sensitive page titles
         try {
 
             InputStream inputStream = vocabularyFile.getInputStream();
