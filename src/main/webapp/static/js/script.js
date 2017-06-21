@@ -26,7 +26,7 @@ function wikify() {
         $('#btn').removeAttr('disabled');
     }).fail((jqXHR, msg) => {
         $('#btn').removeAttr('disabled');
-        $('#log').html('<p class="error">' + msg + '</p>');
+            $('#log').html('<p class="error">' + jqXHR.responseJSON.message + '</p>');
     })
 }
 

@@ -61,12 +61,8 @@
                     </tr>
                     <tr>
                         <td><label for="link_ratio">Link ratio</label></td>
-                        <td><input type="text" id="link_ratio" name="link_ratio" value="0.05"/></td>
-                    </tr>
-                    <tr>
-                        <td><label for="tf_idf_doc_freq_scaling">TfIDf_DF-scaling:</label></td>
-                        <td><input type="text" id="tf_idf_doc_freq_scaling" name="tf_idf_doc_freq_scaling" value="2.0"/>
-                        </td>
+                        <td><input style="width: 60%; float: left;" type="range" onchange="$('#link_ratio_val').html($('#link_ratio').val());" id="link_ratio" name="link_ratio" min="0.001" step="0.001" max="0.2"
+                                   value="0.05"/><span style="width: 35%; float: right;" id="link_ratio_val">0.05</span></td>
                     </tr>
                 </table>
             </div>
