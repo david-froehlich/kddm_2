@@ -9,9 +9,11 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
+import org.kddm2.DocumentSearchResult;
 import org.kddm2.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +38,6 @@ public class IndexingService {
     private final int maxShingleSize;
     private Thread producer;
     private List<Thread> consumers;
-    private IndexWriter indexWriter;
     private DirectoryReader directoryReader;
     private AtomicBoolean running = new AtomicBoolean(false);
     private AtomicInteger numProcessedPages = new AtomicInteger();
@@ -92,9 +93,8 @@ public class IndexingService {
      * TODO: batch this if out of memory
      * or use mapdb set that caches to filesystem
      */
-    private void writeSynonyms() {
-        try {
-            DirectoryReader directoryReader = DirectoryReader.open(indexWriter);
+    private void writeSynonyms(IndexWriter indexWriter) {
+        try (DirectoryReader directoryReader = DirectoryReader.open(indexWriter)) {
             IndexSearcher searcher = new IndexSearcher(directoryReader);
 
             for (Map.Entry<String, Set<String>> entry : documentSynonyms.entrySet()) {
@@ -115,6 +115,7 @@ public class IndexingService {
                 }
                 indexWriter.updateDocument(docTerm, doc);
             }
+            indexWriter.commit();
         } catch (IOException e) {
             LOG.error("Could not write synonyms to lucene index", e);
         }
@@ -124,25 +125,24 @@ public class IndexingService {
     @Async
     public void start() throws InvalidWikiFileException {
         running.set(true);
-        try {
-            // preload the vocabulary here if its not loaded yet
-            numProcessedPages.set(0);
-            documentSynonyms = new HashMap<>();
+        // preload the vocabulary here if its not loaded yet
+        numProcessedPages.set(0);
+        documentSynonyms = new HashMap<>();
 
-            Analyzer analyzer = new StandardAnalyzer();
-            IndexWriterConfig config = new IndexWriterConfig(analyzer);
-            indexWriter = new IndexWriter(indexDirectory, config);
+        Analyzer analyzer = new StandardAnalyzer();
+        IndexWriterConfig config = new IndexWriterConfig(analyzer);
+        try (IndexWriter indexWriter = new IndexWriter(indexDirectory, config)) {
             indexWriter.deleteAll();
+            indexWriter.commit();
 
             long start = System.currentTimeMillis();
-
-            startThreads();
+            startThreads(indexWriter);
             producer.join();
             for (Thread thread : consumers) {
                 thread.join();
             }
             LOG.info("Writing collected synonyms");
-            writeSynonyms();
+            writeSynonyms(indexWriter);
             indexWriter.close();
             documentSynonyms.clear();
             LOG.info("Indexing took " + (System.currentTimeMillis() - start) / 1000 + " seconds");
@@ -152,7 +152,7 @@ public class IndexingService {
         running.set(false);
     }
 
-    private void startThreads() throws InvalidWikiFileException {
+    private void startThreads(IndexWriter indexWriter) throws InvalidWikiFileException {
         indexingTasks.clear();
         InputStream wikiInputStream;
 
@@ -173,6 +173,21 @@ public class IndexingService {
             consumers.add(new Thread(new WikiPageIndexer(indexingTasks, indexWriter, vocabulary.getVocabularySet(), documentSynonyms, maxShingleSize)));
             consumers.get(consumers.size() - 1).start();
         }
+    }
+
+    public List<DocumentSearchResult> searchByDocumentId(String searchTerm) throws IOException {
+        List<DocumentSearchResult> results = new ArrayList<>();
+        try (DirectoryReader directoryReader = DirectoryReader.open(indexDirectory)) {
+            IndexSearcher indexSearcher = new IndexSearcher(directoryReader);
+            TopDocs topDocs = indexSearcher.search(new TermQuery(new Term(Settings.DOCUMENT_ID_FIELD_NAME, searchTerm)), 1000);
+            for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+                Document doc = indexSearcher.doc(scoreDoc.doc);
+                String[] synonyms = doc.getValues(Settings.SYNONYMS_FIELD_NAME);
+                String docId = String.join(" | ", doc.getValues(Settings.DOCUMENT_ID_FIELD_NAME));
+                results.add(new DocumentSearchResult(docId, Arrays.asList(synonyms)));
+            }
+        }
+        return results;
     }
 
     public class IndexingStatus {

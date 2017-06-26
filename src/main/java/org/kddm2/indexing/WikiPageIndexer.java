@@ -1,6 +1,7 @@
 package org.kddm2.indexing;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexOptions;
@@ -28,6 +29,7 @@ public class WikiPageIndexer implements Runnable {
         INDEX_FIELD_TYPE.setTokenized(false);
         // TODO: positions are only necessary for debugging with luke
         INDEX_FIELD_TYPE.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS);
+        INDEX_FIELD_TYPE.freeze();
     }
 
     private final Set<String> vocabulary;
@@ -56,7 +58,7 @@ public class WikiPageIndexer implements Runnable {
             String currentTerm = entry.getKey();
             Integer count = entry.getValue();
             for (int i = 0; i < count; i++) {
-                doc.add(new StoredField(Settings.TERM_OCCURENCE_FIELD_NAME, currentTerm,
+                doc.add(new Field(Settings.TERM_OCCURENCE_FIELD_NAME, currentTerm,
                         WikiPageIndexer.INDEX_FIELD_TYPE));
             }
         }

@@ -10,4 +10,3 @@ wikification:
   indexingConsumerCount: 5
   entityCutoffRateAfterIdentification: 0.5
   maxShingleSize: 5
-
