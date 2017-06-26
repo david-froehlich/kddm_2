@@ -1,5 +1,6 @@
 package org.kddm2.search.entity;
 
+import java.util.Collections;
 import java.util.List;
 
 public class EntityLink implements Comparable<EntityLink> {
@@ -11,6 +12,12 @@ public class EntityLink implements Comparable<EntityLink> {
         this.entity = entity;
         this.targets = targets;
     }
+
+    public EntityLink(EntityCandidate entity, String trueTarget) {
+        this.entity = entity;
+        this.targets = Collections.singletonList(new EntityLinkTarget(trueTarget, 0, 0));
+    }
+
 
     public float getCombinedWeight() {
         return combinedWeight;

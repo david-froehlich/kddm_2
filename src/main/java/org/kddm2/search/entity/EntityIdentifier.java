@@ -16,7 +16,7 @@ public class EntityIdentifier {
 
     private Map<String, EntityWeightingAlgorithm> availableAlgorithms;
 
-    public void setUsedAlgorithm(String algorithmId)  {
+    public void setUsedAlgorithm(String algorithmId) {
         this.algorithm = availableAlgorithms.get(algorithmId);
     }
 

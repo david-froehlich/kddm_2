@@ -4,8 +4,10 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.junit.Before;
 import org.junit.Test;
+import org.kddm2.IndexTestSuite;
 import org.kddm2.indexing.IndexStatsHelper;
 import org.kddm2.indexing.IndexingService;
+import org.kddm2.indexing.IndexingVocabulary;
 import org.kddm2.indexing.InvalidWikiFileException;
 import org.springframework.core.io.ClassPathResource;
 
@@ -19,22 +21,23 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class EntityToolsTest {
-    private static final String INDEX_PATH = "/tmp/kddmTestIndex";
+    private static final String INDEX_PATH = "/tmp/wikificationTestIndexEntityTools";
     private static final String XML_FILE = "test-pages.xml.bz2";
     private static final String CONTENT = "This is a text. August, August. April. April. Chinese.";
-
-    private Set<String> vocabulary;
     Directory indexDirectory;
+    private IndexingVocabulary vocabulary;
 
     @Before
     public void createIndex() throws InvalidWikiFileException, IOException {
         indexDirectory = FSDirectory.open(Paths.get(INDEX_PATH));
-        vocabulary = new HashSet<>();
-        vocabulary.add("april");
-        vocabulary.add("august");
-        vocabulary.add("chinese");
-
-        IndexingService indexingService = new IndexingService(indexDirectory, null, vocabulary, new ClassPathResource(XML_FILE));
+        Set<String> fixedVocab = new HashSet<>();
+        fixedVocab.add("april");
+        fixedVocab.add("august");
+        fixedVocab.add("chinese");
+        vocabulary = new IndexingVocabulary(fixedVocab);
+        IndexingService indexingService = new IndexingService(indexDirectory, vocabulary,
+                new ClassPathResource(XML_FILE), IndexTestSuite.testDefaultSettings.getIndexingConsumerCount(),
+                IndexTestSuite.testDefaultSettings.getMaxShingleSize());
         indexingService.start();
     }
 
@@ -51,7 +54,7 @@ public class EntityToolsTest {
     @Test
     public void testEntityWeighting() throws Exception {
         IndexStatsHelper helper = new IndexStatsHelper(indexDirectory);
-        EntityTools entityTools = new EntityTools(vocabulary);
+        EntityTools entityTools = new EntityTools(vocabulary, IndexTestSuite.testDefaultSettings.getMaxShingleSize());
         EntityWeightingAlgorithm alg = new EntityWeightingTFIDF(helper, entityTools);
         List<EntityCandidateWeighted> weightedEntityCandidates = alg.determineWeightAndDeduplicate(entityTools.identifyEntities(CONTENT));
         System.out.println(weightedEntityCandidates);
@@ -62,7 +65,7 @@ public class EntityToolsTest {
     @Test
     public void testEntityIdentification() throws Exception {
         IndexStatsHelper helper = new IndexStatsHelper(indexDirectory);
-        EntityTools entityTools = new EntityTools(vocabulary);
+        EntityTools entityTools = new EntityTools(vocabulary, IndexTestSuite.testDefaultSettings.getMaxShingleSize());
         List<EntityCandidate> candidates = entityTools.identifyEntities(CONTENT);
         System.out.println(candidates);
         //TODO assert

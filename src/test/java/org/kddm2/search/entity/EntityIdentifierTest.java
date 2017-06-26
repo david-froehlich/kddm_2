@@ -13,16 +13,19 @@ import org.kddm2.lucene.IndexingUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class EntityIdentifierTest {
 
     private static final float LINK_TO_WORD_COUNT_RATE = 0.1f;
-    private final TestIndexConfig config = IndexTestSuite.testIndexFull;
+    private static final float MIN_STATS = 0.5f;
+    private final TestIndexConfig config = IndexTestSuite.testIndexValidation;
 
     @Test
     public void testEntityExtraction() throws Exception {
-        InputStream wikiInputStream = config.dataSourceResource.getInputStream();
+        InputStream wikiInputStream = config.wikiXmlResource.getInputStream();
         WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream);
 
         WikiPage nextPage = wikiXmlReader.getNextPage();
@@ -30,21 +33,21 @@ public class EntityIdentifierTest {
         EntityWikiLinkExtractor entityExtractionTokenStream = IndexingUtils.createEntityExtractionTokenStream(
                 nextPage.getText());
 
-        Map<EntityCandidate, String> links = entityExtractionTokenStream.readWikiLinks();
+        List<EntityCandidate> entityCandidates = entityExtractionTokenStream.getCandidates();
 
-        Assert.assertNotEquals(0, links.size());
-        //TODO assert more
+        Assert.assertNotEquals(0, entityCandidates.size());
+        System.out.println(entityCandidates);
     }
 
     @Test
     public void testEntityIdentification() throws Exception {
-        WikiXmlReader wikiXmlReader = new WikiXmlReader(IndexTestSuite.testIndexValidation.dataSourceResource.getInputStream());
+        WikiXmlReader wikiXmlReader = new WikiXmlReader(config.wikiXmlResource.getInputStream());
 
         IndexStatsHelper indexHelper = new IndexStatsHelper(config.luceneDirectory);
-        EntityTools entityTools = new EntityTools(config.vocabulary);
+        EntityTools entityTools = new EntityTools(config.vocabulary,
+                IndexTestSuite.testDefaultSettings.getMaxShingleSize());
 
         //TODO aliases like "goodness" and "good" are both linked, even though they would be the same page
-
         EntityWeightingAlgorithm tfidf = new EntityWeightingTFIDF(indexHelper, entityTools);
         EntityWeightingAlgorithm keyphraseness = new EntityWeightingKeyphraseness(indexHelper, entityTools);
 
@@ -57,11 +60,19 @@ public class EntityIdentifierTest {
             tfidfResults.add(evaluateWeightingAlgorithm(tfidf, entityTools, nextPage, plainText));
             keyphrasenessResults.add(evaluateWeightingAlgorithm(keyphraseness, entityTools, nextPage, plainText));
         }
-        printResults(tfidf, tfidfResults);
-        printResults(keyphraseness, keyphrasenessResults);
+        ResultStats tfIdfMean = printResults(tfidf, tfidfResults);
+        ResultStats keyphrasenessMean = printResults(keyphraseness, keyphrasenessResults);
+
+        assert (tfIdfMean.getRecall() > MIN_STATS);
+        assert (tfIdfMean.getPrecision() > MIN_STATS);
+        assert (tfIdfMean.getF1Score() > MIN_STATS);
+
+        assert (keyphrasenessMean.getRecall() > MIN_STATS);
+        assert (keyphrasenessMean.getPrecision() > MIN_STATS);
+        assert (keyphrasenessMean.getF1Score() > MIN_STATS);
     }
 
-    private void printResults(EntityWeightingAlgorithm algorithm, List<ResultStats> results) {
+    private ResultStats printResults(EntityWeightingAlgorithm algorithm, List<ResultStats> results) {
         ResultStats meanResult = new ResultStats(0.0f, 0.0f);
         for (ResultStats result : results) {
             meanResult.setPrecision(meanResult.getPrecision() + result.getPrecision() / results.size());
@@ -70,6 +81,8 @@ public class EntityIdentifierTest {
 
         System.out.println("\nAlgorithm performance: " + algorithm.getClass().getSimpleName());
         System.out.println(meanResult);
+
+        return meanResult;
     }
 
     private ResultStats evaluateWeightingAlgorithm(EntityWeightingAlgorithm weightingAlgorithm, EntityTools entityTools, WikiPage nextPage, String plainText) throws InvalidIndexException, IOException {
@@ -80,9 +93,9 @@ public class EntityIdentifierTest {
         actual.sort(Comparator.comparingInt(EntityCandidate::getStartPos));
 
         EntityWikiLinkExtractor entityExtractionTokenStream =
-                IndexingUtils.createEntityExtractionTokenStream(nextPage.getText());
+                IndexingUtils.createEntityExtractionTokenStream(nextPage.getText().toLowerCase());
 
-        List<EntityCandidate> expected = new ArrayList<>(entityExtractionTokenStream.readWikiLinks().keySet());
+        List<EntityCandidate> expected = entityExtractionTokenStream.getCandidates();
         return new ResultStats(getPrecision(expected, actual), getRecall(expected, actual));
     }
 

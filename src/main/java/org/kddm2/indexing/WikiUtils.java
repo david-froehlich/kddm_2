@@ -1,7 +1,6 @@
 package org.kddm2.indexing;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.kddm2.Settings;
 import org.kddm2.lucene.IndexingUtils;
 
 import java.io.IOException;
@@ -20,7 +19,7 @@ public class WikiUtils {
         linkRegex = Pattern.compile("\\[\\[([\\w\\s]+)(:?\\|([\\w\\s]+?))?\\]\\]");
     }
 
-    public static Map<WikiLink, Integer> parseLinkedOccurrences(String text, Set<String> vocabulary) {
+    public static Map<WikiLink, Integer> parseLinkedOccurrences(String text) {
         Map<WikiLink, Integer> wikiLinks = new HashMap<>();
         Matcher matcher = WikiUtils.linkRegex.matcher(text);
         while (matcher.find()) {
@@ -41,7 +40,7 @@ public class WikiUtils {
             if (linkText.startsWith("|")) {
                 linkText = linkText.substring(1);
             }
-            WikiLink wikiLink = new WikiLink(pageId, linkText);
+            WikiLink wikiLink = new WikiLink(pageId.trim(), linkText.trim());
             Integer count = wikiLinks.get(wikiLink);
             if (count == null) {
                 count = 0;
@@ -51,9 +50,9 @@ public class WikiUtils {
         return wikiLinks;
     }
 
-    public static Map<String, Integer> parseUnlinkedOccurrences(String text, Set<String> vocabulary) throws IOException {
+    public static Map<String, Integer> parseUnlinkedOccurrences(String text, Set<String> vocabulary, int maxShingleSize) throws IOException {
         try (Reader reader = new StringReader(text);
-             TokenStream tokenStream = IndexingUtils.createWikiTokenizer(reader, vocabulary, Settings.MAX_SHINGLE_SIZE)) {
+             TokenStream tokenStream = IndexingUtils.createWikiTokenizer(reader, vocabulary, maxShingleSize)) {
             return IndexingUtils.getTokenOccurrencesInStream(tokenStream);
         }
     }

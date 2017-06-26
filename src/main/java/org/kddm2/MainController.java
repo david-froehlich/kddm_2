@@ -81,7 +81,7 @@ public class MainController {
         return indexingService.getStatus();
     }
 
-    @PostMapping(value="/wikify")
+    @PostMapping(value = "/wikify")
     public List<EntityLink> wikify(@RequestBody WikifyRequest request) throws InvalidIndexException {
         entityIdentifier.setUsedAlgorithm(request.getAlgorithmId());
         List<EntityCandidateWeighted> candidates = entityIdentifier.identifyEntities(request.getText().toLowerCase());

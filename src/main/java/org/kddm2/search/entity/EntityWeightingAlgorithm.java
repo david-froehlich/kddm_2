@@ -9,7 +9,7 @@ import java.util.Map;
 
 public abstract class EntityWeightingAlgorithm {
     public static final String TF_IDF_ID = "tf_idf";
-    public static final String KEYPHRASENESS_ID= "keyphraseness";
+    public static final String KEYPHRASENESS_ID = "keyphraseness";
 
     protected IndexStatsHelper indexHelper;
     private EntityTools entityTools;
@@ -21,6 +21,7 @@ public abstract class EntityWeightingAlgorithm {
 
     /**
      * Assigns weights to candidates and deletes duplicates by choosing the first occurrence.
+     *
      * @param candidates The candidates to weigh and de-duplicate.
      * @return The weighted and de-duplicated candidates.
      * @throws InvalidIndexException If the lucene index is invalid.

@@ -7,11 +7,11 @@ import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.kddm2.indexing.wiki.WikipediaTokenizer;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Takes the content of a Wikipedia article and extracts the Entities from all internal links
+ * Takes the content of a Wikipedia article and extracts the Entities from all internal links.
  */
 public class EntityWikiLinkExtractor extends FilteringTokenFilter {
     private String wholeString;
@@ -19,23 +19,24 @@ public class EntityWikiLinkExtractor extends FilteringTokenFilter {
     private TypeAttribute typeAttribute;
     private OffsetAttribute offsetAttribute;
 
+    private boolean extractingDone = false;
+    private List<EntityLink> extractedLinks;
+    private List<EntityCandidate> extractedCandidates;
+
     public EntityWikiLinkExtractor(TokenStream su, String wholeString) {
         super(su);
         typeAttribute = getAttribute(TypeAttribute.class);
         offsetAttribute = addAttribute(OffsetAttribute.class);
         this.wholeString = wholeString;
+        extractedLinks = new ArrayList<>();
+        extractedCandidates = new ArrayList<>();
     }
 
-    /**
-     * Returns a map of entity candidates to their actual link targets.
-     * @return The map of candidates to link targets.
-     * @throws IOException if something is wrong with the token stream.
-     */
-    public Map<EntityCandidate, String> readWikiLinks() throws IOException {
+    private void read() throws IOException {
+        if (extractingDone) {
+            return;
+        }
         this.reset();
-
-        Map<EntityCandidate, String> extractedLinks = new HashMap<>();
-
         boolean insideLink = false;
         int linkTargetStart = 0;
         int linkTargetEnd = 0;
@@ -43,6 +44,10 @@ public class EntityWikiLinkExtractor extends FilteringTokenFilter {
         int linkTextEnd = 0;
         while (incrementToken()) {
             if (WikipediaTokenizer.INTERNAL_LINK_TARGET.equals(typeAttribute.type())) {
+                if (insideLink) {
+                    EntityCandidate e = new EntityCandidate(linkTextStart, linkTextEnd, wholeString);
+                    extractedLinks.add(new EntityLink(e, wholeString.substring(linkTargetStart, linkTargetEnd)));
+                }
                 linkTargetStart = offsetAttribute.startOffset();
                 linkTargetEnd = offsetAttribute.endOffset();
                 linkTextStart = linkTargetStart;
@@ -55,7 +60,7 @@ public class EntityWikiLinkExtractor extends FilteringTokenFilter {
             } else {
                 if (insideLink) {
                     EntityCandidate e = new EntityCandidate(linkTextStart, linkTextEnd, wholeString);
-                    extractedLinks.put(e, wholeString.substring(linkTargetStart, linkTargetEnd));
+                    extractedLinks.add(new EntityLink(e, wholeString.substring(linkTargetStart, linkTargetEnd)));
                     insideLink = false;
                     linkTargetStart = 0;
                     linkTargetEnd = 0;
@@ -64,7 +69,33 @@ public class EntityWikiLinkExtractor extends FilteringTokenFilter {
                 }
             }
         }
+
+        for (EntityLink link : extractedLinks) {
+            extractedCandidates.add(link.getEntity());
+        }
+
+        extractingDone = true;
+    }
+
+    /**
+     * Returns a map of entity candidates to their actual link targets.
+     *
+     * @return The map of candidates to link targets.
+     * @throws IOException if something is wrong with the token stream.
+     */
+    public List<EntityLink> getWikiLinks() throws IOException {
+        if (!extractingDone) {
+            read();
+        }
+
         return extractedLinks;
+    }
+
+    public List<EntityCandidate> getCandidates() throws IOException {
+        if (!extractingDone) {
+            read();
+        }
+        return extractedCandidates;
     }
 
     /**

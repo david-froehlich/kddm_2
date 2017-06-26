@@ -6,6 +6,7 @@ import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kddm2.indexing.wiki.WikipediaTokenizer;
+import org.kddm2.lucene.IndexingUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -310,8 +311,20 @@ public class WikipediaParserTest {
         }
     }
 
+    @Test
+    public void testMultiLinkPlaintextExtraction() throws Exception {
+        String exampleText = "'''Acceleration''' is a [[measure]] of how [[speed|fast]] [[velocity]] [[wikt:change|changes]]. Acceleration ";
+
+        String result = IndexingUtils.getWikiPlainText(new StringReader(exampleText));
+        String expected = "acceleration is a measure of how fast velocity changes acceleration";
+        Assert.assertEquals(expected, result);
+    }
 
     private List<TokenizerResult> testTokenizer(Tokenizer tokenizer, String text) throws IOException {
+        return testTokenizer(tokenizer, text, true);
+    }
+
+    private List<TokenizerResult> testTokenizer(Tokenizer tokenizer, String text, boolean print) throws IOException {
         List<TokenizerResult> tokenizerResults = new ArrayList<>();
         tokenizer.setReader(new StringReader(text));
         CharTermAttribute textAttribute = tokenizer.addAttribute(CharTermAttribute.class);
@@ -319,7 +332,9 @@ public class WikipediaParserTest {
         tokenizer.reset();
         while (tokenizer.incrementToken()) {
             tokenizerResults.add(new TokenizerResult(textAttribute.toString(), typeAttribute.type()));
-            System.out.format("'%s' [%s]\n", textAttribute.toString(), typeAttribute.type());
+            if (print) {
+                System.out.format("'%s' [%s]\n", textAttribute.toString(), typeAttribute.type());
+            }
         }
         return tokenizerResults;
     }

@@ -2,13 +2,12 @@ buildscript {
     repositories {
         mavenCentral()
         maven {
-            url "http://xbib.org/repository"
+            url 'http://xbib.org/repository'
         }
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.4.RELEASE")
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.5.4.RELEASE'
         classpath 'org.xbib.gradle.plugin:gradle-plugin-jflex:1.1.0'
-
     }
 }
 
@@ -38,11 +37,16 @@ dependencies {
     compile 'commons-io:commons-io:2.5'
     compile 'org.springframework.boot:spring-boot-starter-jetty'
     compile 'org.springframework.boot:spring-boot-starter-actuator'
-    compile("org.springframework.boot:spring-boot-devtools")
+    compile('org.springframework.boot:spring-boot-devtools')
     compile('org.springframework.boot:spring-boot-starter-web') {
         exclude module: 'spring-boot-starter-tomcat'
     }
+    compile 'org.springframework.boot:spring-boot-configuration-processor'
+
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.springframework.boot:spring-boot-starter-test'
+
 }
+// for the annotation processor
+compileJava.dependsOn(processResources)

@@ -1,7 +1,7 @@
 package org.kddm2.search.entity;
 
 public class ResultStats {
-    private  float precision;
+    private float precision;
     private float recall;
 
     public ResultStats(float precision, float recall) {

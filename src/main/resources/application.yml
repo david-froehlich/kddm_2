@@ -4,6 +4,9 @@ spring:
       indent_output: true
 
 
-wiki_xml_file: "file:data/simplewiki-20170501-pages-meta-current.xml.bz2"
-vocabulary_file: "classpath:vocabulary.txt"
+wikification:
+  wikiXmlFile: "file:data/simplewiki-20170501-pages-meta-current.xml.bz2"
+  vocabularyFile: "file:/tmp/wikificationVocabulary.txt"
+  indexingConsumerCount: 5
+  entityCutoffRateAfterIdentification: 0.5
 

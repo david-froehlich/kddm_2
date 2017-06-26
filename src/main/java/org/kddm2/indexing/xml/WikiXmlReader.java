@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class WikiXmlReader {
-    private static final Logger logger = LoggerFactory.getLogger(WikiXmlReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WikiXmlReader.class);
 
     private InputStream compressorInputStream;
     private XMLEventReader xmlEventReader;
@@ -48,7 +48,7 @@ public class WikiXmlReader {
 
             }
         }
-        logger.info("Parsed " + numPages + " pages");
+        LOG.info("Parsed " + numPages + " pages");
     }
 
 
@@ -68,7 +68,7 @@ public class WikiXmlReader {
                 }
             }
         }
-        logger.info("Parsed " + numPages + " pages");
+        LOG.info("Parsed " + numPages + " pages");
 
         return null;
     }
@@ -82,7 +82,7 @@ public class WikiXmlReader {
                 break;
             case "title":
                 if (currentPage != null) {
-                    currentPage.setTitle(getContentForElement().toLowerCase().trim());
+                    currentPage.setTitle(getContentForElement());
                 }
                 break;
             case "text":
@@ -91,8 +91,8 @@ public class WikiXmlReader {
                 }
                 break;
             case "redirect":
-                String title = startElement.getAttributeByName(QName.valueOf("title")).getValue().toLowerCase().trim();
-                if(currentPage != null) {
+                String title = startElement.getAttributeByName(QName.valueOf("title")).getValue().trim();
+                if (currentPage != null) {
                     currentPage.setRedirectTarget(title);
                 }
                 break;
@@ -108,12 +108,11 @@ public class WikiXmlReader {
     private String getContentForElement() throws XMLStreamException {
         StringBuilder builder = new StringBuilder();
 
-        XMLEvent xmlEvent = xmlEventReader.nextEvent();
-        while (xmlEvent.isCharacters()) {
+        while (xmlEventReader.peek() != null && xmlEventReader.peek().isCharacters()) {
+            XMLEvent xmlEvent = xmlEventReader.nextEvent();
             builder.append(xmlEvent.asCharacters().getData());
-            xmlEvent = xmlEventReader.nextEvent();
         }
-        return builder.toString().toLowerCase();
+        return builder.toString();
     }
 
     public void close() throws IOException {

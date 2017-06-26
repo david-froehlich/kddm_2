@@ -15,8 +15,6 @@ import org.springframework.core.io.ResourceLoader;
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.List;
 
 @RunWith(Suite.class)
@@ -37,8 +35,9 @@ public class IndexTestSuite {
     public static TestIndexConfig testIndexFull;
     public static TestIndexConfig testIndexSmall;
     public static TestIndexConfig testIndexValidation;
+    public static Settings testDefaultSettings;
 
-    private static String validationTestPagesPath = "file:/tmp/extracted_xml_files.xml.bz2";
+    private static String validationTestPagesPath = "file:/tmp/wikificationTestValidationPages.xml.bz2";
     private static String dataSourcePath = "file:data/simplewiki-20170501-pages-meta-current.xml.bz2";
     private static ResourceLoader resourceLoader;
 
@@ -46,6 +45,7 @@ public class IndexTestSuite {
     static {
         try {
             createLuceneIndices();
+            testDefaultSettings = new Settings(null, null, 5, 5, 0.5f);
         } catch (Exception | InvalidWikiFileException e) {
             e.printStackTrace();
         }
@@ -53,30 +53,25 @@ public class IndexTestSuite {
 
     public static void createLuceneIndices() throws Exception, InvalidWikiFileException {
         resourceLoader = new DefaultResourceLoader();
-        createValidationTestPages();
 
         System.out.println("Loading indices");
         testIndexFull = new TestIndexConfig(
                 "/tmp/wikificationTestIndexFull",
                 dataSourcePath,
-                Paths.get("/tmp/fullVocabulary.txt"),
-                new HashSet<>()
+                "file:/tmp/wikificationTestVocabularyFull.txt"
         );
-
         testIndexSmall = new TestIndexConfig(
                 "/tmp/wikificationTestIndexSmall",
                 "classpath:test-pages.xml.bz2",
-                Paths.get("/tmp/smallVocabulary.txt"),
-                new HashSet<>()
+                "file:/tmp/wikificationTestVocabularySmall.txt"
         );
-
         testIndexValidation = new TestIndexConfig(
                 "/tmp/wikificationTestIndexValidation",
                 validationTestPagesPath,
-                Paths.get("/tmp/validationVocabulary.txt"),
-                new HashSet<>()
+                "file:/tmp/wikificationTestVocabularyValidation.txt"
         );
 
+        createValidationTestPages();
 
         testIndexSmall.createIndexIfNotExists();
         testIndexValidation.createIndexIfNotExists();
@@ -87,14 +82,14 @@ public class IndexTestSuite {
         Resource validationTestPages = resourceLoader.getResource(validationTestPagesPath);
         if (!validationTestPages.exists()) {
             System.out.println("Creating validation test pages");
-            int numPages = 10;
+            int numPages = 80;
             InputStream xmlInputStream = resourceLoader.getResource(dataSourcePath).getInputStream();
             WikiXmlReader reader = new WikiXmlReader(xmlInputStream);
-            IndexingTestUtils utils = new IndexingTestUtils(reader, testIndexValidation.vocabulary);
+            IndexingTestUtils utils = new IndexingTestUtils(reader);
             List<WikiPage> extractedPages = utils.extractRandomTestPagesSet(
                     numPages, 0.05f, 0.01f);
             //TODO: use spring resource for this
-            WikiXmlWriter writer = new WikiXmlWriter(validationTestPagesPath.replace("file:", ""));
+            WikiXmlWriter writer = new WikiXmlWriter(validationTestPages.getFile().getAbsolutePath());
             writer.writePages(extractedPages);
         }
     }

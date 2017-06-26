@@ -16,7 +16,7 @@ public class WikiPage implements Serializable {
         this.text = text;
     }
 
-    public boolean isRedirectPage()  {
+    public boolean isRedirectPage() {
         return this.redirectTarget != null;
     }
 
@@ -50,12 +50,18 @@ public class WikiPage implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         WikiPage wikiPage = (WikiPage) o;
 
-        if (title != null ? !title.equals(wikiPage.title) : wikiPage.title != null) return false;
+        if (title != null ? !title.equals(wikiPage.title) : wikiPage.title != null) {
+            return false;
+        }
         return text != null ? text.equals(wikiPage.text) : wikiPage.text == null;
     }
 

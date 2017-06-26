@@ -3,6 +3,8 @@ package org.kddm2;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.kddm2.indexing.IndexStatsHelper;
+import org.kddm2.indexing.IndexingService;
+import org.kddm2.indexing.IndexingVocabulary;
 import org.kddm2.search.entity.*;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.SpringApplication;
@@ -18,22 +20,20 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executor;
 
 @SpringBootApplication
 @EnableWebMvc
 @EnableAsync
-public class MainApplication extends WebMvcConfigurerAdapter{
+public class MainApplication extends WebMvcConfigurerAdapter {
+    public static void main(String[] args) {
+        SpringApplication.run(MainApplication.class, args);
+    }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/static/**").addResourceLocations("/static/");
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(MainApplication.class, args);
     }
 
     @Bean
@@ -62,10 +62,9 @@ public class MainApplication extends WebMvcConfigurerAdapter{
     }
 
     @Bean
-    public Set<String> vocabulary() {
-        //will be filled when vocabulary is extracted
-        //only needed for shared reference
-        return new HashSet<>();
+    public IndexingVocabulary vocabulary(Settings settings) {
+        System.out.println(settings.toString());
+        return new IndexingVocabulary(settings.getVocabularyFile(), settings.getWikiXmlFile());
     }
 
     @Bean
@@ -74,8 +73,8 @@ public class MainApplication extends WebMvcConfigurerAdapter{
     }
 
     @Bean
-    public EntityTools entityTools(Set<String> vocabulary) {
-        return new EntityTools(vocabulary);
+    public EntityTools entityTools(IndexingVocabulary vocabulary, Settings settings) {
+        return new EntityTools(vocabulary, settings.getMaxShingleSize());
     }
 
     @Bean
@@ -88,8 +87,8 @@ public class MainApplication extends WebMvcConfigurerAdapter{
     }
 
     @Bean
-    public EntityIdentifier entityIdentifier(Map<String, EntityWeightingAlgorithm> algorithms, EntityTools tools) {
-        return new EntityIdentifier(algorithms, tools, Settings.ENTITY_CUTOFF_RATE_AFTER_IDENTIFICATION);
+    public EntityIdentifier entityIdentifier(Map<String, EntityWeightingAlgorithm> algorithms, EntityTools tools, Settings settings) {
+        return new EntityIdentifier(algorithms, tools, settings.getEntityCutoffRateAfterIdentification());
     }
 
     @Bean
@@ -98,5 +97,10 @@ public class MainApplication extends WebMvcConfigurerAdapter{
         algorithms.put(EntityWeightingAlgorithm.KEYPHRASENESS_ID, new EntityWeightingKeyphraseness(indexStatsHelper, entityTools));
         algorithms.put(EntityWeightingAlgorithm.TF_IDF_ID, new EntityWeightingTFIDF(indexStatsHelper, entityTools));
         return algorithms;
+    }
+
+    @Bean
+    public IndexingService indexingService(Directory indexDirectory, IndexingVocabulary vocabulary, Settings settings) {
+        return new IndexingService(indexDirectory, vocabulary, settings.getWikiXmlFile(), settings.getIndexingConsumerCount(), settings.getMaxShingleSize());
     }
 }

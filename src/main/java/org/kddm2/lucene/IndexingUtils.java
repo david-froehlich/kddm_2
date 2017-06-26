@@ -24,9 +24,11 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class IndexingUtils {
     private static final Logger LOG = LoggerFactory.getLogger(IndexingUtils.class);
+    private static final Pattern SIMPLE_NUMBER_REGEX = Pattern.compile("-?\\d+(\\.\\d+)?");
 
     public static int getWordCount(Reader reader) {
         TokenStream tokenStream = IndexingUtils.createWikiTokenizer(reader, true);
@@ -59,35 +61,36 @@ public class IndexingUtils {
         return tokensInStream;
     }
 
-    public static String tokenStreamToString(TokenStream stream) throws IOException {
-        StringBuilder builder = new StringBuilder();
-        CharTermAttribute charTermAttribute = stream.addAttribute(CharTermAttribute.class);
-        stream.reset();
-
-        while (stream.incrementToken()) {
-            builder.append(charTermAttribute.toString());
-            builder.append(" ");
-        }
-        return builder.toString();
-    }
-
     //TODO test if disambiguation pages are linked more often
     //TODO parameters from frontend
     public static void extractVocabulary(InputStream stream, Set<String> vocabulary) throws IOException, XMLStreamException {
-        WikiXmlReader reader = new WikiXmlReader(stream);
-        WikiPage page = reader.getNextPage();
-
         int parsedPages = 0;
-        while (page != null) {
-            WikipediaTokenizer tokenizer = new WikipediaTokenizer();
-            tokenizer.setReader(new StringReader(page.getText()));
-            WikiLinkAliasExtractor extractor = new WikiLinkAliasExtractor(tokenizer);
 
-            vocabulary = extractor.readAliases(vocabulary);
-            page = reader.getNextPage();
+        WikiXmlReader reader = new WikiXmlReader(stream);
+        WikipediaTokenizer tokenizer = new WikipediaTokenizer();
+        TypeAttribute tAttr = tokenizer.addAttribute(TypeAttribute.class);
+        CharTermAttribute cAttr = tokenizer.addAttribute(CharTermAttribute.class);
+        tokenizer.reset();
+
+        WikiPage page;
+        while ((page = reader.getNextPage()) != null) {
+            tokenizer.setReader(new StringReader(page.getText()));
+            tokenizer.reset();
+
+            while (tokenizer.incrementToken()) {
+                String type = tAttr.type();
+                if (type.equals(WikipediaTokenizer.INTERNAL_LINK) || type.equals(WikipediaTokenizer.INTERNAL_LINK_TARGET)) {
+                    String linkText = cAttr.toString().trim();
+
+                    if (linkText.length() >= 2 && !SIMPLE_NUMBER_REGEX.matcher(linkText).matches()) {
+                        vocabulary.add(linkText.toLowerCase());
+                    }
+                }
+            }
             if (++parsedPages % 500 == 0) {
                 System.out.println("parsed " + parsedPages + " pages");
             }
+            tokenizer.close();
         }
     }
 
@@ -120,7 +123,7 @@ public class IndexingUtils {
      * @param reader         The source to read from.
      * @param vocabulary     Only tokens and shingles in the vocabulary are kept.
      * @param maxShingleSize The maximum n-gram(shingle) size that is used to create new tokens.
-     * @return
+     * @return The created TokenStream.
      */
     public static TokenStream createPlaintextTokenizer(Reader reader, Set<String> vocabulary, int maxShingleSize) {
         final StandardTokenizer src = new StandardTokenizer();
@@ -151,7 +154,7 @@ public class IndexingUtils {
 
     /**
      * Creates a Wiki syntax tokenizer that only keeps plain text in the wiki file. Also applies the
-     * indexing filters returned by {@link IndexingUtils#createWikiTokenizer(Reader, Set, int)}.
+     * indexing filters returned by {@link IndexingUtils#createIndexFilters(TokenStream, Set, int)}}.
      *
      * @param reader         The source to read from.
      * @param vocabulary     Only tokens and shingles in the vocabulary are kept.
@@ -167,13 +170,12 @@ public class IndexingUtils {
      * Creates a Wiki syntax tokenizer that converts all the wiki text to plain text
      *
      * @param reader The source to read from.
-     * @return
+     * @return The plain text of the wiki page.
      */
     public static String getWikiPlainText(Reader reader) throws IOException {
         Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
         wikipediaTokenizer.setReader(reader);
         TokenStream tokenStream = new WikiToPlaintextFilter(wikipediaTokenizer, true);
-
         StringBuilder plaintext = new StringBuilder();
 
         CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
@@ -183,8 +185,15 @@ public class IndexingUtils {
         boolean insideLink = false;
         String linkText = null;
         while (tokenStream.incrementToken()) {
-            if (WikipediaTokenizer.INTERNAL_LINK.equals(typeAttribute.type()) ||
-                    WikipediaTokenizer.INTERNAL_LINK_TARGET.equals(typeAttribute.type())) {
+            if (WikipediaTokenizer.INTERNAL_LINK.equals(typeAttribute.type())) {
+                insideLink = true;
+                linkText = charTermAttribute.toString();
+            } else if (WikipediaTokenizer.INTERNAL_LINK_TARGET.equals(typeAttribute.type())) {
+                // terminate existing link, if already inside it
+                if (insideLink) {
+                    plaintext.append(linkText);
+                    plaintext.append(" ");
+                }
                 insideLink = true;
                 linkText = charTermAttribute.toString();
             } else {
@@ -199,16 +208,16 @@ public class IndexingUtils {
             }
         }
 
-        return plaintext.toString().trim();
+        return plaintext.toString().trim().toLowerCase();
     }
 
     /**
      * Appends filters to the given TokenStream that create shingles and then filter everything not in the given vocabulary.
      *
-     * @param source         The input TokenStream
+     * @param source         The input TokenStream.
      * @param vocabulary     Only tokens and shingles in the vocabulary are kept.
      * @param maxShingleSize The maximum n-gram(shingle) size that is used to create new tokens.
-     * @return
+     * @return The modified TokenStream.
      */
     private static TokenStream createIndexFilters(TokenStream source, Set<String> vocabulary, int maxShingleSize) {
         ShingleFilter shingleFilter = new ShingleFilter(source, maxShingleSize);

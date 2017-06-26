@@ -12,7 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class EntityLinker {
     private static final Logger LOG = LoggerFactory.getLogger(EntityLinker.class);
@@ -29,7 +32,7 @@ public class EntityLinker {
         BooleanQuery.Builder linkedQueryBuilder = new BooleanQuery.Builder();
 
         for (EntityCandidateWeighted contextCandidate : context) {
-            String candidateText = contextCandidate.getCandidateText();
+            String candidateText = contextCandidate.getCandidateText().toLowerCase();
             // TODO: check if weights are/should be normalized for boosting
             linkedQueryBuilder.add(new BoostQuery(new TermQuery(new Term(luceneFieldName, candidateText)),
                             contextCandidate.getWeight()),
@@ -60,7 +63,7 @@ public class EntityLinker {
         List<EntityLink> resultingLinks = new ArrayList<>();
 
         for (EntityCandidateWeighted candidate : candidates) {
-            String candidateText = candidate.getCandidateText();
+            String candidateText = candidate.getCandidateText().toLowerCase();
             List<EntityLinkTarget> relevantDocuments = new ArrayList<>();
             // query to find synonym documents
             Query synonymQuery = new TermQuery(new Term(Settings.SYNONYMS_FIELD_NAME, candidateText));
@@ -68,7 +71,8 @@ public class EntityLinker {
             try {
                 Query finalQuery = new BooleanQuery.Builder().add(synonymQuery, BooleanClause.Occur.MUST)
                         .add(contextQueryLinked, BooleanClause.Occur.SHOULD)
-                        .add(contextQueryOccurrence, BooleanClause.Occur.SHOULD).build();
+                        .add(contextQueryOccurrence, BooleanClause.Occur.SHOULD)
+                        .build();
 
                 TopDocs searchResults = searcher.search(finalQuery, 10);
                 Set<String> fieldsToRetrieve = new HashSet<>();

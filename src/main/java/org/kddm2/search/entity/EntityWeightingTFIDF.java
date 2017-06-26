@@ -13,7 +13,7 @@ public class EntityWeightingTFIDF extends EntityWeightingAlgorithm {
     protected float getWeightForCandidate(EntityCandidate candidate, int occurenceCount) throws InvalidIndexException {
         IndexTermStats statsForDictTerm = indexHelper.getStatsForDictTerm(candidate.getCandidateText());
         if (statsForDictTerm.getCountOccurenceDocuments() > 1) {
-            return (float) (occurenceCount * (Math.log((float)indexHelper.getNumDocuments() / statsForDictTerm.getCountOccurenceDocuments())));
+            return (float) (occurenceCount * (Math.log((float) indexHelper.getNumDocuments() / statsForDictTerm.getCountOccurenceDocuments())));
         } else {
             return (float) occurenceCount;
         }

@@ -13,19 +13,15 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.kddm2.Settings;
-import org.kddm2.lucene.IndexingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -35,6 +31,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class IndexingService {
     private static final Logger LOG = LoggerFactory.getLogger(IndexingService.class);
+    private final Resource wikiXmlFile;
+    private final int indexingConsumerCount;
+    private final int maxShingleSize;
     private Thread producer;
     private List<Thread> consumers;
     private IndexWriter indexWriter;
@@ -43,20 +42,20 @@ public class IndexingService {
     private AtomicInteger numProcessedPages = new AtomicInteger();
     private BlockingQueue<IndexingTask> indexingTasks = new ArrayBlockingQueue<>(Settings.QUEUE_LENGTH);
     private Directory indexDirectory;
-    private Path vocabularyPath;
-    private Set<String> vocabulary;
-    private Resource wikiXmlFile;
+    private IndexingVocabulary vocabulary;
     private Map<String, Set<String>> documentSynonyms;
 
 
-    @Autowired
-    public IndexingService(Directory indexDirectory, Path vocabularyPath,
-                           Set<String> vocabulary,
-                           @Value("${wiki_xml_file}") Resource wikiXmlFile) {
+    public IndexingService(Directory indexDirectory,
+                           IndexingVocabulary vocabulary,
+                           Resource wikiXmlFile,
+                           int indexingConsumerCount,
+                           int maxShingleSize) {
         this.indexDirectory = indexDirectory;
         this.vocabulary = vocabulary;
         this.wikiXmlFile = wikiXmlFile;
-        this.vocabularyPath = vocabularyPath;
+        this.indexingConsumerCount = indexingConsumerCount;
+        this.maxShingleSize = maxShingleSize;
         documentSynonyms = new HashMap<>();
     }
 
@@ -65,7 +64,7 @@ public class IndexingService {
     }
 
     public IndexingStatus getStatus() {
-        boolean indexValid = false;
+        boolean indexValid;
         int numDocumentsInIndex = 0;
         try {
             if (directoryReader == null) {
@@ -78,9 +77,9 @@ public class IndexingService {
                     directoryReader = tmpReader;
                 }
             }
-            //TODO: find better metric
-            indexValid = directoryReader.numDocs() > 0;
             numDocumentsInIndex = directoryReader.numDocs();
+            //TODO: find better metric
+            indexValid = numDocumentsInIndex > 0;
         } catch (IOException e) {
             indexValid = false;
         }
@@ -121,38 +120,12 @@ public class IndexingService {
         }
     }
 
-    private void readOrExtractVocabulary() {
-        try {
-            if (Files.exists(vocabularyPath)) {
-                System.out.println("Reading vocabulary");
-                IndexingUtils.readVocabulary(Files.newInputStream(vocabularyPath), vocabulary);
-            } else {
-                System.out.println("Extracting vocabulary from " + wikiXmlFile.getFilename());
-                IndexingUtils.extractVocabulary(wikiXmlFile.getInputStream(), vocabulary);
-                try (Writer w = new BufferedWriter(new FileWriter(vocabularyPath.toFile()))) {
-                    for (String s : vocabulary) {
-                        w.write(s);
-                        w.write("\n");
-                    }
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        } catch (IOException | XMLStreamException e) {
-            e.printStackTrace();
-        }
-        System.out.println(vocabulary.size() + " terms in dictionary");
-    }
-
 
     @Async
     public void start() throws InvalidWikiFileException {
         running.set(true);
         try {
-            if(vocabulary.isEmpty()) {
-                readOrExtractVocabulary();
-            }
-
+            // preload the vocabulary here if its not loaded yet
             numProcessedPages.set(0);
             documentSynonyms = new HashMap<>();
 
@@ -190,14 +163,14 @@ public class IndexingService {
         }
 
         try {
-            producer = new Thread(new WikiPageProducer(indexingTasks, vocabulary, wikiInputStream, numProcessedPages));
+            producer = new Thread(new WikiPageProducer(indexingTasks, wikiInputStream, numProcessedPages, indexingConsumerCount));
         } catch (IOException | XMLStreamException e) {
             throw new InvalidWikiFileException("Could not load Wiki XML file", e);
         }
         producer.start();
         consumers = new ArrayList<>();
-        for (int i = 0; i < Settings.CONSUMER_COUNT; i++) {
-            consumers.add(new Thread(new WikiPageIndexer(indexingTasks, indexWriter, vocabulary, documentSynonyms)));
+        for (int i = 0; i < indexingConsumerCount; i++) {
+            consumers.add(new Thread(new WikiPageIndexer(indexingTasks, indexWriter, vocabulary.getVocabularySet(), documentSynonyms, maxShingleSize)));
             consumers.get(consumers.size() - 1).start();
         }
     }
