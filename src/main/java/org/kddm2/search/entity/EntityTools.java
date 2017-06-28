@@ -1,7 +1,6 @@
 package org.kddm2.search.entity;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.kddm2.Settings;
 import org.kddm2.indexing.IndexingVocabulary;
 import org.kddm2.lucene.IndexingUtils;
 import org.kddm2.lucene.TokenOccurrence;
@@ -69,7 +68,7 @@ public class EntityTools {
 
     public List<EntityLink> cutoffCombinedWeightLinks(List<EntityLink> links, int maxLinkCount) {
         links.sort((left, right) -> Float.compare(right.getCombinedWeight(), left.getCombinedWeight()));
-        links = links.subList(0, maxLinkCount);
+        links = links.subList(0, Math.min(links.size(), maxLinkCount));
         return links;
     }
 

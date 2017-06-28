@@ -82,7 +82,7 @@ public class IndexTestSuite {
         Resource validationTestPages = resourceLoader.getResource(validationTestPagesPath);
         if (!validationTestPages.exists()) {
             System.out.println("Creating validation test pages");
-            int numPages = 80;
+            int numPages = 400;
             InputStream xmlInputStream = resourceLoader.getResource(dataSourcePath).getInputStream();
             WikiXmlReader reader = new WikiXmlReader(xmlInputStream);
             IndexingTestUtils utils = new IndexingTestUtils(reader);

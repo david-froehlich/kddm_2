@@ -19,7 +19,7 @@ import java.util.List;
 
 public class EntityIdentifierTest {
 
-    private static final float LINK_TO_WORD_COUNT_RATE = 0.05f;
+    private static final float LINK_TO_WORD_COUNT_RATE = 0.1f;
     private static final float MIN_STATS = 0.5f;
     private final TestIndexConfig config = IndexTestSuite.testIndexValidation;
 

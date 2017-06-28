@@ -18,11 +18,13 @@ import org.kddm2.lucene.IndexingUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.*;
 
 import static org.junit.Assert.assertNotEquals;
 
 public class EntityLinkerTest {
+    private static final float WEIGHT_RATIO = 1.0f;
     private TestIndexConfig validationConfig = IndexTestSuite.testIndexValidation;
     private TestIndexConfig fullConfig = IndexTestSuite.testIndexFull;
 
@@ -94,6 +96,67 @@ public class EntityLinkerTest {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
+
+    @Test
+    public void testIdentificationAndLinkingStats() throws Exception {
+        // use validation set for the test page, but the full index for the analysis
+        InputStream wikiInputStream = validationConfig.wikiXmlResource.getInputStream();
+        WikiXmlReader wikiXmlReader = new WikiXmlReader(wikiInputStream);
+
+        IndexStatsHelper indexHelper = new IndexStatsHelper(fullConfig.luceneDirectory);
+        EntityTools entityTools = new EntityTools(fullConfig.vocabulary, IndexTestSuite.testDefaultSettings.getMaxShingleSize());
+        EntityLinker entityLinker = new EntityLinker(fullConfig.luceneDirectory);
+        EntityWeightingAlgorithm algorithm = new EntityWeightingKeyphraseness(indexHelper, entityTools);
+
+        int i = 0;
+
+        List<ResultStats> pageStats = new ArrayList<>();
+        WikiPage nextPage;
+        while ((nextPage = wikiXmlReader.getNextPage()) != null) {
+            EntityWikiLinkExtractor entityExtractionTokenStream = IndexingUtils.createEntityExtractionTokenStream(nextPage.getText());
+            List<EntityCandidate> actualCandidates = entityExtractionTokenStream.getCandidates();
+            List<EntityLink> expectedLinks = entityExtractionTokenStream.getWikiLinks();
+            replaceRedirectLinksWithTargetPage(expectedLinks);
+            expectedLinks = deduplicateExpectedLinks(expectedLinks);
+
+            actualCandidates.sort(null);
+
+            EntityWeightingAlgorithm weightingAlgorithm = new EntityWeightingTFIDF(indexHelper, entityTools);
+            EntityIdentifier identifier = new EntityIdentifier(weightingAlgorithm, entityTools, 0.1f);
+            String plainText = IndexingUtils.getWikiPlainText(new StringReader(nextPage.getText()));
+
+            List<EntityCandidateWeighted> actualCandidatesWeighted = identifier.identifyEntities(plainText);
+
+            if(++i % 20 == 0) {
+                System.out.println(i);
+            }
+
+            List<EntityLink> actualLinks = entityLinker.identifyLinksForCandidates(actualCandidatesWeighted);
+            int wordCount = IndexingUtils.getWordCount(new StringReader(plainText));
+
+            int maxLinkCount = (int) (wordCount * 0.1f);
+            actualLinks = entityTools.cutoffCombinedWeightLinks(
+                    entityTools.calculateCombinedWeightsForEntityLinks(
+                            actualLinks, WEIGHT_RATIO), maxLinkCount);
+            actualLinks.sort(Comparator.comparingInt(o -> o.getEntity().getStartPos()));
+
+            ResultStats stats = getStats(expectedLinks, actualLinks);
+            pageStats.add(stats);
+        }
+
+        ResultStats mean = new ResultStats(0.0f, 0.0f);
+        for (ResultStats result : pageStats) {
+            mean.setPrecision(mean.getPrecision() + result.getPrecision() / pageStats.size());
+            mean.setRecall(mean.getRecall() + result.getRecall() / pageStats.size());
+        }
+
+        System.out.println("Mean stats over " + pageStats.size() + " pages:");
+        System.out.println(mean);
+
+        assert (mean.getRecall() > 0.3f);
+        assert (mean.getPrecision() > 0.3f);
+        assert (mean.getF1Score() > 0.3f);
     }
 
     @Test

@@ -25,7 +25,7 @@ public class IndexingTestUtils {
     public List<WikiPage> extractRandomTestPagesSet(int numPages, float optimalLinkRatio, float maxLinkRatioDistance) throws IOException, XMLStreamException {
         List<WikiPage> goodWikiPages = new LinkedList<>();
 
-        float minRand = 0.95f;
+        float minRand = 0.50f;
 
         WikiPage page = reader.getNextPage();
         while (numPages > 0) {
@@ -46,6 +46,7 @@ public class IndexingTestUtils {
             }
             page = reader.getNextPage();
             if (page == null) {
+                System.out.println("loopdyodoo");
                 reader.reset();
                 page = reader.getNextPage();
                 minRand = Math.max(0, minRand - 0.1f);
