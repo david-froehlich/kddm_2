@@ -52,4 +52,19 @@ public class EntityLink implements Comparable<EntityLink> {
     public int compareTo(EntityLink o) {
         return entity.compareTo(o.entity);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        EntityLink that = (EntityLink) o;
+
+        return entity != null ? entity.equals(that.entity) : that.entity == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return entity != null ? entity.hashCode() : 0;
+    }
 }

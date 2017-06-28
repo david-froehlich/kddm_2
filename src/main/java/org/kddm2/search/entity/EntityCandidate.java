@@ -51,9 +51,7 @@ public class EntityCandidate implements Comparable<EntityCandidate> {
 
     @Override
     public int hashCode() {
-        int result = startPos;
-        result = 31 * result + endPos;
-        return result;
+        return wholeContent != null ? wholeContent.hashCode() : 0;
     }
 
     @Override

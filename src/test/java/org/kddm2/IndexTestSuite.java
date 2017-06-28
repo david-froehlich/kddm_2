@@ -91,6 +91,7 @@ public class IndexTestSuite {
             //TODO: use spring resource for this
             WikiXmlWriter writer = new WikiXmlWriter(validationTestPages.getFile().getAbsolutePath());
             writer.writePages(extractedPages);
+            System.out.println("Validation test pages created");
         }
     }
 

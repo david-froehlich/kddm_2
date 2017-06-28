@@ -1,17 +1,24 @@
 package org.kddm2.search.entity;
 
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.junit.Test;
 import org.kddm2.IndexTestSuite;
+import org.kddm2.Settings;
 import org.kddm2.TestIndexConfig;
 import org.kddm2.indexing.IndexStatsHelper;
 import org.kddm2.indexing.WikiPage;
 import org.kddm2.indexing.xml.WikiXmlReader;
 import org.kddm2.lucene.IndexingUtils;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertNotEquals;
 
@@ -46,8 +53,47 @@ public class EntityLinkerTest {
         System.out.println(entityLinks);
     }
 
+    private void removeDeadLinks(List<EntityLink> links) {
+        try (IndexReader reader = DirectoryReader.open(fullConfig.luceneDirectory)) {
+            IndexSearcher searcher = new IndexSearcher(reader);
+
+            for (Iterator<EntityLink> link_iter = links.iterator(); link_iter.hasNext();) {
+                EntityLink link = link_iter.next();
+
+                Term docTerm = new Term(Settings.DOCUMENT_ID_FIELD_NAME, link.getTargets().get(0).getDocumentId());
+                TopDocs topDocs = searcher.search(new TermQuery(docTerm), 100);
+                if (topDocs.scoreDocs.length == 0) {
+                    link_iter.remove();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void replaceRedirectLinksWithTargetPage(List<EntityLink> links) {
-//        try (IndexReader reader = fullConfig.luceneDirectory)
+        try (IndexReader reader = DirectoryReader.open(fullConfig.luceneDirectory)) {
+            Set<String> fieldsToRetrieve = new HashSet<>();
+            fieldsToRetrieve.add(Settings.DOCUMENT_ID_FIELD_NAME);
+
+            IndexSearcher searcher = new IndexSearcher(reader);
+            for (EntityLink link : links) {
+                Term docTerm = new Term(Settings.REDIRECTS_FIELD_NAME, link.getTargets().get(0).getDocumentId());
+                TopDocs topDocs = searcher.search(new TermQuery(docTerm), 100);
+                if (topDocs.scoreDocs.length != 0) {
+                    int luceneDocId = topDocs.scoreDocs[0].doc;
+                    Document doc = searcher.doc(luceneDocId, fieldsToRetrieve);
+
+                    String[] docIdValues = doc.getValues(Settings.DOCUMENT_ID_FIELD_NAME);
+
+                    EntityLinkTarget newTarget = new EntityLinkTarget(docIdValues[0], luceneDocId, 0.0f);
+                    link.setTargets(Collections.singletonList(newTarget));
+                }
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Test
@@ -67,15 +113,24 @@ public class EntityLinkerTest {
             EntityWikiLinkExtractor entityExtractionTokenStream = IndexingUtils.createEntityExtractionTokenStream(nextPage.getText());
             List<EntityCandidate> actualCandidates = entityExtractionTokenStream.getCandidates();
             List<EntityLink> expectedLinks = entityExtractionTokenStream.getWikiLinks();
+            replaceRedirectLinksWithTargetPage(expectedLinks);
+            expectedLinks = deduplicateExpectedLinks(expectedLinks);
+
             actualCandidates.sort(null);
-            //TODO deduplicate expected links
+
             List<EntityCandidateWeighted> actualCandidatesWeighted = algorithm.determineWeightAndDeduplicate(actualCandidates);
             List<EntityLink> actualLinks = entityLinker.identifyLinksForCandidates(actualCandidatesWeighted);
             actualLinks.sort(Comparator.comparingInt(o -> o.getEntity().getStartPos()));
 
-            assertNotEquals(actualLinks.size(), 0);
+            //assertNotEquals(actualLinks.size(), 0);
 
             ResultStats stats = getStats(expectedLinks, actualLinks);
+
+            List<EntityLink> noDeadLinks = new ArrayList<>(expectedLinks);
+//            removeDeadLinks(noDeadLinks);
+            ResultStats stats2 = getStats(noDeadLinks, actualLinks);
+
+
             pageStats.add(stats);
         }
 
@@ -93,6 +148,16 @@ public class EntityLinkerTest {
         assert (mean.getF1Score() > 0.3f);
     }
 
+    private List<EntityLink> deduplicateExpectedLinks(List<EntityLink> expectedLinks) {
+        List<EntityLink> dedupLinks = new LinkedList<>();
+        for (EntityLink link : expectedLinks) {
+            if (!dedupLinks.contains(link)) {
+                dedupLinks.add(link);
+            }
+        }
+        return dedupLinks;
+    }
+
     private ResultStats getStats(List<EntityLink> expected, List<EntityLink> actual) {
         int truePositives = 0;
         for (EntityLink currentActual : actual) {
@@ -104,6 +169,18 @@ public class EntityLinkerTest {
                 }
             }
         }
-        return new ResultStats((float) truePositives / actual.size(), (float) truePositives / expected.size());
+        int actual_size = actual.size();
+        int expected_size = expected.size();
+
+        float precision = (float) truePositives / actual_size;
+        if (actual_size == 0) {
+            precision = 0.0f;
+        }
+
+        float recall = (float) truePositives / expected_size;
+        if (expected_size == 0) {
+            recall = 1.0f;
+        }
+        return new ResultStats(precision, recall);
     }
 }

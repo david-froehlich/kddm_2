@@ -88,7 +88,7 @@ public class IndexingService {
 
     private Document convertDocumentToWikiFieldDoc(Document document) {
         Document wikiFieldDoc = new Document();
-        for (IndexableField field : wikiFieldDoc.getFields()) {
+        for (IndexableField field : document.getFields()) {
             wikiFieldDoc.add(new WikiField(field.name(), field.stringValue()));
         }
         return wikiFieldDoc;

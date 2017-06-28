@@ -35,6 +35,11 @@ public class IndexingTestUtils {
             float linkRatio = uniqueLinkCount / (float) wordCount;
             float dist = Math.abs(linkRatio - optimalLinkRatio);
 
+            if(wordCount < 400) {
+                page = reader.getNextPage();
+                continue;
+            }
+
             if (dist < maxLinkRatioDistance && new Random().nextFloat() > minRand) {
                 goodWikiPages.add(page);
                 numPages--;
