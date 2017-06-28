@@ -107,7 +107,11 @@ public class EntityIdentifierTest {
                 truePositives++;
             }
         }
-        return (float) truePositives / actual.size();
+        if (actual.size() == 0) {
+            return 0;
+        } else {
+            return (float) truePositives / actual.size();
+        }
     }
 
     //TODO stem words and replace duplicates
@@ -120,7 +124,11 @@ public class EntityIdentifierTest {
                 truePositives++;
             }
         }
-        return (float) truePositives / expected.size();
+        if (expected.size() == 0) {
+            return 1;
+        } else {
+            return (float) truePositives / expected.size();
+        }
     }
 
 }

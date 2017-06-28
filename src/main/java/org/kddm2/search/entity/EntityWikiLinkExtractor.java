@@ -4,7 +4,7 @@ import org.apache.lucene.analysis.FilteringTokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
-import org.kddm2.indexing.wiki.WikipediaTokenizer;
+import org.kddm2.lucene.CustomWikipediaTokenizer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class EntityWikiLinkExtractor extends FilteringTokenFilter {
         int linkTextStart = 0;
         int linkTextEnd = 0;
         while (incrementToken()) {
-            if (WikipediaTokenizer.INTERNAL_LINK_TARGET.equals(typeAttribute.type())) {
+            if (CustomWikipediaTokenizer.INTERNAL_LINK_TARGET.equals(typeAttribute.type())) {
                 if (insideLink) {
                     EntityCandidate e = new EntityCandidate(linkTextStart, linkTextEnd, wholeString);
                     extractedLinks.add(new EntityLink(e, wholeString.substring(linkTargetStart, linkTargetEnd)));
@@ -53,7 +53,7 @@ public class EntityWikiLinkExtractor extends FilteringTokenFilter {
                 linkTextStart = linkTargetStart;
                 linkTextEnd = linkTargetEnd;
                 insideLink = true;
-            } else if (WikipediaTokenizer.INTERNAL_LINK.equals(typeAttribute.type())) {
+            } else if (CustomWikipediaTokenizer.INTERNAL_LINK.equals(typeAttribute.type())) {
                 insideLink = true;
                 linkTextStart = offsetAttribute.startOffset();
                 linkTextEnd = offsetAttribute.endOffset();

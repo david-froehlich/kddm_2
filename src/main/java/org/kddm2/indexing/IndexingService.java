@@ -78,7 +78,6 @@ public class IndexingService {
                 }
             }
             numDocumentsInIndex = directoryReader.numDocs();
-            //TODO: find better metric
             indexValid = numDocumentsInIndex > 0;
         } catch (IOException e) {
             indexValid = false;
@@ -97,8 +96,6 @@ public class IndexingService {
 
     /**
      * Writes all collected synonyms to the lucene index.
-     * TODO: batch this if out of memory
-     * or use mapdb set that caches to filesystem
      */
     @SuppressWarnings("Duplicates")
     private void writeSynonyms(IndexWriter indexWriter) {

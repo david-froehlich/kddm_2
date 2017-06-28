@@ -5,7 +5,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.junit.Assert;
 import org.junit.Test;
-import org.kddm2.indexing.wiki.WikipediaTokenizer;
+import org.kddm2.lucene.CustomWikipediaTokenizer;
 import org.kddm2.lucene.IndexingUtils;
 
 import java.io.IOException;
@@ -20,7 +20,7 @@ public class WikipediaParserTest {
         String exampleText = "before [[Testing wiki parsers|parser test]] after";
         System.out.println("Testing on this text:\n  " + exampleText);
         org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
-        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer customTokenizer = new CustomWikipediaTokenizer();
         System.out.println("\nTesting lucene tokenizer");
         testTokenizer(luceneTokenizer, exampleText);
         System.out.println("\nTesting our custom tokenizer");
@@ -41,7 +41,7 @@ public class WikipediaParserTest {
         String exampleText = "Hello this is a [[Testing nested links|nested [[Inner link target|inner link text]] still in outer link ]] notlink";
         System.out.println("Testing on this text:\n  " + exampleText);
         org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
-        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer customTokenizer = new CustomWikipediaTokenizer();
         System.out.println("\nTesting lucene tokenizer");
         testTokenizer(luceneTokenizer, exampleText);
         System.out.println("\nTesting our custom tokenizer");
@@ -53,7 +53,7 @@ public class WikipediaParserTest {
         String exampleText = "before [[\"Adam's apple\" (disambiguation)|link-text]] after";
         System.out.println("Testing on this text:\n  " + exampleText);
         org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
-        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer customTokenizer = new CustomWikipediaTokenizer();
         System.out.println("\nTesting lucene tokenizer");
         testTokenizer(luceneTokenizer, exampleText);
         System.out.println("\nTesting our custom tokenizer");
@@ -74,7 +74,7 @@ public class WikipediaParserTest {
         String exampleText = "before [[Testing simple links]] after";
         System.out.println("Testing on this text:\n  " + exampleText);
         org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
-        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer customTokenizer = new CustomWikipediaTokenizer();
         System.out.println("\nTesting lucene tokenizer");
         testTokenizer(luceneTokenizer, exampleText);
         System.out.println("\nTesting our custom tokenizer");
@@ -94,7 +94,7 @@ public class WikipediaParserTest {
         String exampleText = "before [[file:bernhard plockhorst - schutzengel.jpg|thumb|right|225|an angel watching over two [[children]] hell starts here.]] after";
         System.out.println("Testing on this text:\n  " + exampleText);
         org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
-        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer customTokenizer = new CustomWikipediaTokenizer();
         System.out.println("\nTesting lucene tokenizer");
         testTokenizer(luceneTokenizer, exampleText);
         System.out.println("\nTesting our custom tokenizer");
@@ -114,7 +114,7 @@ public class WikipediaParserTest {
         String exampleText = "before [[File:Bobby Robson Statue Closeup.jpg|thumb|right|upright|Statue of Robson at [[Portman Road]]]] after";
         System.out.println("Testing on this text:\n  " + exampleText);
         org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
-        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer customTokenizer = new CustomWikipediaTokenizer();
         System.out.println("\nTesting lucene tokenizer");
         testTokenizer(luceneTokenizer, exampleText);
         System.out.println("\nTesting our custom tokenizer");
@@ -134,7 +134,7 @@ public class WikipediaParserTest {
         String exampleText = "before {{admin|Kennedy|(former bureaucrat)}} after";
         System.out.println("Testing on this text:\n  " + exampleText);
         org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
-        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer customTokenizer = new CustomWikipediaTokenizer();
         System.out.println("\nTesting lucene tokenizer");
         testTokenizer(luceneTokenizer, exampleText);
         System.out.println("\nTesting our custom tokenizer");
@@ -154,7 +154,7 @@ public class WikipediaParserTest {
         String exampleText = "before [[Special:Contributions/46.18.183.34|46.18.183.34]] after";
         System.out.println("Testing on this text:\n  " + exampleText);
         org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
-        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer customTokenizer = new CustomWikipediaTokenizer();
         System.out.println("\nTesting lucene tokenizer");
         testTokenizer(luceneTokenizer, exampleText);
         System.out.println("\nTesting our custom tokenizer");
@@ -174,7 +174,7 @@ public class WikipediaParserTest {
         String exampleText = "before [[Category:Basic English 850 words]] after";
         System.out.println("Testing on this text:\n  " + exampleText);
         org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
-        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer customTokenizer = new CustomWikipediaTokenizer();
         System.out.println("\nTesting lucene tokenizer");
         testTokenizer(luceneTokenizer, exampleText);
         System.out.println("\nTesting our custom tokenizer");
@@ -197,7 +197,7 @@ public class WikipediaParserTest {
                 "}}\n after";
         System.out.println("Testing on this text:\n  " + exampleText);
         org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
-        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer customTokenizer = new CustomWikipediaTokenizer();
         System.out.println("\nTesting lucene tokenizer");
         testTokenizer(luceneTokenizer, exampleText);
         System.out.println("\nTesting our custom tokenizer");
@@ -216,7 +216,7 @@ public class WikipediaParserTest {
         String exampleText = "before [[file:bernhard plockhorst - schutzengel.jpg|thumb|right|225|an angel watching over two [[children|gremlins]] hell starts here.]] after";
         System.out.println("Testing on this text:\n  " + exampleText);
         org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
-        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer customTokenizer = new CustomWikipediaTokenizer();
         System.out.println("\nTesting lucene tokenizer");
         testTokenizer(luceneTokenizer, exampleText);
         System.out.println("\nTesting our custom tokenizer");
@@ -235,7 +235,7 @@ public class WikipediaParserTest {
         String exampleText = "before [[Image:bernhard plockhorst - schutzengel.jpg|thumb|right|225|an angel watching over two [[children|gremlins]] hell starts here.]] after";
         System.out.println("Testing on this text:\n  " + exampleText);
         org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
-        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer customTokenizer = new CustomWikipediaTokenizer();
         System.out.println("\nTesting lucene tokenizer");
         testTokenizer(luceneTokenizer, exampleText);
         System.out.println("\nTesting our custom tokenizer");
@@ -256,7 +256,7 @@ public class WikipediaParserTest {
                 ": ''for other uses of a, see [[a (disambiguation)]]''\n";
         System.out.println("Testing on this text:\n  " + exampleText);
         org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
-        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer customTokenizer = new CustomWikipediaTokenizer();
         System.out.println("\nTesting lucene tokenizer");
         testTokenizer(luceneTokenizer, exampleText);
         System.out.println("\nTesting our custom tokenizer");
@@ -282,17 +282,21 @@ public class WikipediaParserTest {
                 "            \"|[[File:Alpha uc lc.svg|65px|Greek alpha]]\\n\"+\n" +
                 "            \"|[[File:EtruscanA.svg|Etruscan A]]\\n\"+\n" +
                 "            \"|[[File:RomanA-01.svg|Roman A]]\\n\"+\n" +
-                "            \"|}\"";
+                "            \"|} after table stuff\"";
         org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
-        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer customTokenizer = new CustomWikipediaTokenizer();
         System.out.println("\nTesting lucene tokenizer");
         testTokenizer(luceneTokenizer, exampleText);
         System.out.println("\nTesting our custom tokenizer");
         List<TokenizerResult> tokenizerResults = testTokenizer(customTokenizer, exampleText);
-        for (TokenizerResult res : tokenizerResults) {
-            Assert.assertNotEquals("class", res.text);
-            Assert.assertNotEquals("style", res.text);
-        }
+
+        TokenizerResult[] expected = {
+                new TokenizerResult("n", "<ALPHANUM>"),
+                new TokenizerResult("after", "<ALPHANUM>"),
+                new TokenizerResult("table", "<ALPHANUM>"),
+                new TokenizerResult("stuff", "<ALPHANUM>")
+        };
+        Assert.assertArrayEquals(expected, tokenizerResults.toArray());
     }
 
 
@@ -301,7 +305,7 @@ public class WikipediaParserTest {
         //TODO: this stuff does not work yet
         String exampleText = "The earliest letter 'A' has appeared was in the Phoenician alphabet's [[aleph]].<ref name=\\\"Britannica\\\"/> This symbol came from a simple picture of an [[ox]] head. ";
         org.apache.lucene.analysis.wikipedia.WikipediaTokenizer luceneTokenizer = new org.apache.lucene.analysis.wikipedia.WikipediaTokenizer();
-        WikipediaTokenizer customTokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer customTokenizer = new CustomWikipediaTokenizer();
         System.out.println("\nTesting lucene tokenizer");
         testTokenizer(luceneTokenizer, exampleText);
         System.out.println("\nTesting our custom tokenizer");

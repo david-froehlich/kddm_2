@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.kddm2.indexing.wiki;
+package org.kddm2.lucene;
 
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import java.util.LinkedList;
@@ -26,7 +26,7 @@ import java.util.LinkedList;
 @SuppressWarnings("fallthrough")
 %%
 
-%class WikipediaTokenizerImpl
+%class CustomWikipediaTokenizerImpl
 %unicode
 %integer
 %function getNextToken
@@ -36,25 +36,25 @@ import java.util.LinkedList;
 
 %{
 
-public static final int ALPHANUM          = WikipediaTokenizer.ALPHANUM_ID;
-public static final int APOSTROPHE        = WikipediaTokenizer.APOSTROPHE_ID;
-public static final int ACRONYM           = WikipediaTokenizer.ACRONYM_ID;
-public static final int COMPANY           = WikipediaTokenizer.COMPANY_ID;
-public static final int EMAIL             = WikipediaTokenizer.EMAIL_ID;
-public static final int HOST              = WikipediaTokenizer.HOST_ID;
-public static final int NUM               = WikipediaTokenizer.NUM_ID;
-public static final int CJ                = WikipediaTokenizer.CJ_ID;
-public static final int INTERNAL_LINK     = WikipediaTokenizer.INTERNAL_LINK_ID;
-public static final int EXTERNAL_LINK     = WikipediaTokenizer.EXTERNAL_LINK_ID;
-public static final int CITATION          = WikipediaTokenizer.CITATION_ID;
-public static final int CATEGORY          = WikipediaTokenizer.CATEGORY_ID;
-public static final int BOLD              = WikipediaTokenizer.BOLD_ID;
-public static final int ITALICS           = WikipediaTokenizer.ITALICS_ID;
-public static final int BOLD_ITALICS      = WikipediaTokenizer.BOLD_ITALICS_ID;
-public static final int HEADING           = WikipediaTokenizer.HEADING_ID;
-public static final int SUB_HEADING       = WikipediaTokenizer.SUB_HEADING_ID;
-public static final int EXTERNAL_LINK_URL = WikipediaTokenizer.EXTERNAL_LINK_URL_ID;
-public static final int INTERNAL_LINK_TARGET     = WikipediaTokenizer.INTERNAL_LINK_TARGET_ID;
+public static final int ALPHANUM          = CustomWikipediaTokenizer.ALPHANUM_ID;
+public static final int APOSTROPHE        = CustomWikipediaTokenizer.APOSTROPHE_ID;
+public static final int ACRONYM           = CustomWikipediaTokenizer.ACRONYM_ID;
+public static final int COMPANY           = CustomWikipediaTokenizer.COMPANY_ID;
+public static final int EMAIL             = CustomWikipediaTokenizer.EMAIL_ID;
+public static final int HOST              = CustomWikipediaTokenizer.HOST_ID;
+public static final int NUM               = CustomWikipediaTokenizer.NUM_ID;
+public static final int CJ                = CustomWikipediaTokenizer.CJ_ID;
+public static final int INTERNAL_LINK     = CustomWikipediaTokenizer.INTERNAL_LINK_ID;
+public static final int EXTERNAL_LINK     = CustomWikipediaTokenizer.EXTERNAL_LINK_ID;
+public static final int CITATION          = CustomWikipediaTokenizer.CITATION_ID;
+public static final int CATEGORY          = CustomWikipediaTokenizer.CATEGORY_ID;
+public static final int BOLD              = CustomWikipediaTokenizer.BOLD_ID;
+public static final int ITALICS           = CustomWikipediaTokenizer.ITALICS_ID;
+public static final int BOLD_ITALICS      = CustomWikipediaTokenizer.BOLD_ITALICS_ID;
+public static final int HEADING           = CustomWikipediaTokenizer.HEADING_ID;
+public static final int SUB_HEADING       = CustomWikipediaTokenizer.SUB_HEADING_ID;
+public static final int EXTERNAL_LINK_URL = CustomWikipediaTokenizer.EXTERNAL_LINK_URL_ID;
+public static final int INTERNAL_LINK_TARGET     = CustomWikipediaTokenizer.INTERNAL_LINK_TARGET_ID;
 
 
 private int currentTokType;
@@ -66,7 +66,7 @@ private int numLinkToks = 0;
 //see https://issues.apache.org/jira/browse/LUCENE-1133
 private int numWikiTokensSeen = 0;
 
-public static final String [] TOKEN_TYPES = WikipediaTokenizer.TOKEN_TYPES;
+public static final String [] TOKEN_TYPES = CustomWikipediaTokenizer.TOKEN_TYPES;
 
 /**
 Returns the number of tokens seen inside a category or link, etc.
@@ -186,8 +186,13 @@ EXTERNAL_LINK = "["
 TWO_SINGLE_QUOTES = "'"{2}
 CITATION = "<ref>"
 CITATION_CLOSE = "</ref>"
+WEIRD_CITATION = "<ref name="
+WEIRD_CITATION_INLINE_CLOSE = "/>"
+WEIRD_CITATION_CLOSE = "</ref>"
 INFOBOX = {DOUBLE_BRACE}("I"|"i")nfobox_
 
+WIKITABLE = "{|"
+WIKITABLE_CLOSE = "|}"
 DOUBLE_BRACE = "{"{2}
 DOUBLE_BRACE_CLOSE = "}"{2}
 PIPE = "|"
@@ -199,6 +204,7 @@ DOUBLE_EQUALS = "="{2}
 %state INTERNAL_LINK_STATE_IGNORE
 %state INTERNAL_LINK_TEXT_STATE
 %state EXTERNAL_LINK_STATE
+%state WIKITABLE_STATE
 
 %state TWO_SINGLE_QUOTES_STATE
 %state THREE_SINGLE_QUOTES_STATE
@@ -229,6 +235,8 @@ DOUBLE_EQUALS = "="{2}
   {DOUBLE_EQUALS} {numWikiTokensSeen = 0; positionInc = 1; yybegin(DOUBLE_EQUALS_STATE); break;}
   {DOUBLE_BRACE} {numWikiTokensSeen = 0; positionInc = 1; currentTokType = CITATION; yybegin(DOUBLE_BRACE_STATE); break;}
   {CITATION} {numWikiTokensSeen = 0; positionInc = 1; currentTokType = CITATION; yybegin(DOUBLE_BRACE_STATE); break;}
+  {WEIRD_CITATION} {numWikiTokensSeen = 0; positionInc = 1; currentTokType = CITATION; yybegin(DOUBLE_BRACE_STATE); break;}
+  {WIKITABLE}  {numWikiTokensSeen = 0; positionInc = 1; currentTokType = CITATION; yybegin(WIKITABLE_STATE); break;}
   //ignore
   [^] |{INFOBOX}                                               {numWikiTokensSeen = 0;  positionInc = 1;  break;}
 }
@@ -315,8 +323,14 @@ DOUBLE_EQUALS = "="{2}
   {ALPHANUM} {yybegin(DOUBLE_BRACE_STATE); numWikiTokensSeen = 0; break; }
   {DOUBLE_BRACE_CLOSE} {yybegin(YYINITIAL);  break;}
   {CITATION_CLOSE} {yybegin(YYINITIAL);  break;}
+  {WEIRD_CITATION_INLINE_CLOSE} {yybegin(YYINITIAL);  break;}
   //ignore
   [^]                                               {  break;/* ignore */ }
+}
+
+<WIKITABLE_STATE>{
+    {WIKITABLE_CLOSE} {yybegin(YYINITIAL);  break;}
+    [^]                                               {  break;/* ignore */ }
 }
 
 <STRING> {

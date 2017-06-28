@@ -1,6 +1,7 @@
 package org.kddm2.indexing;
 
-import org.apache.lucene.document.Document;
+import org.apache.lucene.document.*;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.kddm2.Settings;
 import org.kddm2.lucene.WikiField;
@@ -21,7 +22,6 @@ public class WikiPageIndexer implements Runnable {
     // how often you want a log message (in pages)
     private static final int PRINT_INTERVAL = 500;
     private static AtomicInteger indexedPages = new AtomicInteger(0);
-
 
     private final Set<String> vocabulary;
     private final Map<String, Set<String>> documentSynonyms;

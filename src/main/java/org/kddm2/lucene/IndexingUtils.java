@@ -11,7 +11,6 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.kddm2.indexing.WikiPage;
-import org.kddm2.indexing.wiki.WikipediaTokenizer;
 import org.kddm2.indexing.xml.WikiXmlReader;
 import org.kddm2.search.entity.EntityWikiLinkExtractor;
 import org.slf4j.Logger;
@@ -67,7 +66,7 @@ public class IndexingUtils {
         int parsedPages = 0;
 
         WikiXmlReader reader = new WikiXmlReader(stream);
-        WikipediaTokenizer tokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer tokenizer = new CustomWikipediaTokenizer();
         TypeAttribute tAttr = tokenizer.addAttribute(TypeAttribute.class);
         CharTermAttribute cAttr = tokenizer.addAttribute(CharTermAttribute.class);
         tokenizer.reset();
@@ -79,7 +78,7 @@ public class IndexingUtils {
 
             while (tokenizer.incrementToken()) {
                 String type = tAttr.type();
-                if (type.equals(WikipediaTokenizer.INTERNAL_LINK) || type.equals(WikipediaTokenizer.INTERNAL_LINK_TARGET)) {
+                if (type.equals(CustomWikipediaTokenizer.INTERNAL_LINK) || type.equals(CustomWikipediaTokenizer.INTERNAL_LINK_TARGET)) {
                     String linkText = cAttr.toString().trim();
 
                     if (linkText.length() >= 2 && !SIMPLE_NUMBER_REGEX.matcher(linkText).matches()) {
@@ -136,7 +135,7 @@ public class IndexingUtils {
 
     public static TokenStream createWikiTokenizer(Reader reader, boolean keepInternalLinks) {
         //TODO: use lucene Analyzers to re-use these token streams. This could improve performance
-        WikipediaTokenizer tokenizer = new WikipediaTokenizer();
+        CustomWikipediaTokenizer tokenizer = new CustomWikipediaTokenizer();
         tokenizer.setReader(reader);
         TokenStream tokenStream = new WikiReplacerTokenFilter(tokenizer, keepInternalLinks);
         return new LowerCaseFilter(tokenStream);
@@ -146,7 +145,7 @@ public class IndexingUtils {
      * Extracts links from wiki markup text.
      */
     public static EntityWikiLinkExtractor createEntityExtractionTokenStream(String wikiPageText) {
-        org.kddm2.indexing.wiki.WikipediaTokenizer tokenizer = new org.kddm2.indexing.wiki.WikipediaTokenizer();
+        CustomWikipediaTokenizer tokenizer = new CustomWikipediaTokenizer();
         tokenizer.setReader(new StringReader(wikiPageText));
         TokenStream tokenStream = new WikiReplacerTokenFilter(tokenizer, true);
         return new EntityWikiLinkExtractor(tokenStream, wikiPageText);
@@ -173,7 +172,7 @@ public class IndexingUtils {
      * @return The plain text of the wiki page.
      */
     public static String getWikiPlainText(Reader reader) throws IOException {
-        Tokenizer wikipediaTokenizer = new WikipediaTokenizer();
+        Tokenizer wikipediaTokenizer = new CustomWikipediaTokenizer();
         wikipediaTokenizer.setReader(reader);
         TokenStream tokenStream = new WikiToPlaintextFilter(wikipediaTokenizer, true);
         StringBuilder plaintext = new StringBuilder();
@@ -185,10 +184,10 @@ public class IndexingUtils {
         boolean insideLink = false;
         String linkText = null;
         while (tokenStream.incrementToken()) {
-            if (WikipediaTokenizer.INTERNAL_LINK.equals(typeAttribute.type())) {
+            if (CustomWikipediaTokenizer.INTERNAL_LINK.equals(typeAttribute.type())) {
                 insideLink = true;
                 linkText = charTermAttribute.toString();
-            } else if (WikipediaTokenizer.INTERNAL_LINK_TARGET.equals(typeAttribute.type())) {
+            } else if (CustomWikipediaTokenizer.INTERNAL_LINK_TARGET.equals(typeAttribute.type())) {
                 // terminate existing link, if already inside it
                 if (insideLink) {
                     plaintext.append(linkText);

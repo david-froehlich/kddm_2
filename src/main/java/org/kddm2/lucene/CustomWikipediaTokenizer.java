@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.kddm2.indexing.wiki;
+package org.kddm2.lucene;
 
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.*;
@@ -27,12 +27,13 @@ import java.util.*;
 
 
 /**
- * Extension of StandardTokenizer that is aware of Wikipedia syntax.  It is based off of the
- * Wikipedia tutorial available at http://en.wikipedia.org/wiki/Wikipedia:Tutorial, but it may not be complete.
- *
- * @lucene.experimental
+ * Customization of the Lucene WikipediaTokenizer for this project.
+ * New features:
+ *  - Link target identification
+ *  - Better nesting support
+ *  - Ignores some special kinds of tokens we do not want
  */
-public final class WikipediaTokenizer extends Tokenizer {
+public final class CustomWikipediaTokenizer extends Tokenizer {
     public static final String INTERNAL_LINK = "il";
     public static final String INTERNAL_LINK_TARGET = "ilt";
     public static final String EXTERNAL_LINK = "el";
@@ -111,7 +112,7 @@ public final class WikipediaTokenizer extends Tokenizer {
     /**
      * A private instance of the JFlex-constructed scanner
      */
-    private final org.kddm2.indexing.wiki.WikipediaTokenizerImpl scanner;
+    private final org.kddm2.lucene.CustomWikipediaTokenizerImpl scanner;
     private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
     private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
     private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
@@ -123,38 +124,37 @@ public final class WikipediaTokenizer extends Tokenizer {
     private boolean first;
 
     /**
-     * Creates a new instance of the {@link org.apache.lucene.analysis.wikipedia.WikipediaTokenizer}. Attaches the
+     * Creates a new instance. Attaches the
      * <code>input</code> to a newly created JFlex scanner.
      */
-    public WikipediaTokenizer() {
+    public CustomWikipediaTokenizer() {
         this(TOKENS_ONLY, Collections.<String>emptySet());
     }
 
     /**
-     * Creates a new instance of the {@link org.apache.lucene.analysis.wikipedia.WikipediaTokenizer}.  Attaches the
+     * Creates a new instance.  Attaches the
      * <code>input</code> to a the newly created JFlex scanner.
      *
      * @param tokenOutput One of {@link #TOKENS_ONLY}, {@link #UNTOKENIZED_ONLY}, {@link #BOTH}
      */
-    public WikipediaTokenizer(int tokenOutput, Set<String> untokenizedTypes) {
-        this.scanner = new org.kddm2.indexing.wiki.WikipediaTokenizerImpl(this.input);
+    public CustomWikipediaTokenizer(int tokenOutput, Set<String> untokenizedTypes) {
+        this.scanner = new org.kddm2.lucene.CustomWikipediaTokenizerImpl(this.input);
         init(tokenOutput, untokenizedTypes);
     }
 
     /**
-     * Creates a new instance of the {@link org.apache.lucene.analysis.wikipedia.WikipediaTokenizer}.  Attaches the
-     * <code>input</code> to a the newly created JFlex scanner. Uses the given {@link org.apache.lucene.util.AttributeFactory}.
+     * Creates a new instance.  Attaches the <code>input</code> to a the newly created JFlex scanner.
+     * Uses the given {@link org.apache.lucene.util.AttributeFactory}.
      *
      * @param tokenOutput One of {@link #TOKENS_ONLY}, {@link #UNTOKENIZED_ONLY}, {@link #BOTH}
      */
-    public WikipediaTokenizer(AttributeFactory factory, int tokenOutput, Set<String> untokenizedTypes) {
+    public CustomWikipediaTokenizer(AttributeFactory factory, int tokenOutput, Set<String> untokenizedTypes) {
         super(factory);
-        this.scanner = new org.kddm2.indexing.wiki.WikipediaTokenizerImpl(this.input);
+        this.scanner = new org.kddm2.lucene.CustomWikipediaTokenizerImpl(this.input);
         init(tokenOutput, untokenizedTypes);
     }
 
     private void init(int tokenOutput, Set<String> untokenizedTypes) {
-        // TODO: cutover to enum
         if (tokenOutput != TOKENS_ONLY &&
                 tokenOutput != UNTOKENIZED_ONLY &&
                 tokenOutput != BOTH) {
@@ -179,10 +179,10 @@ public final class WikipediaTokenizer extends Tokenizer {
         clearAttributes();
         int tokenType = scanner.getNextToken();
 
-        if (tokenType == org.kddm2.indexing.wiki.WikipediaTokenizerImpl.YYEOF) {
+        if (tokenType == org.kddm2.lucene.CustomWikipediaTokenizerImpl.YYEOF) {
             return false;
         }
-        String type = org.kddm2.indexing.wiki.WikipediaTokenizerImpl.TOKEN_TYPES[tokenType];
+        String type = org.kddm2.lucene.CustomWikipediaTokenizerImpl.TOKEN_TYPES[tokenType];
         if (tokenOutput == TOKENS_ONLY || untokenizedTypes.contains(type) == false) {
             setupToken();
         } else if (tokenOutput == UNTOKENIZED_ONLY && untokenizedTypes.contains(type) == true) {
@@ -216,7 +216,7 @@ public final class WikipediaTokenizer extends Tokenizer {
         setupSavedToken(0, type);
         tmp.add(captureState());
         //while we can get a token and that token is the same type and we have not transitioned to a new wiki-item of the same type
-        while ((tmpTokType = scanner.getNextToken()) != org.kddm2.indexing.wiki.WikipediaTokenizerImpl.YYEOF && tmpTokType == tokenType && scanner.getNumWikiTokensSeen() > numSeen) {
+        while ((tmpTokType = scanner.getNextToken()) != org.kddm2.lucene.CustomWikipediaTokenizerImpl.YYEOF && tmpTokType == tokenType && scanner.getNumWikiTokensSeen() > numSeen) {
             int currPos = scanner.yychar();
             //append whitespace
             for (int i = 0; i < (currPos - lastPos); i++) {
@@ -228,14 +228,12 @@ public final class WikipediaTokenizer extends Tokenizer {
             numSeen++;
             lastPos = currPos + numAdded;
         }
-        //trim the buffer
-        // TODO: this is inefficient
         String s = buffer.toString().trim();
         termAtt.setEmpty().append(s);
         offsetAtt.setOffset(correctOffset(theStart), correctOffset(theStart + s.length()));
         flagsAtt.setFlags(UNTOKENIZED_TOKEN_FLAG);
         //The way the loop is written, we will have proceeded to the next token.  We need to pushback the scanner to lastPos
-        if (tmpTokType != org.kddm2.indexing.wiki.WikipediaTokenizerImpl.YYEOF) {
+        if (tmpTokType != org.kddm2.lucene.CustomWikipediaTokenizerImpl.YYEOF) {
             scanner.yypushback(scanner.yylength());
         }
         tokens = tmp.iterator();
@@ -257,7 +255,7 @@ public final class WikipediaTokenizer extends Tokenizer {
         int tmpTokType;
         int numSeen = 0;
         //while we can get a token and that token is the same type and we have not transitioned to a new wiki-item of the same type
-        while ((tmpTokType = scanner.getNextToken()) != org.kddm2.indexing.wiki.WikipediaTokenizerImpl.YYEOF && tmpTokType == tokenType && scanner.getNumWikiTokensSeen() > numSeen) {
+        while ((tmpTokType = scanner.getNextToken()) != org.kddm2.lucene.CustomWikipediaTokenizerImpl.YYEOF && tmpTokType == tokenType && scanner.getNumWikiTokensSeen() > numSeen) {
             int currPos = scanner.yychar();
             //append whitespace
             for (int i = 0; i < (currPos - lastPos); i++) {
@@ -268,13 +266,12 @@ public final class WikipediaTokenizer extends Tokenizer {
             lastPos = currPos + numAdded;
         }
         //trim the buffer
-        // TODO: this is inefficient
         String s = buffer.toString().trim();
         termAtt.setEmpty().append(s);
         offsetAtt.setOffset(correctOffset(theStart), correctOffset(theStart + s.length()));
         flagsAtt.setFlags(UNTOKENIZED_TOKEN_FLAG);
         //The way the loop is written, we will have proceeded to the next token.  We need to pushback the scanner to lastPos
-        if (tmpTokType != org.kddm2.indexing.wiki.WikipediaTokenizerImpl.YYEOF) {
+        if (tmpTokType != org.kddm2.lucene.CustomWikipediaTokenizerImpl.YYEOF) {
             scanner.yypushback(scanner.yylength());
         } else {
             tokens = null;
