@@ -46,6 +46,10 @@ public class EntityLinkerTest {
         System.out.println(entityLinks);
     }
 
+    private void replaceRedirectLinksWithTargetPage(List<EntityLink> links) {
+//        try (IndexReader reader = fullConfig.luceneDirectory)
+    }
+
     @Test
     public void testLinkingStats() throws Exception {
         // use validation set for the test page, but the full index for the analysis
@@ -64,7 +68,7 @@ public class EntityLinkerTest {
             List<EntityCandidate> actualCandidates = entityExtractionTokenStream.getCandidates();
             List<EntityLink> expectedLinks = entityExtractionTokenStream.getWikiLinks();
             actualCandidates.sort(null);
-
+            //TODO deduplicate expected links
             List<EntityCandidateWeighted> actualCandidatesWeighted = algorithm.determineWeightAndDeduplicate(actualCandidates);
             List<EntityLink> actualLinks = entityLinker.identifyLinksForCandidates(actualCandidatesWeighted);
             actualLinks.sort(Comparator.comparingInt(o -> o.getEntity().getStartPos()));

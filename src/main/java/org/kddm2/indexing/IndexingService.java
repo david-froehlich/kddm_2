@@ -3,11 +3,7 @@ package org.kddm2.indexing;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.StoredField;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.Term;
+import org.apache.lucene.index.*;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
@@ -15,6 +11,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.kddm2.DocumentSearchResult;
 import org.kddm2.Settings;
+import org.kddm2.lucene.WikiField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -45,6 +42,7 @@ public class IndexingService {
     private Directory indexDirectory;
     private IndexingVocabulary vocabulary;
     private Map<String, Set<String>> documentSynonyms;
+    private Map<String, Set<String>> redirects;
 
 
     public IndexingService(Directory indexDirectory,
@@ -58,6 +56,7 @@ public class IndexingService {
         this.indexingConsumerCount = indexingConsumerCount;
         this.maxShingleSize = maxShingleSize;
         documentSynonyms = new HashMap<>();
+        redirects = new HashMap<>();
     }
 
     public boolean isRunning() {
@@ -88,11 +87,20 @@ public class IndexingService {
         return new IndexingStatus(indexValid, numDocumentsInIndex, numProcessedPages.get(), indexingTasks.size(), isRunning());
     }
 
+    private Document convertDocumentToWikiFieldDoc(Document document) {
+        Document wikiFieldDoc = new Document();
+        for (IndexableField field : wikiFieldDoc.getFields()) {
+            wikiFieldDoc.add(new WikiField(field.name(), field.stringValue()));
+        }
+        return wikiFieldDoc;
+    }
+
     /**
      * Writes all collected synonyms to the lucene index.
      * TODO: batch this if out of memory
      * or use mapdb set that caches to filesystem
      */
+    @SuppressWarnings("Duplicates")
     private void writeSynonyms(IndexWriter indexWriter) {
         try (DirectoryReader directoryReader = DirectoryReader.open(indexWriter)) {
             IndexSearcher searcher = new IndexSearcher(directoryReader);
@@ -108,10 +116,10 @@ public class IndexingService {
                 if (topDocs.scoreDocs.length > 1) {
                     System.out.println("Error: Found multiple documents for docId " + docId);
                 }
-                Document doc = searcher.doc(topDocs.scoreDocs[0].doc);
+                Document doc = convertDocumentToWikiFieldDoc(searcher.doc(topDocs.scoreDocs[0].doc));
 
                 for (String synonym : entry.getValue()) {
-                    doc.add(new StoredField(Settings.SYNONYMS_FIELD_NAME, synonym, WikiPageIndexer.INDEX_FIELD_TYPE));
+                    doc.add(new WikiField(Settings.SYNONYMS_FIELD_NAME, synonym));
                 }
                 indexWriter.updateDocument(docTerm, doc);
             }
@@ -121,6 +129,35 @@ public class IndexingService {
         }
     }
 
+    @SuppressWarnings("Duplicates")
+    private void writeRedirects(IndexWriter indexWriter) {
+        try (DirectoryReader directoryReader = DirectoryReader.open(indexWriter)) {
+            IndexSearcher searcher = new IndexSearcher(directoryReader);
+
+            for (Map.Entry<String, Set<String>> entry : redirects.entrySet()) {
+                String docId = entry.getKey();
+                Term docTerm = new Term(Settings.DOCUMENT_ID_FIELD_NAME, docId);
+
+                TopDocs topDocs = searcher.search(new TermQuery(docTerm), 100);
+                if (topDocs.scoreDocs.length == 0) {
+                    continue;
+                }
+                if (topDocs.scoreDocs.length > 1) {
+                    System.out.println("Error: Found multiple documents for docId " + docId);
+                }
+                Document doc = convertDocumentToWikiFieldDoc(searcher.doc(topDocs.scoreDocs[0].doc));
+
+                for (String synonym : entry.getValue()) {
+                    doc.add(new WikiField(Settings.REDIRECTS_FIELD_NAME, synonym));
+                }
+                indexWriter.updateDocument(docTerm, doc);
+            }
+            directoryReader.close();
+            indexWriter.commit();
+        } catch (IOException e) {
+            LOG.error("Could not write redirects to lucene index", e);
+        }
+    }
 
     @Async
     public void start() throws InvalidWikiFileException {
@@ -141,10 +178,16 @@ public class IndexingService {
             for (Thread thread : consumers) {
                 thread.join();
             }
+
+            LOG.info("Writing collected redirects");
+            writeRedirects(indexWriter);
+            redirects.clear();
+
             LOG.info("Writing collected synonyms");
             writeSynonyms(indexWriter);
-            indexWriter.close();
             documentSynonyms.clear();
+
+            indexWriter.close();
             LOG.info("Indexing took " + (System.currentTimeMillis() - start) / 1000 + " seconds");
         } catch (InterruptedException | IOException e) {
             LOG.error("Exception while indexing:", e);
@@ -170,7 +213,7 @@ public class IndexingService {
         producer.start();
         consumers = new ArrayList<>();
         for (int i = 0; i < indexingConsumerCount; i++) {
-            consumers.add(new Thread(new WikiPageIndexer(indexingTasks, indexWriter, vocabulary.getVocabularySet(), documentSynonyms, maxShingleSize)));
+            consumers.add(new Thread(new WikiPageIndexer(indexingTasks, indexWriter, vocabulary.getVocabularySet(), documentSynonyms, redirects, maxShingleSize)));
             consumers.get(consumers.size() - 1).start();
         }
     }

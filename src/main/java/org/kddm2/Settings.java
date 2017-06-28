@@ -18,6 +18,7 @@ public class Settings {
     // name of lucene field that stores linked terms
     public final static String TERM_LINKING_FIELD_NAME = "term_linking";
     public final static String SYNONYMS_FIELD_NAME = "synonyms";
+    public final static String REDIRECTS_FIELD_NAME = "redirects";
     public final static String DOCUMENT_ID_FIELD_NAME = "document_id";
     //---------------------
 
