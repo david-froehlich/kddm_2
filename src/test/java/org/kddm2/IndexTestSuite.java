@@ -44,8 +44,8 @@ public class IndexTestSuite {
     // this is here so we can run single tests
     static {
         try {
-            createLuceneIndices();
             testDefaultSettings = new Settings(null, null, 5, 5, 0.5f);
+            createLuceneIndices();
         } catch (Exception | InvalidWikiFileException e) {
             e.printStackTrace();
         }

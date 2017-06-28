@@ -27,15 +27,16 @@ public class Settings {
     private  int maxShingleSize;
     private  float entityCutoffRateAfterIdentification;
 
-//    public Settings(Resource wikiXmlFile, Resource vocabularyFile, int indexingConsumerCount, int maxShingleSize, float entityCutoffRateAfterIdentification) {
-//        this.wikiXmlFile = wikiXmlFile;
-//        this.vocabularyFile = vocabularyFile;
-//        this.indexingConsumerCount = indexingConsumerCount;
-//        this.maxShingleSize = maxShingleSize;
-//        this.entityCutoffRateAfterIdentification = entityCutoffRateAfterIdentification;
-//    }
+    public Settings() {
+    }
 
-
+    public Settings(Resource wikiXmlFile, Resource vocabularyFile, int indexingConsumerCount, int maxShingleSize, float entityCutoffRateAfterIdentification) {
+        this.wikiXmlFile = wikiXmlFile;
+        this.vocabularyFile = vocabularyFile;
+        this.indexingConsumerCount = indexingConsumerCount;
+        this.maxShingleSize = maxShingleSize;
+        this.entityCutoffRateAfterIdentification = entityCutoffRateAfterIdentification;
+    }
 
     public Resource getWikiXmlFile() {
         return wikiXmlFile;

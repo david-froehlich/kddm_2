@@ -94,7 +94,7 @@ public class EntityLinkerTest {
         for (EntityLink currentActual : actual) {
             for (EntityLink currentExpected : expected) {
                 if (currentActual.getEntity().equals(currentExpected.getEntity())) {
-                    if (currentExpected.getTargets().get(0).getDocumentId().equals(currentActual.getTargets().get(0).getDocumentId())) {
+                    if (currentExpected.getTargets().get(0).getDocumentId().equalsIgnoreCase(currentActual.getTargets().get(0).getDocumentId())) {
                         truePositives++;
                     }
                 }
