@@ -15,6 +15,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -42,28 +43,38 @@ public class MainController {
         this.entityTools = entityTools;
     }
 
+//    /**
+//     * Provides a list of endpoints for documentation.
+//     */
+//    @GetMapping("/")
+//    public List<RESTEndpoint> index() {
+//        List<RESTEndpoint> endpoints = new ArrayList<>();
+//        for (RequestMappingHandlerMapping mapping :
+//                mappings) {
+//            if (!(mapping instanceof EndpointHandlerMapping)) {
+//                Map<RequestMappingInfo, HandlerMethod> handlerMethods = mapping.getHandlerMethods();
+//                handlerMethods.forEach((requestMappingInfo, handlerMethod) -> {
+//                            if (!requestMappingInfo.getMethodsCondition().isEmpty()) {
+//                                endpoints.add(new RESTEndpoint(requestMappingInfo.getPatternsCondition().getPatterns(),
+//                                        requestMappingInfo.getMethodsCondition().getMethods().stream()
+//                                                .map(Enum::toString).collect(Collectors.toSet())));
+//                            }
+//                        }
+//                );
+//            }
+//        }
+//        return endpoints;
+//    }
+
+
     /**
-     * Provides a list of endpoints for documentation.
+     * Redirects to the UI.
      */
     @GetMapping("/")
-    public List<RESTEndpoint> index() {
-        List<RESTEndpoint> endpoints = new ArrayList<>();
-        for (RequestMappingHandlerMapping mapping :
-                mappings) {
-            if (!(mapping instanceof EndpointHandlerMapping)) {
-                Map<RequestMappingInfo, HandlerMethod> handlerMethods = mapping.getHandlerMethods();
-                handlerMethods.forEach((requestMappingInfo, handlerMethod) -> {
-                            if (!requestMappingInfo.getMethodsCondition().isEmpty()) {
-                                endpoints.add(new RESTEndpoint(requestMappingInfo.getPatternsCondition().getPatterns(),
-                                        requestMappingInfo.getMethodsCondition().getMethods().stream()
-                                                .map(Enum::toString).collect(Collectors.toSet())));
-                            }
-                        }
-                );
-            }
-        }
-        return endpoints;
+    public void index(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/static/index.html");
     }
+
 
     @GetMapping("/indexing/start")
     public String startIndexing() throws InvalidWikiFileException {
