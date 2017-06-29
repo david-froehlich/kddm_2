@@ -46,8 +46,8 @@ public class EntityIdentifier {
 
         int wordCount = IndexingUtils.getWordCount(new StringReader(text));
 
-        int returnedEntityCount = Math.min((int) Math.ceil(wordCount * entityRate)
-                , weighted.size());
+        int returnedEntityCount = Math.min(Math.min((int) Math.ceil(wordCount * entityRate)
+                , weighted.size()), 800);
 
         List<EntityCandidateWeighted> chosenCandidates = new ArrayList<>(returnedEntityCount);
 

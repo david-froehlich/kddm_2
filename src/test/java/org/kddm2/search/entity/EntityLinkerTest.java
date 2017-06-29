@@ -24,7 +24,10 @@ import java.util.*;
 import static org.junit.Assert.assertNotEquals;
 
 public class EntityLinkerTest {
-    private static final float WEIGHT_RATIO = 1.0f;
+    private static final float WEIGHT_RATIO = 0.0f;
+    private static final float CUTOFF_AFTER_LINKING = 0.05f;
+    private static final float CUTOFF_AFTER_IDENTIFICATION = 0.1f;
+
     private TestIndexConfig validationConfig = IndexTestSuite.testIndexValidation;
     private TestIndexConfig fullConfig = IndexTestSuite.testIndexFull;
 
@@ -107,7 +110,6 @@ public class EntityLinkerTest {
         IndexStatsHelper indexHelper = new IndexStatsHelper(fullConfig.luceneDirectory);
         EntityTools entityTools = new EntityTools(fullConfig.vocabulary, IndexTestSuite.testDefaultSettings.getMaxShingleSize());
         EntityLinker entityLinker = new EntityLinker(fullConfig.luceneDirectory);
-        EntityWeightingAlgorithm algorithm = new EntityWeightingKeyphraseness(indexHelper, entityTools);
 
         int i = 0;
 
@@ -115,27 +117,24 @@ public class EntityLinkerTest {
         WikiPage nextPage;
         while ((nextPage = wikiXmlReader.getNextPage()) != null) {
             EntityWikiLinkExtractor entityExtractionTokenStream = IndexingUtils.createEntityExtractionTokenStream(nextPage.getText());
-            List<EntityCandidate> actualCandidates = entityExtractionTokenStream.getCandidates();
             List<EntityLink> expectedLinks = entityExtractionTokenStream.getWikiLinks();
             replaceRedirectLinksWithTargetPage(expectedLinks);
             expectedLinks = deduplicateExpectedLinks(expectedLinks);
 
-            actualCandidates.sort(null);
-
-            EntityWeightingAlgorithm weightingAlgorithm = new EntityWeightingTFIDF(indexHelper, entityTools);
-            EntityIdentifier identifier = new EntityIdentifier(weightingAlgorithm, entityTools, 0.1f);
+            EntityWeightingAlgorithm weightingAlgorithm = new EntityWeightingKeyphraseness(indexHelper, entityTools);
+            EntityIdentifier identifier = new EntityIdentifier(weightingAlgorithm, entityTools, CUTOFF_AFTER_IDENTIFICATION);
             String plainText = IndexingUtils.getWikiPlainText(new StringReader(nextPage.getText()));
 
             List<EntityCandidateWeighted> actualCandidatesWeighted = identifier.identifyEntities(plainText);
-
+            System.out.println(actualCandidatesWeighted.size());
             if(++i % 20 == 0) {
-                System.out.println(i);
+                System.out.println("i " + i);
             }
 
             List<EntityLink> actualLinks = entityLinker.identifyLinksForCandidates(actualCandidatesWeighted);
             int wordCount = IndexingUtils.getWordCount(new StringReader(plainText));
 
-            int maxLinkCount = (int) (wordCount * 0.1f);
+            int maxLinkCount = (int) (wordCount * CUTOFF_AFTER_LINKING);
             actualLinks = entityTools.cutoffCombinedWeightLinks(
                     entityTools.calculateCombinedWeightsForEntityLinks(
                             actualLinks, WEIGHT_RATIO), maxLinkCount);
