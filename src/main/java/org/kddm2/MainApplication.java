@@ -34,6 +34,7 @@ public class MainApplication extends WebMvcConfigurerAdapter {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/static/**").addResourceLocations("/static/");
+        registry.addResourceHandler("/favicon.ico").addResourceLocations("/static/favicon.ico");
     }
 
     @Bean
