@@ -1,4 +1,4 @@
-var WIKIPEDIA_BASEURL = "http://simple.wikipedia.org/wiki/";
+var WIKIPEDIA_BASEURL = "http://simple.m.wikipedia.org/wiki/";
 
 var content;
 function wikify() {
